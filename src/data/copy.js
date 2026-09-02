@@ -14,9 +14,37 @@ export const copy = {
     hero: {
       eyebrow: 'اشحن طاقتك',
       title: 'تقنية تلمع بقدر ما تشتغل.',
-      subtitle: 'إكسسوارات تقنية مختارة بعناية — مو مخزن ضخم، بس أفضل القطع.',
-      cta: 'تسوق الآن',
-      secondaryCta: 'استكشف المنتجات'
+      subtitle: 'هواتف مختارة بعناية، بكل الألوان والسعات — وبأسعار واضحة من أول نظرة.',
+      cta: 'تسوق الهواتف',
+      secondaryCta: 'استكشف كل المنتجات'
+    },
+    spotlight: {
+      label: 'الأضواء',
+      cta: 'اعرف أكثر'
+    },
+    bento: {
+      title: 'ليش تشتري من فولتا؟',
+      speed: {
+        title: 'يفتح فورًا',
+        body: 'الموقع كامل أخف من صورة وحدة. بدون انتظار، بدون شاشة بيضاء.'
+      },
+      arabic: {
+        title: 'عربي من الأساس',
+        body: 'مو ترجمة متأخرة — التصميم كله مبني من اليمين لليسار، والإنجليزي خيار.'
+      },
+      colors: {
+        title: 'كل لون بصفحة وحدة',
+        body: 'الهاتف يظهر مرة وحدة، وتختار لونه وسعته منه — بدون ما تدور بين نسخ مكررة.'
+      },
+      warranty: {
+        title: 'ضمان سنة كاملة',
+        body: 'على كل جهاز، بدون شروط معقدة وبدون أسئلة.'
+      }
+    },
+    closing: {
+      title: 'جاهز تبدأ؟',
+      subtitle: 'أسرع طريقة تشتري هاتفك الجديد في الكويت.',
+      cta: 'تصفح الهواتف'
     },
     categories: {
       title: 'تسوق حسب الفئة',
@@ -143,9 +171,37 @@ export const copy = {
     hero: {
       eyebrow: 'Power Up',
       title: 'Tech that glows as hard as it works.',
-      subtitle: 'Curated tech accessories — not a warehouse, just the good stuff.',
-      cta: 'Shop Now',
-      secondaryCta: 'Explore Products'
+      subtitle: 'Carefully chosen phones — every colour, every size, every price in plain sight.',
+      cta: 'Shop Phones',
+      secondaryCta: 'Explore Everything'
+    },
+    spotlight: {
+      label: 'Spotlight',
+      cta: 'Learn more'
+    },
+    bento: {
+      title: 'Why buy from VOLTA?',
+      speed: {
+        title: 'Opens instantly',
+        body: 'The entire site weighs less than a single photograph. No waiting, no white screen.'
+      },
+      arabic: {
+        title: 'Arabic by default',
+        body: 'Not a bolted-on translation — the layout is built right-to-left first, and English is the option.'
+      },
+      colors: {
+        title: 'One phone, one page',
+        body: 'Pick the colour and the size on the product itself, instead of hunting through duplicate listings.'
+      },
+      warranty: {
+        title: 'A full year of warranty',
+        body: 'On every device. No complicated conditions, no questions.'
+      }
+    },
+    closing: {
+      title: 'Ready when you are.',
+      subtitle: 'The fastest way to buy your next phone in Kuwait.',
+      cta: 'Browse phones'
     },
     categories: {
       title: 'Shop by Category',

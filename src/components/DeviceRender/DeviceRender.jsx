@@ -64,15 +64,19 @@ export default function DeviceRender({
   const moduleTint = finish.dark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)';
   const lens = finish.dark ? '#0A0A0B' : '#242428';
 
-  // A foldable is simply a wider body — same drawing, different proportions.
-  const bodyW = wide ? 48 : 32;
-  const bodyX = (72 - bodyW) / 2;
+  // Proportions matter: at 3.3:1 the render read as a remote control rather than
+  // a phone. A modern handset is close to 2.1:1 (the 17 Pro Max is 163x78mm), and
+  // an unfolded foldable is nearly square, so the canvas widens for those rather
+  // than squeezing a tablet into a phone-shaped box.
+  const vbW = wide ? 116 : 72;
+  const bodyW = wide ? 92 : 51;
+  const bodyX = (vbW - bodyW) / 2;
 
   return (
     <svg
       width={size}
-      height={(size * 116) / 72}
-      viewBox="0 0 72 116"
+      height={(size * 116) / vbW}
+      viewBox={`0 0 ${vbW} 116`}
       className={className}
       role="img"
       aria-label={finish.name.en}
@@ -96,19 +100,30 @@ export default function DeviceRender({
         strokeWidth="1.1"
       />
 
-      {/* one soft sheen, so the body reads as a surface rather than a flat shape */}
+      {/* One narrow sheen down the edge. Kept to ~8% of the body width: at 28% it
+          read as a painted stripe rather than light falling across a surface. */}
       <rect
-        x={bodyX + 3}
-        y="46"
-        width={wide ? 16 : 9}
-        height="52"
-        rx="5"
+        x={bodyX + bodyW * 0.09}
+        y={44}
+        width={bodyW * 0.08}
+        height={54}
+        rx={3}
         fill="#FFFFFF"
-        opacity="0.06"
+        opacity="0.05"
       />
 
       {/* fold seam, foldables only */}
-      {wide && <line x1="36" y1="8" x2="36" y2="108" stroke={stroke} strokeWidth="0.8" opacity="0.65" />}
+      {wide && (
+        <line
+          x1={vbW / 2}
+          y1={8}
+          x2={vbW / 2}
+          y2={108}
+          stroke={stroke}
+          strokeWidth="0.8"
+          opacity="0.55"
+        />
+      )}
 
       {/* x and y must be numbers, not JSX string attributes: the module offsets
           its lenses with y + 6, and "11" + 6 concatenates to "116". */}

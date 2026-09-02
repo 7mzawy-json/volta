@@ -3,6 +3,24 @@
 :root {
   --font-heading: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
   --font-body: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+
+  /* Display scale — editorial sizes for the marketing surfaces, above the UI
+     scale in design-tokens.css (which stops at 3.25rem, the right ceiling for
+     interface text but far too quiet for a hero).
+     Fluid rather than stepped: these interpolate between the phone and desktop
+     tiers instead of jumping at a breakpoint, so a headline never lands at an
+     awkward size on the widths between them. */
+  --display-xl: clamp(2.75rem, 1.6rem + 5.6vw, 6.5rem);
+  --display-lg: clamp(2.25rem, 1.5rem + 3.6vw, 4.5rem);
+  --display-md: clamp(1.75rem, 1.3rem + 2.1vw, 3rem);
+
+  /* Display type needs tighter tracking and leading than body copy: at 6.5rem
+     the default spacing reads as loose and the lines drift apart. */
+  --display-leading: 1.04;
+  --display-tracking: -0.022em;
+
+  /* Vertical rhythm for full-width marketing sections. */
+  --section-gap: clamp(72px, 9vw, 160px);
 }
 
 *,

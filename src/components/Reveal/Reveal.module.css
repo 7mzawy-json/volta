@@ -1,0 +1,27 @@
+/* Rise-and-fade. Deliberately small: 18px, not a slide across the screen —
+   movement should suggest the content settling into place, not perform. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms var(--motion-ease-standard),
+              transform 700ms var(--motion-ease-standard);
+  will-change: opacity, transform;
+}
+
+.shown {
+  opacity: 1;
+  transform: none;
+  /* Dropped once the animation is done so long pages do not hold dozens of
+     promoted layers. */
+  will-change: auto;
+}
+
+/* Belt and braces alongside the JS check: if the transition never runs, the
+   content must still be visible rather than stuck at opacity 0. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

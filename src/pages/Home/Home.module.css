@@ -1,79 +1,201 @@
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding-block: 40px 56px;
+/* Homepage.
+   Editorial rather than app-like: full-bleed panels, one idea per screen, and a
+   type scale several steps above the interface. Restraint is the point — the
+   neon stays a signal, not a wash, so the products carry the colour. */
+
+.page {
+  overflow-x: hidden;
 }
 
-.heroText {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 18px;
+/* --- hero ---------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  padding-block: clamp(56px, 9vw, 120px) var(--section-gap);
+  isolation: isolate;
+}
+
+/* A single soft bloom behind the device. Sized in vw so it scales with the
+   headline rather than sitting as a fixed blob on wide screens. */
+.heroGlow {
+  position: absolute;
+  z-index: -1;
+  top: 12%;
+  inset-inline-end: 8%;
+  width: min(46vw, 560px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.16) 0%, transparent 68%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.heroInner {
+  display: grid;
+  gap: clamp(32px, 5vw, 56px);
+  align-items: center;
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--color-primary);
   font-weight: 700;
   font-size: var(--primitive-fontSize-sm);
   letter-spacing: 0.04em;
+  margin-bottom: 18px;
 }
 
-.title {
-  font-size: var(--primitive-fontSize-4xl);
-  line-height: 1.2;
-  max-width: 14ch;
+.heroTitle {
+  font-size: var(--display-xl);
+  line-height: var(--display-leading);
+  letter-spacing: var(--display-tracking);
+  /* Headlines are held short deliberately: a display line that runs the full
+     width of a desktop reads as a paragraph, not a statement. */
+  max-width: 15ch;
+  margin-bottom: 22px;
 }
 
-.subtitle {
+.heroSubtitle {
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.375rem);
+  line-height: 1.55;
   color: var(--color-muted-foreground);
-  font-size: var(--primitive-fontSize-lg);
-  max-width: 42ch;
+  max-width: 46ch;
+  margin-bottom: 34px;
 }
 
-.ctaRow {
+.heroActions {
   display: flex;
-  gap: 14px;
   flex-wrap: wrap;
-  margin-top: 8px;
+  gap: 14px;
 }
 
 .heroVisual {
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.65));
+}
+
+/* The render carries an intrinsic width attribute; overriding it here lets the
+   device scale with the viewport instead of dominating a narrow one.
+   height:auto keeps the 2.08:1 body proportion intact. */
+.heroVisual svg,
+.spotlightVisual svg {
+  width: clamp(140px, 30vw, 260px);
+  height: auto;
+}
+
+/* --- spotlight ----------------------------------------------------------- */
+
+.spotlight {
   position: relative;
+  padding-block: var(--section-gap);
+  border-top: 1px solid var(--box-border);
+  isolation: isolate;
+}
+
+.spotlightInner {
+  display: grid;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.spotlightLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: var(--primitive-fontSize-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 14px;
+}
+
+.spotlightTitle {
+  font-size: var(--display-lg);
+  line-height: var(--display-leading);
+  letter-spacing: var(--display-tracking);
+  margin-bottom: 18px;
+}
+
+.spotlightBody {
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--color-muted-foreground);
+  max-width: 44ch;
+  margin-bottom: 22px;
+}
+
+.spotlightPrice {
+  font-size: var(--primitive-fontSize-2xl);
+  font-weight: 700;
+  margin-bottom: 28px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fromLabel {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+}
+
+.spotlightActions {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 220px;
-  color: var(--color-primary);
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.glowCircle {
-  position: absolute;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(57, 255, 20, 0.18), transparent 70%);
-  filter: blur(4px);
+.colorDots {
+  display: inline-flex;
+  gap: 7px;
 }
+
+.colorDot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.spotlightVisual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
+}
+
+.spotlightGlow {
+  position: absolute;
+  z-index: -1;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: min(38vw, 420px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.13) 0%, transparent 66%);
+  pointer-events: none;
+}
+
+/* --- shared sections ----------------------------------------------------- */
 
 .section {
-  padding-block: 48px;
-  border-top: 1px solid var(--color-border);
+  padding-block: var(--section-gap);
+  border-top: 1px solid var(--box-border);
+}
+
+.sectionTitle {
+  font-size: var(--display-md);
+  line-height: 1.15;
+  letter-spacing: var(--display-tracking);
+  margin-bottom: 34px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.sectionTitle {
-  font-size: var(--primitive-fontSize-2xl);
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 34px;
 }
 
 .sectionHeader .sectionTitle {
@@ -84,7 +206,56 @@
   color: var(--color-primary);
   font-weight: 600;
   font-size: var(--primitive-fontSize-sm);
+  white-space: nowrap;
 }
+
+.viewAll:hover {
+  text-decoration: underline;
+}
+
+/* --- bento --------------------------------------------------------------- */
+
+.bento {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.tile {
+  position: relative;
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius, 14px);
+  padding: clamp(22px, 3vw, 34px);
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.tile:hover {
+  border-color: var(--color-primary);
+}
+
+.tileTitle {
+  font-size: var(--primitive-fontSize-xl);
+  margin-bottom: 10px;
+}
+
+.tileBody {
+  color: var(--color-muted-foreground);
+  line-height: 1.6;
+  max-width: 52ch;
+}
+
+/* The one number worth shouting. Sits large and quiet rather than in a badge. */
+.tileStat {
+  margin-top: 18px;
+  font-size: var(--display-md);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: var(--display-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- categories ---------------------------------------------------------- */
 
 .categoryGrid {
   display: grid;
@@ -96,100 +267,126 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 24px 12px;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px 16px;
   background: var(--box-bg);
   border: 1px solid var(--box-border);
-  border-radius: var(--box-radius);
+  border-radius: var(--box-radius, 14px);
   color: var(--color-foreground);
   font-weight: 600;
-  text-align: center;
   transition: border-color var(--motion-hover) var(--motion-ease-standard),
-    background var(--motion-hover) var(--motion-ease-standard),
-    box-shadow var(--motion-hover) var(--motion-ease-standard);
+              color var(--motion-hover) var(--motion-ease-standard),
+              transform var(--motion-hover) var(--motion-ease-standard);
 }
 
-.categoryTile svg {
+.categoryTile:hover {
+  border-color: var(--color-primary);
   color: var(--color-primary);
+  transform: translateY(-2px);
 }
+
+/* --- featured ------------------------------------------------------------ */
 
 .productGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 14px;
 }
 
-.trustGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+/* --- closing ------------------------------------------------------------- */
+
+.closing {
+  position: relative;
+  padding-block: var(--section-gap);
+  border-top: 1px solid var(--box-border);
+  text-align: center;
+  isolation: isolate;
 }
 
-.trustCard {
-  background: var(--box-bg);
-  border: 1px solid var(--box-border);
-  border-radius: var(--box-radius);
-  padding: 24px;
+.closingGlow {
+  position: absolute;
+  z-index: -1;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: min(70vw, 760px);
+  aspect-ratio: 2 / 1;
+  background: radial-gradient(ellipse, rgba(57, 255, 20, 0.12) 0%, transparent 68%);
+  pointer-events: none;
 }
 
-.trustCard h3 {
-  font-size: var(--primitive-fontSize-lg);
-  margin-block: 10px 8px;
+.closingInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.trustCard p {
+.closingTitle {
+  font-size: var(--display-lg);
+  line-height: var(--display-leading);
+  letter-spacing: var(--display-tracking);
+  margin-bottom: 16px;
+}
+
+.closingSubtitle {
   color: var(--color-muted-foreground);
-  font-size: var(--primitive-fontSize-sm);
-  line-height: 1.6;
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.25rem);
+  margin-bottom: 30px;
+  max-width: 44ch;
 }
 
-.trustNumber {
-  color: var(--color-primary);
-  font-weight: 700;
-  font-size: var(--primitive-fontSize-sm);
-}
+/* --- tablet -------------------------------------------------------------- */
 
 @media (min-width: 768px) {
-  .hero {
-    flex-direction: row;
-    align-items: center;
-    padding-block: 64px 72px;
+  .categoryGrid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .heroText {
-    flex: 0 0 45%;
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .heroVisual {
-    flex: 1;
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* The two strongest claims span the row; the two supporting ones share it. */
+  .tileWide {
+    grid-column: span 2;
+  }
+}
+
+/* --- desktop ------------------------------------------------------------- */
+
+@media (min-width: 1024px) {
+  .heroInner,
+  .spotlightInner {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+
+  /* Alternating the visual across sections keeps a long page from marching.
+     Logical order, so the flip mirrors correctly in RTL. */
+  .spotlightFlipped .spotlightCopy {
+    order: 2;
+  }
+
+  .spotlightFlipped .spotlightVisual {
+    order: 1;
   }
 
   .categoryGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .productGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .trustGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .title {
-    font-size: var(--primitive-fontSize-5xl);
-    max-width: 12ch;
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .productGrid {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  .categoryTile:hover {
-    border-color: var(--box-border-hover);
-    background: var(--box-bg-hover);
-    box-shadow: var(--box-shadow-hover);
+  .bento {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .tileWide {
+    grid-column: span 2;
   }
 }
