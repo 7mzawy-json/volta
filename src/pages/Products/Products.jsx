@@ -201,6 +201,7 @@ export default function Products() {
                 value={priceRange || bounds}
                 onChange={setPriceRange}
                 lang={lang}
+                labels={{ min: t.misc.priceMin, max: t.misc.priceMax }}
               />
             </div>
 

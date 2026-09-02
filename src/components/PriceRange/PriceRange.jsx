@@ -13,7 +13,7 @@ import styles from './PriceRange.module.css';
 // continuously while dragging); the label follows the drag live so the shopper
 // still sees the number move under their finger.
 
-export default function PriceRange({ bounds, value, onChange, lang }) {
+export default function PriceRange({ bounds, value, onChange, lang, labels }) {
   const [min, max] = bounds;
   const [draft, setDraft] = useState(value);
 
@@ -53,7 +53,7 @@ export default function PriceRange({ bounds, value, onChange, lang }) {
           min={min}
           max={max}
           value={lo}
-          aria-label="minimum price"
+          aria-label={labels.min}
           onChange={(e) => setDraft([Math.min(Number(e.target.value), hi), hi])}
           onMouseUp={() => commit(draft)}
           onTouchEnd={() => commit(draft)}
@@ -65,7 +65,7 @@ export default function PriceRange({ bounds, value, onChange, lang }) {
           min={min}
           max={max}
           value={hi}
-          aria-label="maximum price"
+          aria-label={labels.max}
           onChange={(e) => setDraft([lo, Math.max(Number(e.target.value), lo)])}
           onMouseUp={() => commit(draft)}
           onTouchEnd={() => commit(draft)}

@@ -19,26 +19,22 @@ export default function ProductCard({ product }) {
   const [preview, setPreview] = useState(null);
   const inStock = getTotalStock(product) > 0;
   const { min } = getPriceRange(product);
-  const isPhone = product.category === 'phones';
-  const colorways = isPhone ? getProductColors(product) : [];
-  // Hovering a swatch previews that finish without leaving the listing.
-  const swatch = preview || colorways[0];
-  // A listing sold in several sizes shows a "from" price, since the headline
-  // number would otherwise be a promise the cheapest variant might not keep.
   const showFrom = hasVariantChoice(product);
 
-  const handleAdd = (e) => {
-    e.preventDefault();
-    addItem(getDefaultVariant(product).id, 1);
-  };
+  const isPhone = product.category === 'phones';
+  const colorways = isPhone ? getProductColors(product) : [];
+  const swatch = preview || colorways[0];
 
-  const handleFavorite = (e) => {
-    e.preventDefault();
-    toggle(product.id);
-  };
+  const handleAdd = () => addItem(getDefaultVariant(product).id, 1);
+  const handleFavorite = () => toggle(product.id);
 
+  // The card is NOT a link. Buttons nested inside an <a> are invalid HTML and
+  // give ambiguous click and keyboard behaviour — a swatch or add-to-cart press
+  // could navigate instead of acting. Instead the product name is the link, and
+  // it stretches over the whole card via ::after so the large click target
+  // survives; the real controls sit above that overlay on their own z-index.
   return (
-    <Link to={`/products/${product.id}`} className={styles.card}>
+    <article className={styles.card}>
       <div className={styles.visual}>
         {isPhone ? (
           <DeviceRender
@@ -58,15 +54,21 @@ export default function ProductCard({ product }) {
           className={`${styles.favBtn} ${favorited ? styles.favActive : ''}`}
           onClick={handleFavorite}
           aria-pressed={favorited}
-          aria-label={t.nav.wishlist}
+          aria-label={`${t.nav.wishlist}: ${product.name[lang]}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill={favorited ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
             <path d="M12 21s-7.5-4.9-10-9.3C.5 8.2 2.2 4.5 6 4.5c2.1 0 3.7 1.2 4.5 2.7C11.3 5.7 12.9 4.5 15 4.5c3.8 0 5.5 3.7 4 7.2C19.5 16.1 12 21 12 21z" />
           </svg>
         </button>
       </div>
+
       <div className={styles.info}>
-        <p className={styles.name}>{product.name[lang]}</p>
+        <p className={styles.name}>
+          <Link to={`/products/${product.id}`} className={styles.nameLink}>
+            {product.name[lang]}
+          </Link>
+        </p>
+
         {colorways.length > 1 && (
           <div className={styles.cardSwatches}>
             {colorways.slice(0, 5).map((c) => (
@@ -77,19 +79,25 @@ export default function ProductCard({ product }) {
                 style={{ background: getColor(c).hex }}
                 onMouseEnter={() => setPreview(c)}
                 onFocus={() => setPreview(c)}
-                onClick={(e) => { e.preventDefault(); setPreview(c); }}
+                onClick={() => setPreview(c)}
                 aria-label={getColor(c).name[lang]}
               />
             ))}
           </div>
         )}
+
         <div className={styles.bottomRow}>
           <span className={styles.price}>
             {showFrom && <span className={styles.fromLabel}>{t.product.from} </span>}
             {formatPrice(min, lang)}
           </span>
           {inStock && (
-            <button type="button" className={styles.quickAdd} onClick={handleAdd} aria-label={t.product.addToCart}>
+            <button
+              type="button"
+              className={styles.quickAdd}
+              onClick={handleAdd}
+              aria-label={`${t.product.addToCart}: ${product.name[lang]}`}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M4 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7" />
                 <circle cx="10" cy="21" r="1.4" fill="currentColor" stroke="none" />
@@ -99,6 +107,6 @@ export default function ProductCard({ product }) {
           )}
         </div>
       </div>
-    </Link>
+    </article>
   );
 }

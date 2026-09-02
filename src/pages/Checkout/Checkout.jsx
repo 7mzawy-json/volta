@@ -4,6 +4,8 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
+import { variantLabel } from '../../data/products.js';
+import { getColor } from '../../data/colors.js';
 import { formatPrice } from '../../utils/currency.js';
 
 const paymentMethods = [
@@ -28,9 +30,25 @@ export default function Checkout() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const orderId = Math.floor(1000 + Math.random() * 9000);
+
+    // Snapshot the order BEFORE clearing the cart. The confirmation page has to
+    // show what was bought, and by the time it renders the cart is empty — so the
+    // lines have to travel with the navigation rather than be re-read from state.
+    const order = {
+      id: Math.floor(1000 + Math.random() * 9000),
+      total: subtotal,
+      lines: lineItems.map(({ variantId, qty, product, variant }) => ({
+        variantId,
+        qty,
+        name: product.name,
+        storage: variant.storage || null,
+        color: variant.color || null,
+        price: variant.price
+      }))
+    };
+
     clearCart();
-    navigate('/confirmation', { state: { orderId } });
+    navigate('/confirmation', { state: { order } });
   };
 
   return (
@@ -100,7 +118,13 @@ export default function Checkout() {
           <ul className={styles.summaryList}>
             {lineItems.map(({ variantId, qty, product, variant }) => (
               <li key={variantId}>
-                <span>{product.name[lang]}{variant.label ? ` ${variant.label[lang]}` : ''} × {qty}</span>
+                <span>
+                  {product.name[lang]}
+                  {variantLabel(variant, variant.color && getColor(variant.color).name[lang])
+                    ? ` (${variantLabel(variant, variant.color && getColor(variant.color).name[lang])})`
+                    : ''}{' '}
+                  × {qty}
+                </span>
                 <span>{formatPrice(variant.price * qty, lang)}</span>
               </li>
             ))}

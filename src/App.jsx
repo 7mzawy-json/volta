@@ -15,6 +15,7 @@ import Cart from './pages/Cart/Cart.jsx';
 import Checkout from './pages/Checkout/Checkout.jsx';
 import Confirmation from './pages/Confirmation/Confirmation.jsx';
 import Wishlist from './pages/Wishlist/Wishlist.jsx';
+import NotFound from './pages/NotFound/NotFound.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -38,6 +39,8 @@ function AppShell() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          {/* Catch-all: an unknown URL must land somewhere useful, in both languages. */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </PageTransition>
       <Footer />

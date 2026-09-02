@@ -1,0 +1,51 @@
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(72px, 12vw, 140px) 20px;
+  isolation: isolate;
+}
+
+.glow {
+  position: absolute;
+  z-index: -1;
+  inset: 30% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: min(60vw, 480px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.1) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.code {
+  font-size: var(--display-md);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: var(--display-tracking);
+  margin: 18px 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  font-size: var(--display-md);
+  line-height: 1.15;
+  letter-spacing: var(--display-tracking);
+  margin-bottom: 12px;
+}
+
+.message {
+  color: var(--color-muted-foreground);
+  max-width: 42ch;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}

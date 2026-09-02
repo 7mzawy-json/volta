@@ -390,6 +390,15 @@ export function getProductColors(product) {
   return [...new Set(product.variants.map((v) => v.color).filter(Boolean))];
 }
 
+// A cart line is a variant, and a variant is storage AND colour. Showing only
+// "256GB" hides half of what was actually bought — two lines for the same phone
+// in different finishes would look like a duplicate. Callers pass the localized
+// colour name in, so the data layer stays free of copy.
+export function variantLabel(variant, colorName) {
+  const parts = [variant.storage, colorName].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
+
 export function getStorageOptions(product) {
   return [...new Set(product.variants.map((v) => v.storage).filter(Boolean))];
 }

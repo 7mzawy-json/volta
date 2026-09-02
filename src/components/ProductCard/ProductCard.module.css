@@ -1,4 +1,8 @@
+/* The card is a container, not a link. `.nameLink::after` stretches the product
+   link over the whole card so the big click target survives, while the real
+   controls sit above that overlay — no interactive element nested in an <a>. */
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--box-bg);
@@ -179,4 +183,30 @@
 
 .cardSwatchOn {
   box-shadow: 0 0 0 1px var(--color-background), 0 0 0 2.5px var(--color-primary);
+}
+
+.nameLink {
+  color: inherit;
+}
+
+/* The stretched overlay. Sits below the controls so it never swallows them. */
+.nameLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.favBtn,
+.quickAdd,
+.cardSwatch {
+  position: relative;
+  z-index: 2;
+}
+
+/* Focus has to be visible on the card itself now that the link is inside it. */
+.nameLink:focus-visible::after {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  border-radius: var(--box-radius);
 }

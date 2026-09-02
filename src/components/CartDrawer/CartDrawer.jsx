@@ -4,6 +4,8 @@ import { useCart } from '../../context/CartContext.jsx';
 import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
 import Button from '../Button/Button.jsx';
 import styles from './CartDrawer.module.css';
+import { variantLabel } from '../../data/products.js';
+import { getColor } from '../../data/colors.js';
 import { formatPrice } from '../../utils/currency.js';
 
 export default function CartDrawer() {
@@ -22,7 +24,7 @@ export default function CartDrawer() {
       <aside className={`${styles.drawer} ${isDrawerOpen ? styles.drawerOpen : ''}`} aria-hidden={!isDrawerOpen}>
         <div className={styles.header}>
           <h3>{t.cart.title} {count > 0 && `(${count})`}</h3>
-          <button type="button" className={styles.closeBtn} onClick={closeDrawer} aria-label="close">
+          <button type="button" className={styles.closeBtn} onClick={closeDrawer} aria-label={t.misc.close}>
             ✕
           </button>
         </div>
@@ -44,7 +46,11 @@ export default function CartDrawer() {
                   </div>
                   <div className={styles.itemInfo}>
                     <p className={styles.itemName}>{product.name[lang]}</p>
-                    {variant.label && <p className={styles.itemVariant}>{variant.label[lang]}</p>}
+                    {variantLabel(variant, variant.color && getColor(variant.color).name[lang]) && (
+                      <p className={styles.itemVariant}>
+                        {variantLabel(variant, variant.color && getColor(variant.color).name[lang])}
+                      </p>
+                    )}
                     <div className={styles.qtyRow}>
                       <button type="button" onClick={() => updateQty(variantId, qty - 1)}>−</button>
                       <span>{qty}</span>

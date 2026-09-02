@@ -149,7 +149,16 @@ export const copy = {
     misc: {
       addedToast: 'تمت الإضافة ⚡',
       favoritedToast: 'أُضيف للمفضلة',
-      noResults: 'ما لقينا نتائج — جرّب كلمة ثانية.'
+      noResults: 'ما لقينا نتائج — جرّب كلمة ثانية.',
+      close: 'إغلاق',
+      priceMin: 'أقل سعر',
+      priceMax: 'أعلى سعر'
+    },
+    notFound: {
+      title: 'ما لقينا الصفحة',
+      message: 'الرابط غلط أو الصفحة انحذفت. تقدر ترجع للهواتف أو للرئيسية.',
+      browse: 'تصفح الهواتف',
+      home: 'الرئيسية'
     },
     footer: {
       rights: 'جميع الحقوق محفوظة',
@@ -298,7 +307,16 @@ export const copy = {
     misc: {
       addedToast: 'Added to cart ⚡',
       favoritedToast: 'Added to wishlist',
-      noResults: "No results — try a different search."
+      noResults: "No results — try a different search.",
+      close: 'Close',
+      priceMin: 'Minimum price',
+      priceMax: 'Maximum price'
+    },
+    notFound: {
+      title: 'We could not find that page',
+      message: 'The link may be wrong, or the page may have moved. Head back to the phones or to the homepage.',
+      browse: 'Browse phones',
+      home: 'Home'
     },
     footer: {
       rights: 'All rights reserved',

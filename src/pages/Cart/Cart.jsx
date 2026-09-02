@@ -3,6 +3,8 @@ import { useCart } from '../../context/CartContext.jsx';
 import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Cart.module.css';
+import { variantLabel } from '../../data/products.js';
+import { getColor } from '../../data/colors.js';
 import { formatPrice } from '../../utils/currency.js';
 
 export default function Cart() {
@@ -34,7 +36,11 @@ export default function Cart() {
               </div>
               <div className={styles.info}>
                 <p className={styles.name}>{product.name[lang]}</p>
-                {variant.label && <p className={styles.variantName}>{variant.label[lang]}</p>}
+                {variantLabel(variant, variant.color && getColor(variant.color).name[lang]) && (
+                  <p className={styles.variantName}>
+                    {variantLabel(variant, variant.color && getColor(variant.color).name[lang])}
+                  </p>
+                )}
                 <p className={styles.unitPrice}>{formatPrice(variant.price, lang)}</p>
               </div>
               <div className={styles.qtyPicker}>
