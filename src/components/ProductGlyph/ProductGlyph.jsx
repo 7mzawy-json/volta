@@ -1,4 +1,12 @@
 const paths = {
+  phone: (
+    <>
+      <rect x="15" y="4" width="18" height="40" rx="3.5" />
+      <path d="M21 8 H27" />
+      <rect x="19" y="13" width="10" height="7" rx="1.6" />
+      <circle cx="24" cy="39" r="1.6" fill="currentColor" stroke="none" />
+    </>
+  ),
   earbuds: (
     <>
       <rect x="8" y="14" width="32" height="20" rx="10" />

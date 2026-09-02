@@ -80,3 +80,98 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Faceted browsing. The sidebar only exists for categories that define facets,
+   so the accessories tiers keep their original full-width grid. */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.results {
+  min-width: 0;
+}
+
+.resultCount {
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  margin-bottom: 16px;
+}
+
+.filters {
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius, 12px);
+  padding: 18px;
+}
+
+.filtersHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.filtersTitle {
+  font-size: var(--primitive-fontSize-base);
+  margin: 0;
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+  padding: 0;
+}
+
+.facet {
+  border: none;
+  border-top: 1px solid var(--box-border);
+  margin: 0;
+  padding: 14px 0 4px;
+}
+
+.facetLegend {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 700;
+  color: var(--color-muted-foreground);
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.facetOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.facetOption input {
+  accent-color: var(--color-primary);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* The name takes the slack so counts stay aligned down the right edge —
+   or the left edge in RTL, since this is a logical property. */
+.facetName {
+  flex: 1;
+}
+
+.facetCount {
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-xs);
+}
+
+@media (min-width: 768px) {
+  .layout {
+    grid-template-columns: 220px 1fr;
+  }
+}

@@ -20,10 +20,21 @@ export const copy = {
     },
     categories: {
       title: 'تسوق حسب الفئة',
+      phones: 'هواتف',
       chargers: 'شواحن',
       audio: 'صوتيات',
       accessories: 'إكسسوارات',
       smart: 'المنزل الذكي'
+    },
+    facets: {
+      title: 'تصفية',
+      clear: 'مسح الكل',
+      results: 'نتيجة',
+      brand: 'الماركة',
+      storage: 'السعة',
+      ram: 'الذاكرة',
+      network: 'الشبكة',
+      values: { '5g': '5G', '4g': '4G' }
     },
     featured: {
       title: 'منتجات مختارة',
@@ -123,10 +134,21 @@ export const copy = {
     },
     categories: {
       title: 'Shop by Category',
+      phones: 'Phones',
       chargers: 'Chargers',
       audio: 'Audio',
       accessories: 'Accessories',
       smart: 'Smart Home'
+    },
+    facets: {
+      title: 'Filter',
+      clear: 'Clear all',
+      results: 'results',
+      brand: 'Brand',
+      storage: 'Storage',
+      ram: 'RAM',
+      network: 'Network',
+      values: { '5g': '5G', '4g': '4G' }
     },
     featured: {
       title: 'Featured Products',

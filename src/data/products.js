@@ -7,13 +7,30 @@
 //
 // `attributes` holds structured, comparable values (numbers and enums, not prose)
 // so filtering, sorting and a future compare view can all read the same fields.
-// `specs` stays prose, purely for display.
+// Accessories carry hand-written `specs`; phones derive theirs from `attributes`
+// below, so a phone's spec sheet and the filters can never disagree.
 
-export const categories = ['chargers', 'audio', 'accessories', 'smart'];
+import { phones } from './phones.js';
 
-export const brands = ['volta'];
+// Phones lead: it is the vertical the shop is built around.
+export const categories = ['phones', 'chargers', 'audio', 'accessories', 'smart'];
 
-export const products = [
+export const brands = ['apple', 'samsung', 'xiaomi', 'google', 'honor', 'nothing', 'oneplus', 'volta'];
+
+// Brand names are proper nouns and stay in Latin script in both languages —
+// that is how they are printed on the boxes and typed into search.
+export const brandLabels = {
+  apple: 'Apple',
+  samsung: 'Samsung',
+  xiaomi: 'Xiaomi',
+  google: 'Google',
+  honor: 'Honor',
+  nothing: 'Nothing',
+  oneplus: 'OnePlus',
+  volta: 'VOLTA'
+};
+
+const accessories = [
   {
     id: "aero-buds",
     icon: "earbuds",
@@ -153,6 +170,83 @@ export const products = [
     variants: [{ id: "beam-hub", label: null, price: 18.9, stock: 11 }]
   }
 ];
+
+// --- derived spec sheets ---------------------------------------------------
+// Phones describe themselves through `attributes`, so their bullet list is
+// generated rather than written twice. One source of truth means the spec sheet
+// a shopper reads and the value a filter matches on cannot drift apart.
+
+const specFormatters = [
+  { key: 'screen', ar: (v) => `شاشة ${v} بوصة`, en: (v) => `${v}-inch display` },
+  { key: 'ram', ar: (v) => `ذاكرة ${v} جيجابايت`, en: (v) => `${v}GB RAM` },
+  { key: 'camera', ar: (v) => `كاميرا ${v} ميجابكسل`, en: (v) => `${v}MP main camera` },
+  { key: 'battery', ar: (v) => `بطارية ${v} مللي أمبير`, en: (v) => `${v}mAh battery` },
+  { key: 'refreshRate', ar: (v) => `معدل تحديث ${v} هرتز`, en: (v) => `${v}Hz refresh rate` },
+  { key: 'network', ar: (v) => (v === '5g' ? 'يدعم شبكات 5G' : 'شبكة 4G'), en: (v) => (v === '5g' ? '5G ready' : '4G network') }
+];
+
+function deriveSpecs(attributes) {
+  const pick = specFormatters.filter((f) => attributes[f.key] !== undefined);
+  return {
+    ar: pick.map((f) => f.ar(attributes[f.key])),
+    en: pick.map((f) => f.en(attributes[f.key]))
+  };
+}
+
+export const products = [
+  ...phones.map((p) => ({ ...p, specs: p.specs || deriveSpecs(p.attributes) })),
+  ...accessories
+];
+
+// --- facets ----------------------------------------------------------------
+// Which filters a category offers is data, not UI logic, so adding a facet is a
+// one-line change here rather than a new branch in the listing page.
+// `source: 'variant'` means the values live on variants (storage) rather than on
+// the product itself.
+
+export const facetsByCategory = {
+  phones: [
+    { id: 'brand', source: 'product', key: 'brand' },
+    { id: 'storage', source: 'variant', key: 'label' },
+    { id: 'ram', source: 'attribute', key: 'ram', suffix: 'GB' },
+    { id: 'network', source: 'attribute', key: 'network' }
+  ]
+};
+
+export function getFacets(category) {
+  return facetsByCategory[category] || [];
+}
+
+// Collects the distinct values a facet can take, with a count of how many
+// listings carry each, so the UI can show counts and hide options that match
+// nothing at all.
+export function getFacetOptions(facet, list) {
+  const counts = new Map();
+  for (const product of list) {
+    const values =
+      facet.source === 'variant'
+        ? [...new Set(product.variants.map((v) => (v.label ? v.label.en : null)).filter(Boolean))]
+        : facet.source === 'attribute'
+          ? [product.attributes?.[facet.key]]
+          : [product[facet.key]];
+    for (const value of values) {
+      if (value === undefined || value === null) continue;
+      counts.set(value, (counts.get(value) || 0) + 1);
+    }
+  }
+  return [...counts.entries()].map(([value, count]) => ({ value, count }));
+}
+
+// Does one product satisfy one facet's selected values? Selecting several values
+// within a facet is an OR (128GB or 256GB), which is what shoppers expect.
+export function productMatchesFacet(product, facet, selected) {
+  if (!selected.length) return true;
+  if (facet.source === 'variant') {
+    return product.variants.some((v) => v.label && selected.includes(v.label.en));
+  }
+  const value = facet.source === 'attribute' ? product.attributes?.[facet.key] : product[facet.key];
+  return selected.includes(String(value));
+}
 
 // --- lookups ---------------------------------------------------------------
 
