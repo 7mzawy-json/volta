@@ -44,6 +44,9 @@ export const copy = {
       related: 'قد يعجبك أيضًا',
       quantity: 'الكمية',
       inStock: 'متوفر',
+      lowStock: 'كمية محدودة',
+      storage: 'السعة',
+      from: 'يبدأ من',
       backToProducts: 'رجوع للمنتجات'
     },
     filters: {
@@ -144,6 +147,9 @@ export const copy = {
       related: 'You might also like',
       quantity: 'Quantity',
       inStock: 'In stock',
+      lowStock: 'Only a few left',
+      storage: 'Storage',
+      from: 'From',
       backToProducts: 'Back to Products'
     },
     filters: {

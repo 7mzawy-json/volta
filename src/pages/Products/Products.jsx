@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
-import { products, categories } from '../../data/products.js';
+import { products, categories, getPriceRange } from '../../data/products.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import styles from './Products.module.css';
 
@@ -32,8 +32,9 @@ export default function Products() {
       return matchesCategory && matchesQuery;
     });
 
-    if (sort === 'price-low') list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === 'price-high') list = [...list].sort((a, b) => b.price - a.price);
+    const cheapest = (p) => getPriceRange(p).min;
+    if (sort === 'price-low') list = [...list].sort((a, b) => cheapest(a) - cheapest(b));
+    if (sort === 'price-high') list = [...list].sort((a, b) => cheapest(b) - cheapest(a));
 
     return list;
   }, [query, activeCategory, sort]);

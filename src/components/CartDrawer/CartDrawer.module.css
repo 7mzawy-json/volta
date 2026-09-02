@@ -172,3 +172,9 @@
   font-weight: 700;
   font-size: var(--primitive-fontSize-lg);
 }
+
+.itemVariant {
+  font-size: var(--primitive-fontSize-xs);
+  color: var(--color-muted-foreground);
+  margin-top: 2px;
+}

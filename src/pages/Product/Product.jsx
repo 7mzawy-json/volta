@@ -3,25 +3,44 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
-import { getProduct, getRelated } from '../../data/products.js';
+import { getProduct, getRelated, getDefaultVariant, hasVariantChoice } from '../../data/products.js';
 import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Product.module.css';
 import { formatPrice } from '../../utils/currency.js';
 
+const LOW_STOCK_AT = 5;
+
 export default function Product() {
   const { id } = useParams();
   const { lang, t } = useLanguage();
   const { addItem } = useCart();
   const { toggle, isFavorited } = useWishlist();
-  const [qty, setQty] = useState(1);
 
   const product = getProduct(id);
+  // Keyed by product id so that navigating between listings resets the choice
+  // instead of carrying the previous product's selection across.
+  const [selectedId, setSelectedId] = useState(() =>
+    product ? getDefaultVariant(product).id : null
+  );
+  const [pickedFor, setPickedFor] = useState(id);
+  const [qty, setQty] = useState(1);
+
   if (!product) return <Navigate to="/products" replace />;
 
+  if (pickedFor !== id) {
+    setPickedFor(id);
+    setSelectedId(getDefaultVariant(product).id);
+    setQty(1);
+  }
+
+  const variant =
+    product.variants.find((v) => v.id === selectedId) || getDefaultVariant(product);
   const related = getRelated(id);
   const favorited = isFavorited(product.id);
+  const inStock = variant.stock > 0;
+  const low = inStock && variant.stock <= LOW_STOCK_AT;
 
   return (
     <main className={`container ${styles.page}`}>
@@ -41,9 +60,36 @@ export default function Product() {
         <div className={styles.details}>
           <p className={styles.category}>{t.categories[product.category]}</p>
           <h1 className={styles.name}>{product.name[lang]}</h1>
-          <p className={styles.price}>{formatPrice(product.price, lang)}</p>
+          <p className={styles.price}>{formatPrice(variant.price, lang)}</p>
           <p className={styles.description}>{product.description[lang]}</p>
-          <p className={styles.stock}>● {t.product.inStock}</p>
+
+          {inStock ? (
+            <p className={low ? styles.stockLow : styles.stock}>
+              ● {low ? t.product.lowStock : t.product.inStock}
+            </p>
+          ) : (
+            <p className={styles.stockOut}>● {t.product.outOfStock}</p>
+          )}
+
+          {hasVariantChoice(product) && (
+            <div className={styles.variants}>
+              <p className={styles.variantLabel}>{t.product.storage}</p>
+              <div className={styles.variantRow} role="group" aria-label={t.product.storage}>
+                {product.variants.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    className={`${styles.variantBtn} ${v.id === variant.id ? styles.variantActive : ''}`}
+                    onClick={() => { setSelectedId(v.id); setQty(1); }}
+                    disabled={v.stock === 0}
+                    aria-pressed={v.id === variant.id}
+                  >
+                    {v.label ? v.label[lang] : product.name[lang]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <ul className={styles.specs}>
             {product.specs[lang].map((spec, i) => (
@@ -55,10 +101,19 @@ export default function Product() {
             <div className={styles.qtyPicker}>
               <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
               <span>{qty}</span>
-              <button type="button" onClick={() => setQty((q) => q + 1)}>+</button>
+              <button
+                type="button"
+                onClick={() => setQty((q) => Math.min(q + 1, variant.stock || 1))}
+              >
+                +
+              </button>
             </div>
-            <Button variant="primary" onClick={() => addItem(product.id, qty)}>
-              {t.product.addToCart}
+            <Button
+              variant="primary"
+              onClick={() => addItem(variant.id, qty)}
+              disabled={!inStock}
+            >
+              {inStock ? t.product.addToCart : t.product.outOfStock}
             </Button>
             <button
               type="button"

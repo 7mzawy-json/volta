@@ -37,22 +37,23 @@ export default function CartDrawer() {
         ) : (
           <>
             <ul className={styles.list}>
-              {lineItems.map(({ id, qty, product }) => (
-                <li key={id} className={styles.item}>
+              {lineItems.map(({ variantId, qty, product, variant }) => (
+                <li key={variantId} className={styles.item}>
                   <div className={styles.itemGlyph}>
                     <ProductGlyph icon={product.icon} size={40} />
                   </div>
                   <div className={styles.itemInfo}>
                     <p className={styles.itemName}>{product.name[lang]}</p>
+                    {variant.label && <p className={styles.itemVariant}>{variant.label[lang]}</p>}
                     <div className={styles.qtyRow}>
-                      <button type="button" onClick={() => updateQty(id, qty - 1)}>−</button>
+                      <button type="button" onClick={() => updateQty(variantId, qty - 1)}>−</button>
                       <span>{qty}</span>
-                      <button type="button" onClick={() => updateQty(id, qty + 1)}>+</button>
+                      <button type="button" onClick={() => updateQty(variantId, qty + 1)}>+</button>
                     </div>
                   </div>
                   <div className={styles.itemEnd}>
-                    <span className={styles.itemPrice}>{formatPrice(product.price * qty, lang)}</span>
-                    <button type="button" className={styles.removeBtn} onClick={() => removeItem(id)}>
+                    <span className={styles.itemPrice}>{formatPrice(variant.price * qty, lang)}</span>
+                    <button type="button" className={styles.removeBtn} onClick={() => removeItem(variantId)}>
                       {t.cart.remove}
                     </button>
                   </div>

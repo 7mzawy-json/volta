@@ -162,3 +162,10 @@
     flex-shrink: 0;
   }
 }
+
+/* Which variant this line refers to — secondary to the product name. */
+.variantName {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+  margin-top: 2px;
+}

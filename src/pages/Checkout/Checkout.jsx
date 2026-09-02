@@ -98,10 +98,10 @@ export default function Checkout() {
         <aside className={styles.summary}>
           <h2>{t.checkout.orderSummary}</h2>
           <ul className={styles.summaryList}>
-            {lineItems.map(({ id, qty, product }) => (
-              <li key={id}>
-                <span>{product.name[lang]} × {qty}</span>
-                <span>{formatPrice(product.price * qty, lang)}</span>
+            {lineItems.map(({ variantId, qty, product, variant }) => (
+              <li key={variantId}>
+                <span>{product.name[lang]}{variant.label ? ` ${variant.label[lang]}` : ''} × {qty}</span>
+                <span>{formatPrice(variant.price * qty, lang)}</span>
               </li>
             ))}
           </ul>

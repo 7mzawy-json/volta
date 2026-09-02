@@ -204,3 +204,65 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Stock urgency states. Low stock earns attention without alarm; sold out is
+   stated plainly rather than shouted. */
+.stockLow {
+  color: var(--color-warning, #FFB020);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.stockOut {
+  color: var(--color-muted-foreground);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+}
+
+/* Variant (storage) selector */
+.variants {
+  margin-top: 20px;
+}
+
+.variantLabel {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.variantRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.variantBtn {
+  padding: 10px 18px;
+  border-radius: var(--box-radius, 10px);
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  color: var(--color-foreground);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+  transition: border-color var(--motion-hover) var(--motion-ease-standard),
+              color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.variantBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.variantActive {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary) inset;
+}
+
+/* A sold-out size stays visible but is struck through, so the shopper learns
+   the size exists rather than wondering why the list looks short. */
+.variantBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}

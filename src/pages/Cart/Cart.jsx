@@ -27,22 +27,23 @@ export default function Cart() {
 
       <div className={styles.layout}>
         <ul className={styles.list}>
-          {lineItems.map(({ id, qty, product }) => (
-            <li key={id} className={styles.item}>
+          {lineItems.map(({ variantId, qty, product, variant }) => (
+            <li key={variantId} className={styles.item}>
               <div className={styles.glyphBox}>
                 <ProductGlyph icon={product.icon} size={48} />
               </div>
               <div className={styles.info}>
                 <p className={styles.name}>{product.name[lang]}</p>
-                <p className={styles.unitPrice}>{formatPrice(product.price, lang)}</p>
+                {variant.label && <p className={styles.variantName}>{variant.label[lang]}</p>}
+                <p className={styles.unitPrice}>{formatPrice(variant.price, lang)}</p>
               </div>
               <div className={styles.qtyPicker}>
-                <button type="button" onClick={() => updateQty(id, qty - 1)}>−</button>
+                <button type="button" onClick={() => updateQty(variantId, qty - 1)}>−</button>
                 <span>{qty}</span>
-                <button type="button" onClick={() => updateQty(id, qty + 1)}>+</button>
+                <button type="button" onClick={() => updateQty(variantId, qty + 1)}>+</button>
               </div>
-              <p className={styles.lineTotal}>{formatPrice(product.price * qty, lang)}</p>
-              <button type="button" className={styles.removeBtn} onClick={() => removeItem(id)}>
+              <p className={styles.lineTotal}>{formatPrice(variant.price * qty, lang)}</p>
+              <button type="button" className={styles.removeBtn} onClick={() => removeItem(variantId)}>
                 {t.cart.remove}
               </button>
             </li>
