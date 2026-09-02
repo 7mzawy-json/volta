@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import {
@@ -16,6 +16,7 @@ import { getColor } from '../../data/colors.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import PriceRange from '../../components/PriceRange/PriceRange.jsx';
 import { plural } from '../../utils/plural.js';
+import { useDialog } from '../../hooks/useDialog.js';
 import styles from './Products.module.css';
 
 // Listing pages must not render an unbounded grid: at a few thousand products
@@ -35,6 +36,14 @@ export default function Products() {
   const toggleFacets = facets.filter((f) => f.type !== 'range');
 
   const [visible, setVisible] = useState(PAGE_SIZE);
+
+  // On a phone the facet stack ran ~989px before the first product — a full
+  // screen and a half of filters in front of the thing the shopper came for. On
+  // that tier the panel becomes a drawer opened from a button; from tablet up it
+  // is the persistent sidebar it always was.
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const closeFilters = useCallback(() => setFiltersOpen(false), []);
+  const filtersRef = useDialog(filtersOpen, closeFilters);
 
   const setParam = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -184,7 +193,40 @@ export default function Products() {
 
       <div className={facets.length ? styles.layout : ''}>
         {facets.length > 0 && (
-          <aside className={styles.filters} aria-label={t.facets.title}>
+          <>
+            <button
+              type="button"
+              className={styles.filterToggle}
+              onClick={() => setFiltersOpen(true)}
+              aria-expanded={filtersOpen}
+            >
+              {t.facets.title}
+              {activeFacetCount > 0 && <span className={styles.filterCount}>{activeFacetCount}</span>}
+            </button>
+
+            {filtersOpen && (
+              <button
+                type="button"
+                className={styles.filterScrim}
+                aria-label={t.misc.close}
+                onClick={closeFilters}
+              />
+            )}
+
+            <aside
+              ref={filtersRef}
+              className={`${styles.filters} ${filtersOpen ? styles.filtersOpen : ''}`}
+              aria-label={t.facets.title}
+              tabIndex={-1}
+            >
+              <button
+                type="button"
+                className={styles.filterClose}
+                onClick={closeFilters}
+                aria-label={t.misc.close}
+              >
+                ✕
+              </button>
             <div className={styles.filtersHead}>
               <h2 className={styles.filtersTitle}>{t.facets.title}</h2>
               {activeFacetCount > 0 && (
@@ -261,7 +303,8 @@ export default function Products() {
                 </fieldset>
               );
             })}
-          </aside>
+            </aside>
+          </>
         )}
 
         <div className={styles.results}>

@@ -278,6 +278,142 @@
 
 @media (min-width: 768px) {
   .layout {
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 200px 1fr;
+  }
+
+  /* Two columns at tablet: three alongside the sidebar left ~146px cards,
+     not enough for a device render, a name and a price.
+     NOTE this block sits after the earlier 768/1024 grid rules, so it wins on
+     source order — which means the desktop count has to be restated below or
+     1440 inherits these two columns and renders 480px cards. */
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- filters: drawer on phone, sidebar from tablet up ------------------- */
+
+.filterToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  color: var(--color-foreground);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.filterCount {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-size: var(--primitive-fontSize-xs);
+  font-weight: 700;
+}
+
+.filterScrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.filterClose {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  color: var(--color-foreground);
+  font-size: 15px;
+}
+
+/* Off-canvas until opened. Slides from the inline start, so it comes from the
+   left in English and the right in Arabic without a second rule. */
+.filters {
+  position: fixed;
+  z-index: 61;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: min(86vw, 340px);
+  overflow-y: auto;
+  border-radius: 0;
+}
+
+/* Closed means NOT RENDERED, rather than parked off-canvas by a directional
+   percentage transform. Two attempts at the transform approach put the panel on
+   the wrong side — the off-canvas offset has to flip with direction, and getting
+   that wrong leaves a drawer that opens logically (focus moves into it) while
+   staying invisible, which is worse than no animation. display:none cannot be
+   wrong in either direction, and the panel fades in on open instead. */
+.filters:not(.filtersOpen) {
+  display: none;
+}
+
+.filtersOpen {
+  animation: drawerIn 220ms var(--motion-ease-standard);
+}
+
+@keyframes drawerIn {
+  from {
+    opacity: 0;
+    /* Scale, not translate: no direction to get wrong. */
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filtersOpen {
+    animation: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .filterToggle,
+  .filterScrim,
+  .filterClose {
+    display: none;
+  }
+
+  /* Back to a normal in-flow sidebar. The display:none that closes the drawer on
+     phone MUST be undone here: from tablet up the panel is never "open", so
+     without this the sidebar would vanish at exactly the widths that want it. */
+  .filters,
+  .filters:not(.filtersOpen) {
+    display: block;
+    position: static;
+    width: auto;
+    animation: none;
+    overflow-y: visible;
+    border-radius: var(--box-radius, 12px);
   }
 }

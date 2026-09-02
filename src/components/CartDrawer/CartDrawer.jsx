@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useDialog } from '../../hooks/useDialog.js';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
@@ -12,6 +13,8 @@ export default function CartDrawer() {
   const { lang, t } = useLanguage();
   const { lineItems, subtotal, count, updateQty, removeItem, isDrawerOpen, closeDrawer } = useCart();
   const navigate = useNavigate();
+  // Escape, initial focus, focus containment, focus restore, scroll lock.
+  const dialogRef = useDialog(isDrawerOpen, closeDrawer);
 
   const goToCheckout = () => {
     closeDrawer();
@@ -21,7 +24,17 @@ export default function CartDrawer() {
   return (
     <>
       {isDrawerOpen && <button className={styles.scrim} aria-hidden="true" onClick={closeDrawer} />}
-      <aside className={`${styles.drawer} ${isDrawerOpen ? styles.drawerOpen : ''}`} aria-hidden={!isDrawerOpen}>
+      <aside
+        ref={dialogRef}
+        className={`${styles.drawer} ${isDrawerOpen ? styles.drawerOpen : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t.cart.title}
+        tabIndex={-1}
+        // Kept out of the tab order entirely while closed: aria-hidden alone
+        // still leaves the controls focusable behind the page.
+        inert={isDrawerOpen ? undefined : ''}
+      >
         <div className={styles.header}>
           <h3>{t.cart.title} {count > 0 && `(${count})`}</h3>
           <button type="button" className={styles.closeBtn} onClick={closeDrawer} aria-label={t.misc.close}>
