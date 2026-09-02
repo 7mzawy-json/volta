@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext.jsx';
 import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
 import Button from '../Button/Button.jsx';
 import styles from './CartDrawer.module.css';
+import { formatPrice } from '../../utils/currency.js';
 
 export default function CartDrawer() {
   const { lang, t } = useLanguage();
@@ -50,7 +51,7 @@ export default function CartDrawer() {
                     </div>
                   </div>
                   <div className={styles.itemEnd}>
-                    <span className={styles.itemPrice}>${product.price * qty}</span>
+                    <span className={styles.itemPrice}>{formatPrice(product.price * qty, lang)}</span>
                     <button type="button" className={styles.removeBtn} onClick={() => removeItem(id)}>
                       {t.cart.remove}
                     </button>
@@ -62,7 +63,7 @@ export default function CartDrawer() {
             <div className={styles.footer}>
               <div className={styles.subtotalRow}>
                 <span>{t.cart.subtotal}</span>
-                <span>${subtotal}</span>
+                <span>{formatPrice(subtotal, lang)}</span>
               </div>
               <Button variant="primary" fullWidth onClick={goToCheckout}>
                 {t.cart.checkout}

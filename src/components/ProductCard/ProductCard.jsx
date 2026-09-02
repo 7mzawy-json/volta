@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
 import styles from './ProductCard.module.css';
+import { formatPrice } from '../../utils/currency.js';
 
 export default function ProductCard({ product }) {
   const { lang, t } = useLanguage();
@@ -41,7 +42,7 @@ export default function ProductCard({ product }) {
       <div className={styles.info}>
         <p className={styles.name}>{product.name[lang]}</p>
         <div className={styles.bottomRow}>
-          <span className={styles.price}>${product.price}</span>
+          <span className={styles.price}>{formatPrice(product.price, lang)}</span>
           <button type="button" className={styles.quickAdd} onClick={handleAdd} aria-label={t.product.addToCart}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M4 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H7" />

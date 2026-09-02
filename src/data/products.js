@@ -5,7 +5,7 @@ export const products = [
     id: 'aero-buds',
     icon: 'earbuds',
     category: 'audio',
-    price: 89,
+    price: 26.9,
     badge: { ar: 'الأكثر مبيعًا', en: 'Best Seller' },
     name: { ar: 'سماعات Aero', en: 'Aero Buds' },
     description: {
@@ -21,7 +21,7 @@ export const products = [
     id: 'volt-pad',
     icon: 'chargepad',
     category: 'chargers',
-    price: 49,
+    price: 12.5,
     name: { ar: 'قاعدة شحن Volt', en: 'Volt Pad' },
     description: {
       ar: 'شحن لاسلكي سريع بتصميم رفيع يناسب أي مكتب.',
@@ -36,7 +36,7 @@ export const products = [
     id: 'core-bank',
     icon: 'powerbank',
     category: 'chargers',
-    price: 39,
+    price: 9.9,
     name: { ar: 'بطارية Core 10K', en: 'Core Bank 10K' },
     description: {
       ar: 'بطارية محمولة بسعة 10000 مللي أمبير، تشحن هاتفك مرتين كاملتين.',
@@ -51,7 +51,7 @@ export const products = [
     id: 'pulse-watch',
     icon: 'watch',
     category: 'smart',
-    price: 129,
+    price: 39.9,
     badge: { ar: 'جديد', en: 'New' },
     name: { ar: 'ساعة Pulse', en: 'Pulse Watch' },
     description: {
@@ -67,7 +67,7 @@ export const products = [
     id: 'nova-keys',
     icon: 'keyboard',
     category: 'accessories',
-    price: 99,
+    price: 29.9,
     name: { ar: 'لوحة مفاتيح Nova', en: 'Nova Keys' },
     description: {
       ar: 'لوحة مفاتيح ميكانيكية لاسلكية بإضاءة خلفية قابلة للتخصيص.',
@@ -82,7 +82,7 @@ export const products = [
     id: 'arc-speaker',
     icon: 'speaker',
     category: 'audio',
-    price: 69,
+    price: 21.9,
     name: { ar: 'سماعة Arc', en: 'Arc Speaker' },
     description: {
       ar: 'سماعة بلوتوث مقاومة للماء بصوت قوي يناسب أي مكان.',
@@ -97,7 +97,7 @@ export const products = [
     id: 'grip-stand',
     icon: 'stand',
     category: 'accessories',
-    price: 25,
+    price: 6.9,
     name: { ar: 'حامل Grip', en: 'Grip Stand' },
     description: {
       ar: 'حامل قابل للطي للهاتف واللابتوب، خفيف ويناسب السفر.',
@@ -112,7 +112,7 @@ export const products = [
     id: 'beam-hub',
     icon: 'hub',
     category: 'smart',
-    price: 59,
+    price: 18.9,
     name: { ar: 'محور Beam', en: 'Beam Hub' },
     description: {
       ar: 'محور منزل ذكي يربط أجهزتك كلها بتطبيق واحد.',

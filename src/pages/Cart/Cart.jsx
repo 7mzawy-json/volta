@@ -3,6 +3,7 @@ import { useCart } from '../../context/CartContext.jsx';
 import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Cart.module.css';
+import { formatPrice } from '../../utils/currency.js';
 
 export default function Cart() {
   const { lang, t } = useLanguage();
@@ -33,14 +34,14 @@ export default function Cart() {
               </div>
               <div className={styles.info}>
                 <p className={styles.name}>{product.name[lang]}</p>
-                <p className={styles.unitPrice}>${product.price}</p>
+                <p className={styles.unitPrice}>{formatPrice(product.price, lang)}</p>
               </div>
               <div className={styles.qtyPicker}>
                 <button type="button" onClick={() => updateQty(id, qty - 1)}>−</button>
                 <span>{qty}</span>
                 <button type="button" onClick={() => updateQty(id, qty + 1)}>+</button>
               </div>
-              <p className={styles.lineTotal}>${product.price * qty}</p>
+              <p className={styles.lineTotal}>{formatPrice(product.price * qty, lang)}</p>
               <button type="button" className={styles.removeBtn} onClick={() => removeItem(id)}>
                 {t.cart.remove}
               </button>
@@ -52,7 +53,7 @@ export default function Cart() {
           <h2>{t.checkout.orderSummary}</h2>
           <div className={styles.row}>
             <span>{t.cart.subtotal}</span>
-            <span>${subtotal}</span>
+            <span>{formatPrice(subtotal, lang)}</span>
           </div>
           <div className={styles.row}>
             <span>{t.cart.shipping}</span>
@@ -60,7 +61,7 @@ export default function Cart() {
           </div>
           <div className={`${styles.row} ${styles.totalRow}`}>
             <span>{t.cart.total}</span>
-            <span>${subtotal}</span>
+            <span>{formatPrice(subtotal, lang)}</span>
           </div>
           <Button variant="primary" to="/checkout" fullWidth>
             {t.cart.checkout}

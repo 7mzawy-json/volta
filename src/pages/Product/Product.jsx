@@ -8,6 +8,7 @@ import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Product.module.css';
+import { formatPrice } from '../../utils/currency.js';
 
 export default function Product() {
   const { id } = useParams();
@@ -25,7 +26,9 @@ export default function Product() {
   return (
     <main className={`container ${styles.page}`}>
       <Link to="/products" className={styles.back}>
-        ← {t.product.backToProducts}
+        {/* Arrows are not mirrored by the bidi algorithm, so "back" has to be
+            flipped explicitly: in RTL it points right, toward the way you came. */}
+        {lang === 'ar' ? '→' : '←'} {t.product.backToProducts}
       </Link>
 
       <div className={styles.layout}>
@@ -38,7 +41,7 @@ export default function Product() {
         <div className={styles.details}>
           <p className={styles.category}>{t.categories[product.category]}</p>
           <h1 className={styles.name}>{product.name[lang]}</h1>
-          <p className={styles.price}>${product.price}</p>
+          <p className={styles.price}>{formatPrice(product.price, lang)}</p>
           <p className={styles.description}>{product.description[lang]}</p>
           <p className={styles.stock}>● {t.product.inStock}</p>
 

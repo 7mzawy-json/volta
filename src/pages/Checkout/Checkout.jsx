@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
+import { formatPrice } from '../../utils/currency.js';
 
 const paymentMethods = [
   { id: 'visa', label: 'Visa' },
@@ -100,13 +101,13 @@ export default function Checkout() {
             {lineItems.map(({ id, qty, product }) => (
               <li key={id}>
                 <span>{product.name[lang]} × {qty}</span>
-                <span>${product.price * qty}</span>
+                <span>{formatPrice(product.price * qty, lang)}</span>
               </li>
             ))}
           </ul>
           <div className={styles.totalRow}>
             <span>{t.cart.total}</span>
-            <span>${subtotal}</span>
+            <span>{formatPrice(subtotal, lang)}</span>
           </div>
           <Button type="submit" variant="primary" fullWidth>
             {t.checkout.placeOrder}
