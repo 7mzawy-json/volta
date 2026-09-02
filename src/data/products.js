@@ -15,18 +15,18 @@ import { phones } from './phones.js';
 // Phones lead: it is the vertical the shop is built around.
 export const categories = ['phones', 'chargers', 'audio', 'accessories', 'smart'];
 
-export const brands = ['apple', 'samsung', 'xiaomi', 'google', 'honor', 'nothing', 'oneplus', 'volta'];
+export const brands = ['apple', 'samsung', 'huawei', 'honor', 'oppo', 'xiaomi', 'tecno', 'volta'];
 
 // Brand names are proper nouns and stay in Latin script in both languages —
 // that is how they are printed on the boxes and typed into search.
 export const brandLabels = {
   apple: 'Apple',
   samsung: 'Samsung',
-  xiaomi: 'Xiaomi',
-  google: 'Google',
+  huawei: 'Huawei',
   honor: 'Honor',
-  nothing: 'Nothing',
-  oneplus: 'OnePlus',
+  oppo: 'Oppo',
+  xiaomi: 'Xiaomi',
+  tecno: 'Tecno',
   volta: 'VOLTA'
 };
 
@@ -193,23 +193,90 @@ function deriveSpecs(attributes) {
   };
 }
 
+// --- variant expansion -----------------------------------------------------
+// Phones declare storages x colors; the variant matrix is built here. Storage
+// sizes stay in Latin ("256GB") in both languages — that is how they are printed
+// and how Kuwaiti retail, Xcite included, writes them on Arabic pages too.
+
+// Stock is deterministic per variant rather than random, so the same phone shows
+// the same availability on every reload and screenshots stay reproducible.
+function stockFor(key) {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return h % 17;
+}
+
+function expandVariants(phone) {
+  const soldOut = new Set(phone.soldOut || []);
+  const variants = [];
+  for (const storage of phone.storages) {
+    for (const color of phone.colors) {
+      const combo = storage.size + '/' + color;
+      variants.push({
+        id: (phone.id + '--' + storage.size + '--' + color).toLowerCase(),
+        label: { ar: storage.size, en: storage.size },
+        storage: storage.size,
+        color,
+        price: storage.price,
+        stock: soldOut.has(combo) ? 0 : stockFor(phone.id + combo)
+      });
+    }
+  }
+  return variants;
+}
+
 export const products = [
-  ...phones.map((p) => ({ ...p, specs: p.specs || deriveSpecs(p.attributes) })),
+  ...phones.map((p) => ({
+    ...p,
+    icon: 'phone',
+    specs: p.specs || deriveSpecs(p.attributes),
+    variants: expandVariants(p)
+  })),
   ...accessories
 ];
 
+// --- indexes ---------------------------------------------------------------
+// Built once at module load. Lookups used to be linear scans, and findVariant a
+// nested scan run for every cart line on every render — fine at 30 listings,
+// quadratic at 3,000. These keep both O(1) as the catalogue grows.
+
+const productById = new Map(products.map((p) => [p.id, p]));
+
+const variantIndex = new Map();
+for (const product of products) {
+  for (const variant of product.variants) {
+    variantIndex.set(variant.id, { product, variant });
+  }
+}
+
+const productsByCategory = new Map();
+for (const product of products) {
+  if (!productsByCategory.has(product.category)) productsByCategory.set(product.category, []);
+  productsByCategory.get(product.category).push(product);
+}
+
 // --- facets ----------------------------------------------------------------
-// Which filters a category offers is data, not UI logic, so adding a facet is a
-// one-line change here rather than a new branch in the listing page.
-// `source: 'variant'` means the values live on variants (storage) rather than on
-// the product itself.
+// Which filters a category offers is data, not UI logic, so adding one is a line
+// here rather than a branch in the listing page.
+//
+//   source 'product'   value lives on the listing (brand)
+//   source 'variant'   value lives on variants (storage, colour)
+//   source 'bucket'    a numeric attribute grouped into ranges (screen size)
+//   type   'range'     continuous min/max (price)
+
+export const screenBuckets = [
+  { id: 'compact', max: 6.4 },
+  { id: 'standard', min: 6.4, max: 6.8 },
+  { id: 'large', min: 6.8 }
+];
 
 export const facetsByCategory = {
   phones: [
-    { id: 'brand', source: 'product', key: 'brand' },
-    { id: 'storage', source: 'variant', key: 'label' },
-    { id: 'ram', source: 'attribute', key: 'ram', suffix: 'GB' },
-    { id: 'network', source: 'attribute', key: 'network' }
+    { id: 'price', type: 'range' },
+    { id: 'brand', type: 'toggle', source: 'product', key: 'brand' },
+    { id: 'storage', type: 'toggle', source: 'variant', key: 'storage' },
+    { id: 'color', type: 'swatch', source: 'variant', key: 'color' },
+    { id: 'screen', type: 'toggle', source: 'bucket', key: 'screen', buckets: screenBuckets }
   ]
 };
 
@@ -217,54 +284,94 @@ export function getFacets(category) {
   return facetsByCategory[category] || [];
 }
 
-// Collects the distinct values a facet can take, with a count of how many
-// listings carry each, so the UI can show counts and hide options that match
-// nothing at all.
+function bucketFor(value, buckets) {
+  if (value === undefined || value === null) return null;
+  const hit = buckets.find(
+    (b) => (b.min === undefined || value >= b.min) && (b.max === undefined || value < b.max)
+  );
+  return hit ? hit.id : null;
+}
+
+// Every value a product contributes to a facet. A phone sold in three colours
+// contributes three colour values, but counts once per value.
+function valuesFor(product, facet) {
+  if (facet.source === 'variant') {
+    return [...new Set(product.variants.map((v) => v[facet.key]).filter(Boolean))];
+  }
+  if (facet.source === 'bucket') {
+    const id = bucketFor(product.attributes?.[facet.key], facet.buckets);
+    return id ? [id] : [];
+  }
+  const value = product[facet.key];
+  return value === undefined || value === null ? [] : [value];
+}
+
 export function getFacetOptions(facet, list) {
   const counts = new Map();
   for (const product of list) {
-    const values =
-      facet.source === 'variant'
-        ? [...new Set(product.variants.map((v) => (v.label ? v.label.en : null)).filter(Boolean))]
-        : facet.source === 'attribute'
-          ? [product.attributes?.[facet.key]]
-          : [product[facet.key]];
-    for (const value of values) {
-      if (value === undefined || value === null) continue;
+    for (const value of valuesFor(product, facet)) {
       counts.set(value, (counts.get(value) || 0) + 1);
     }
   }
-  return [...counts.entries()].map(([value, count]) => ({ value, count }));
+  const options = [...counts.entries()].map(([value, count]) => ({ value, count }));
+
+  // Options arrive in whatever order products happened to be encountered, which
+  // reads as random. Each facet gets the order a shopper expects instead.
+  if (facet.source === 'bucket') {
+    const order = facet.buckets.map((b) => b.id);
+    return options.sort((a, b) => order.indexOf(a.value) - order.indexOf(b.value));
+  }
+  if (facet.id === 'storage') {
+    return options.sort((a, b) => storageBytes(a.value) - storageBytes(b.value));
+  }
+  // Everything else: commonest first, so the useful options surface.
+  return options.sort((a, b) => b.count - a.count);
 }
 
-// Does one product satisfy one facet's selected values? Selecting several values
-// within a facet is an OR (128GB or 256GB), which is what shoppers expect.
+// "512GB" and "1TB" have to sort as sizes, not as strings — otherwise 1TB lands
+// between 128GB and 256GB.
+function storageBytes(label) {
+  const match = String(label).match(/^([\d.]+)\s*(GB|TB)$/i);
+  if (!match) return 0;
+  return Number(match[1]) * (match[2].toUpperCase() === 'TB' ? 1024 : 1);
+}
+
+// Selecting several values inside one facet is an OR (128GB or 256GB); separate
+// facets combine with AND.
 export function productMatchesFacet(product, facet, selected) {
   if (!selected.length) return true;
-  if (facet.source === 'variant') {
-    return product.variants.some((v) => v.label && selected.includes(v.label.en));
-  }
-  const value = facet.source === 'attribute' ? product.attributes?.[facet.key] : product[facet.key];
-  return selected.includes(String(value));
+  return valuesFor(product, facet).some((v) => selected.includes(String(v)));
+}
+
+// Price is continuous, so it matches when ANY variant falls inside the range
+// rather than against a set of chosen values.
+export function productMatchesPrice(product, range) {
+  if (!range) return true;
+  return product.variants.some((v) => v.price >= range[0] && v.price <= range[1]);
+}
+
+export function getPriceBounds(list) {
+  const prices = list.flatMap((p) => p.variants.map((v) => v.price));
+  if (!prices.length) return [0, 0];
+  return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))];
 }
 
 // --- lookups ---------------------------------------------------------------
 
 export function getProduct(id) {
-  return products.find((p) => p.id === id);
+  return productById.get(id);
 }
 
-// Variant ids are globally unique, so a cart line needs to store only one id.
 export function findVariant(variantId) {
-  for (const product of products) {
-    const variant = product.variants.find((v) => v.id === variantId);
-    if (variant) return { product, variant };
-  }
-  return null;
+  return variantIndex.get(variantId) || null;
 }
 
-// The variant a product page should open on: the first one actually in stock,
-// falling back to the first variant only when the whole listing is sold out.
+export function getByCategory(category) {
+  return productsByCategory.get(category) || [];
+}
+
+// The variant a product page should open on: the first actually in stock,
+// falling back to the first only when the whole listing is sold out.
 export function getDefaultVariant(product) {
   return product.variants.find((v) => v.stock > 0) || product.variants[0];
 }
@@ -274,10 +381,17 @@ export function getPriceRange(product) {
   return { min: Math.min(...prices), max: Math.max(...prices) };
 }
 
-// True when the shopper has a real choice to make, so the UI knows whether to
-// render a variant selector and a "from" price.
 export function hasVariantChoice(product) {
   return product.variants.length > 1;
+}
+
+// Distinct colours offered, in declared order, for swatches on the card.
+export function getProductColors(product) {
+  return [...new Set(product.variants.map((v) => v.color).filter(Boolean))];
+}
+
+export function getStorageOptions(product) {
+  return [...new Set(product.variants.map((v) => v.storage).filter(Boolean))];
 }
 
 export function getTotalStock(product) {
@@ -287,7 +401,8 @@ export function getTotalStock(product) {
 export function getRelated(id, count = 3) {
   const current = getProduct(id);
   if (!current) return [];
-  const same = products.filter((p) => p.id !== id && p.category === current.category);
+  const same = getByCategory(current.category).filter((p) => p.id !== id);
+  if (same.length >= count) return same.slice(0, count);
   const others = products.filter((p) => p.id !== id && p.category !== current.category);
   return [...same, ...others].slice(0, count);
 }

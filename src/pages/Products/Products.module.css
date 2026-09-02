@@ -143,31 +143,137 @@
   margin-bottom: 8px;
 }
 
+/* Facet row as a sliding switch. The real checkbox stays in the DOM but is
+   visually hidden, so keyboard focus, labels and form semantics all still work
+   while the switch is what the shopper sees. */
 .facetOption {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 0;
+  padding: 7px 0;
   cursor: pointer;
   font-size: var(--primitive-fontSize-sm);
 }
 
-.facetOption input {
-  accent-color: var(--color-primary);
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-/* The name takes the slack so counts stay aligned down the right edge —
-   or the left edge in RTL, since this is a logical property. */
 .facetName {
   flex: 1;
+  min-width: 0;
 }
 
 .facetCount {
   color: var(--color-muted-foreground);
   font-size: var(--primitive-fontSize-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.switchInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--box-border);
+  transition: background var(--motion-hover) var(--motion-ease-standard);
+}
+
+.switchKnob {
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-muted-foreground);
+  transition: transform var(--motion-hover) var(--motion-ease-standard),
+              background var(--motion-hover) var(--motion-ease-standard);
+}
+
+.switchInput:checked + .switch {
+  background: var(--color-primary);
+}
+
+.switchInput:checked + .switch .switchKnob {
+  background: var(--color-primary-foreground);
+  /* Logical direction: the knob slides toward the end of the line, so it moves
+     right in English and left in Arabic without a separate RTL rule. */
+  transform: translateX(14px);
+}
+
+[dir='rtl'] .switchInput:checked + .switch .switchKnob {
+  transform: translateX(-14px);
+}
+
+.switchInput:focus-visible + .switch {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Colour facet: swatches rather than a list, because a colour names itself
+   faster than its label does. */
+.swatchRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: transform var(--motion-hover) var(--motion-ease-standard),
+              box-shadow var(--motion-hover) var(--motion-ease-standard);
+}
+
+.swatch:hover {
+  transform: scale(1.12);
+}
+
+.swatchOn {
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
+}
+
+.swatch:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.loadMore {
+  display: block;
+  margin: 28px auto 0;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  color: var(--color-foreground);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+  transition: border-color var(--motion-hover) var(--motion-ease-standard),
+              color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.loadMore:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 @media (min-width: 768px) {

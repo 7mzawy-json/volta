@@ -266,3 +266,55 @@
   cursor: not-allowed;
   text-decoration: line-through;
 }
+
+/* Colour swatches on the product page. The chosen finish is named next to the
+   label, because a swatch shows the colour but not what it is called. */
+.colorName {
+  color: var(--color-foreground);
+  font-weight: 500;
+  margin-inline-start: 8px;
+}
+
+.swatchRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  transition: transform var(--motion-hover) var(--motion-ease-standard),
+              box-shadow var(--motion-hover) var(--motion-ease-standard);
+}
+
+.swatch:hover {
+  transform: scale(1.1);
+}
+
+.swatchOn {
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
+}
+
+/* A finish unavailable in the chosen size stays visible but reads as dead, so
+   the shopper learns it exists in another size. */
+.swatchDead {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.swatch:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Unavailable in the current pairing, but still selectable: choosing it moves
+   the other axis to a combination that exists rather than blocking. */
+.variantDead {
+  opacity: 0.45;
+  text-decoration: line-through;
+}

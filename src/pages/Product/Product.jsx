@@ -3,8 +3,16 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
-import { getProduct, getRelated, getDefaultVariant, hasVariantChoice } from '../../data/products.js';
+import {
+  getProduct,
+  getRelated,
+  getDefaultVariant,
+  getStorageOptions,
+  getProductColors
+} from '../../data/products.js';
+import { getColor } from '../../data/colors.js';
 import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
+import DeviceRender from '../../components/DeviceRender/DeviceRender.jsx';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Product.module.css';
@@ -19,24 +27,58 @@ export default function Product() {
   const { toggle, isFavorited } = useWishlist();
 
   const product = getProduct(id);
-  // Keyed by product id so that navigating between listings resets the choice
-  // instead of carrying the previous product's selection across.
-  const [selectedId, setSelectedId] = useState(() =>
-    product ? getDefaultVariant(product).id : null
-  );
+  const fallback = product ? getDefaultVariant(product) : null;
+
+  // Storage and colour are chosen independently and resolve to one variant, so a
+  // 3 x 3 matrix is two short rows rather than nine identical-looking buttons.
+  const [storage, setStorage] = useState(fallback?.storage);
+  const [color, setColor] = useState(fallback?.color);
   const [pickedFor, setPickedFor] = useState(id);
   const [qty, setQty] = useState(1);
 
   if (!product) return <Navigate to="/products" replace />;
 
+  // Navigating between listings resets the selection rather than carrying the
+  // previous product's choice across.
   if (pickedFor !== id) {
     setPickedFor(id);
-    setSelectedId(getDefaultVariant(product).id);
+    setStorage(fallback.storage);
+    setColor(fallback.color);
     setQty(1);
   }
 
+  const storages = getStorageOptions(product);
+  const colorways = getProductColors(product);
+  const isPhone = product.category === 'phones';
+
   const variant =
-    product.variants.find((v) => v.id === selectedId) || getDefaultVariant(product);
+    product.variants.find((v) => v.storage === storage && v.color === color) || fallback;
+
+  const stockFor = (nextStorage, nextColor) =>
+    product.variants.find((v) => v.storage === nextStorage && v.color === nextColor)?.stock ?? 0;
+
+  // Neither axis is ever disabled. Disabling 2TB because it is sold out in the
+  // currently selected colour strands anyone who came for 2TB — they would have
+  // to guess that changing colour unlocks it. Instead the axis you click wins,
+  // and the other one moves to a combination that exists.
+  const chooseStorage = (next) => {
+    setStorage(next);
+    if (stockFor(next, color) === 0) {
+      const alt = colorways.find((c) => stockFor(next, c) > 0);
+      if (alt) setColor(alt);
+    }
+    setQty(1);
+  };
+
+  const chooseColor = (next) => {
+    setColor(next);
+    if (stockFor(storage, next) === 0) {
+      const alt = storages.find((s) => stockFor(s, next) > 0);
+      if (alt) setStorage(alt);
+    }
+    setQty(1);
+  };
+
   const related = getRelated(id);
   const favorited = isFavorited(product.id);
   const inStock = variant.stock > 0;
@@ -53,7 +95,16 @@ export default function Product() {
       <div className={styles.layout}>
         <div className={styles.visual}>
           <div className={styles.glow} />
-          <ProductGlyph icon={product.icon} size={180} />
+          {isPhone ? (
+            <DeviceRender
+              color={variant.color}
+              brand={product.brand}
+              wide={product.attributes?.screen >= 7.5}
+              size={150}
+            />
+          ) : (
+            <ProductGlyph icon={product.icon} size={180} />
+          )}
           {product.badge && <span className={styles.badge}>{product.badge[lang]}</span>}
         </div>
 
@@ -71,22 +122,47 @@ export default function Product() {
             <p className={styles.stockOut}>● {t.product.outOfStock}</p>
           )}
 
-          {hasVariantChoice(product) && (
+          {storages.length > 1 && (
             <div className={styles.variants}>
               <p className={styles.variantLabel}>{t.product.storage}</p>
               <div className={styles.variantRow} role="group" aria-label={t.product.storage}>
-                {product.variants.map((v) => (
+                {storages.map((size) => (
                   <button
-                    key={v.id}
+                    key={size}
                     type="button"
-                    className={`${styles.variantBtn} ${v.id === variant.id ? styles.variantActive : ''}`}
-                    onClick={() => { setSelectedId(v.id); setQty(1); }}
-                    disabled={v.stock === 0}
-                    aria-pressed={v.id === variant.id}
+                    className={`${styles.variantBtn} ${size === variant.storage ? styles.variantActive : ''} ${stockFor(size, color) === 0 ? styles.variantDead : ''}`}
+                    onClick={() => chooseStorage(size)}
+                    aria-pressed={size === variant.storage}
                   >
-                    {v.label ? v.label[lang] : product.name[lang]}
+                    {size}
                   </button>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {colorways.length > 1 && (
+            <div className={styles.variants}>
+              <p className={styles.variantLabel}>
+                {t.facets.color}
+                <span className={styles.colorName}>{getColor(variant.color).name[lang]}</span>
+              </p>
+              <div className={styles.swatchRow} role="group" aria-label={t.facets.color}>
+                {colorways.map((c) => {
+                  const dead = stockFor(storage, c) === 0;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      className={`${styles.swatch} ${c === variant.color ? styles.swatchOn : ''} ${dead ? styles.swatchDead : ''}`}
+                      style={{ background: getColor(c).hex }}
+                      onClick={() => chooseColor(c)}
+                      aria-pressed={c === variant.color}
+                      aria-label={getColor(c).name[lang]}
+                      title={getColor(c).name[lang]}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}
@@ -108,11 +184,7 @@ export default function Product() {
                 +
               </button>
             </div>
-            <Button
-              variant="primary"
-              onClick={() => addItem(variant.id, qty)}
-              disabled={!inStock}
-            >
+            <Button variant="primary" onClick={() => addItem(variant.id, qty)} disabled={!inStock}>
               {inStock ? t.product.addToCart : t.product.outOfStock}
             </Button>
             <button

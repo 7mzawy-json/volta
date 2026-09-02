@@ -40,9 +40,15 @@ export const copy = {
       },
       brand: 'الماركة',
       storage: 'السعة',
-      ram: 'الذاكرة',
-      network: 'الشبكة',
-      values: { '5g': '5G', '4g': '4G' }
+      color: 'اللون',
+      screen: 'حجم الشاشة',
+      price: 'السعر',
+      screens: {
+        compact: 'أقل من 6.4 بوصة',
+        standard: '6.4 – 6.8 بوصة',
+        large: 'أكبر من 6.8 بوصة'
+      },
+      values: {}
     },
     featured: {
       title: 'منتجات مختارة',
@@ -73,7 +79,8 @@ export const copy = {
       sortLabel: 'ترتيب حسب',
       priceLowHigh: 'السعر: من الأقل للأعلى',
       priceHighLow: 'السعر: من الأعلى للأقل',
-      newest: 'الأحدث'
+      newest: 'الأحدث',
+      loadMore: 'عرض المزيد'
     },
     cart: {
       title: 'سلة التسوق',
@@ -154,9 +161,15 @@ export const copy = {
       results: { one: 'result', other: 'results' },
       brand: 'Brand',
       storage: 'Storage',
-      ram: 'RAM',
-      network: 'Network',
-      values: { '5g': '5G', '4g': '4G' }
+      color: 'Colour',
+      screen: 'Screen size',
+      price: 'Price',
+      screens: {
+        compact: 'Under 6.4 inch',
+        standard: '6.4 – 6.8 inch',
+        large: 'Over 6.8 inch'
+      },
+      values: {}
     },
     featured: {
       title: 'Featured Products',
@@ -187,7 +200,8 @@ export const copy = {
       sortLabel: 'Sort by',
       priceLowHigh: 'Price: Low to High',
       priceHighLow: 'Price: High to Low',
-      newest: 'Newest'
+      newest: 'Newest',
+      loadMore: 'Show more'
     },
     cart: {
       title: 'Your Cart',

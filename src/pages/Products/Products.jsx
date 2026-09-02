@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import {
@@ -8,11 +8,20 @@ import {
   getPriceRange,
   getFacets,
   getFacetOptions,
-  productMatchesFacet
+  productMatchesFacet,
+  productMatchesPrice,
+  getPriceBounds
 } from '../../data/products.js';
+import { getColor } from '../../data/colors.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
+import PriceRange from '../../components/PriceRange/PriceRange.jsx';
 import { plural } from '../../utils/plural.js';
 import styles from './Products.module.css';
+
+// Listing pages must not render an unbounded grid: at a few thousand products
+// that is thousands of DOM nodes and a frozen tab. Paging keeps render cost flat
+// however far the catalogue grows.
+const PAGE_SIZE = 12;
 
 export default function Products() {
   const { lang, t } = useLanguage();
@@ -23,6 +32,9 @@ export default function Products() {
   const sort = searchParams.get('sort') || 'newest';
 
   const facets = getFacets(activeCategory);
+  const toggleFacets = facets.filter((f) => f.type !== 'range');
+
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   const setParam = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -49,10 +61,7 @@ export default function Products() {
   const toggleFacetValue = (facetId, value) => {
     const current = selectedFor(facetId);
     const str = String(value);
-    const next = current.includes(str)
-      ? current.filter((v) => v !== str)
-      : [...current, str];
-
+    const next = current.includes(str) ? current.filter((v) => v !== str) : [...current, str];
     const params = new URLSearchParams(searchParams);
     if (next.length) params.set(facetId, next.join(','));
     else params.delete(facetId);
@@ -65,9 +74,7 @@ export default function Products() {
     setSearchParams(params, { replace: true });
   };
 
-  const activeFacetCount = facets.reduce((n, f) => n + selectedFor(f.id).length, 0);
-
-  // Products matching category and search, before any facet is applied.
+  // Everything matching category and search, before any facet applies.
   const beforeFacets = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
@@ -81,36 +88,64 @@ export default function Products() {
     });
   }, [query, activeCategory]);
 
+  const bounds = useMemo(() => getPriceBounds(beforeFacets), [beforeFacets]);
+
+  const priceParam = searchParams.get('price');
+  const priceRange = useMemo(() => {
+    if (!priceParam) return null;
+    const [lo, hi] = priceParam.split('-').map(Number);
+    return Number.isFinite(lo) && Number.isFinite(hi) ? [lo, hi] : null;
+  }, [priceParam]);
+
+  const setPriceRange = (range) => {
+    const params = new URLSearchParams(searchParams);
+    // A range covering everything is not a filter, so it leaves no URL noise.
+    if (!range || (range[0] <= bounds[0] && range[1] >= bounds[1])) params.delete('price');
+    else params.set('price', `${range[0]}-${range[1]}`);
+    setSearchParams(params, { replace: true });
+  };
+
+  const activeFacetCount =
+    toggleFacets.reduce((n, f) => n + selectedFor(f.id).length, 0) + (priceRange ? 1 : 0);
+
   const filtered = useMemo(() => {
-    let list = beforeFacets.filter((p) =>
-      facets.every((facet) => productMatchesFacet(p, facet, selectedFor(facet.id)))
+    let list = beforeFacets.filter(
+      (p) =>
+        toggleFacets.every((facet) => productMatchesFacet(p, facet, selectedFor(facet.id))) &&
+        productMatchesPrice(p, priceRange)
     );
 
     const cheapest = (p) => getPriceRange(p).min;
     if (sort === 'price-low') list = [...list].sort((a, b) => cheapest(a) - cheapest(b));
     if (sort === 'price-high') list = [...list].sort((a, b) => cheapest(b) - cheapest(a));
-
     return list;
-    // searchParams drives the facet selections, so it belongs in the deps.
-  }, [beforeFacets, facets, sort, searchParams]);
+  }, [beforeFacets, toggleFacets, sort, searchParams, priceRange]);
 
-  // Counts for one facet are computed against everything matching the OTHER
-  // facets but not this one. Narrowing by the facet's own selection would drive
-  // every unpicked option to zero and make it unpickable; ignoring the other
-  // facets would promise more than the filter can deliver — "1TB (2)" while
-  // Apple is selected, when only one of those two is an iPhone.
+  // Any change to what is being filtered returns the shopper to the first page,
+  // otherwise page 3 of the old results silently becomes an empty screen.
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [query, activeCategory, sort, priceParam, searchParams.toString()]);
+
+  // Counts for one facet come from everything matching the OTHER facets but not
+  // this one: narrowing by its own selection would drive every unpicked option
+  // to zero and make it unpickable, while ignoring the others would overpromise.
   const populationFor = (facet) =>
-    beforeFacets.filter((p) =>
-      facets.every(
-        (other) => other.id === facet.id || productMatchesFacet(p, other, selectedFor(other.id))
-      )
+    beforeFacets.filter(
+      (p) =>
+        toggleFacets.every(
+          (other) => other.id === facet.id || productMatchesFacet(p, other, selectedFor(other.id))
+        ) && productMatchesPrice(p, priceRange)
     );
 
   const facetValueLabel = (facet, value) => {
     if (facet.id === 'brand') return brandLabels[value] || value;
-    if (t.facets.values[value]) return t.facets.values[value];
+    if (facet.id === 'color') return getColor(value).name[lang];
+    if (facet.id === 'screen') return t.facets.screens[value] || value;
     return facet.suffix ? `${value}${facet.suffix}` : String(value);
   };
+
+  const shown = filtered.slice(0, visible);
 
   return (
     <main className={`container ${styles.page}`}>
@@ -159,29 +194,69 @@ export default function Products() {
               )}
             </div>
 
-            {facets.map((facet) => {
+            <div className={styles.facet}>
+              <p className={styles.facetLegend}>{t.facets.price}</p>
+              <PriceRange
+                bounds={bounds}
+                value={priceRange || bounds}
+                onChange={setPriceRange}
+                lang={lang}
+              />
+            </div>
+
+            {toggleFacets.map((facet) => {
               const options = getFacetOptions(facet, populationFor(facet));
               if (!options.length) return null;
               const selected = selectedFor(facet.id);
+              const isSwatch = facet.type === 'swatch';
 
               return (
                 <fieldset key={facet.id} className={styles.facet}>
                   <legend className={styles.facetLegend}>{t.facets[facet.id]}</legend>
-                  {options.map(({ value, count }) => {
-                    const str = String(value);
-                    const checked = selected.includes(str);
-                    return (
-                      <label key={str} className={styles.facetOption}>
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleFacetValue(facet.id, value)}
-                        />
-                        <span className={styles.facetName}>{facetValueLabel(facet, value)}</span>
-                        <span className={styles.facetCount}>{count}</span>
-                      </label>
-                    );
-                  })}
+
+                  {isSwatch ? (
+                    <div className={styles.swatchRow}>
+                      {options.map(({ value, count }) => {
+                        const checked = selected.includes(String(value));
+                        const finish = getColor(value);
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            className={`${styles.swatch} ${checked ? styles.swatchOn : ''}`}
+                            style={{ background: finish.hex }}
+                            onClick={() => toggleFacetValue(facet.id, value)}
+                            aria-pressed={checked}
+                            title={`${finish.name[lang]} (${count})`}
+                          >
+                            <span className={styles.srOnly}>
+                              {finish.name[lang]} ({count})
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    options.map(({ value, count }) => {
+                      const str = String(value);
+                      const checked = selected.includes(str);
+                      return (
+                        <label key={str} className={styles.facetOption}>
+                          <span className={styles.facetName}>{facetValueLabel(facet, value)}</span>
+                          <span className={styles.facetCount}>{count}</span>
+                          <input
+                            type="checkbox"
+                            className={styles.switchInput}
+                            checked={checked}
+                            onChange={() => toggleFacetValue(facet.id, value)}
+                          />
+                          <span className={styles.switch} aria-hidden="true">
+                            <span className={styles.switchKnob} />
+                          </span>
+                        </label>
+                      );
+                    })
+                  )}
                 </fieldset>
               );
             })}
@@ -196,11 +271,23 @@ export default function Products() {
           {filtered.length === 0 ? (
             <p className={styles.noResults}>{t.misc.noResults}</p>
           ) : (
-            <div className={styles.grid}>
-              {filtered.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
+            <>
+              <div className={styles.grid}>
+                {shown.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+
+              {visible < filtered.length && (
+                <button
+                  type="button"
+                  className={styles.loadMore}
+                  onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                >
+                  {t.filters.loadMore} ({filtered.length - visible})
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

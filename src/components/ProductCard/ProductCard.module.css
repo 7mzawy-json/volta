@@ -155,3 +155,28 @@
   font-weight: 500;
   color: var(--color-muted-foreground);
 }
+
+.device {
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
+  transition: transform var(--motion-hover) var(--motion-ease-standard);
+}
+
+/* Colourway dots under the name: how many finishes exist, and which is shown. */
+.cardSwatches {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.cardSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+}
+
+.cardSwatchOn {
+  box-shadow: 0 0 0 1px var(--color-background), 0 0 0 2.5px var(--color-primary);
+}

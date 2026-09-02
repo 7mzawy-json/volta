@@ -1,439 +1,343 @@
 // Smartphones — the deep vertical.
 //
-// Model names stay in Latin script in both languages: that is how these phones
-// are marketed, sold and searched for in Kuwait, and "iPhone 15 Pro" transliterated
-// into Arabic would be harder to find, not easier.
+// Lineup and pricing mirror what Xcite actually sells in Kuwait, so the
+// comparison is like-for-like.
 //
-// Spec bullets are NOT written here. They are derived from `attributes` in
-// products.js so that what a shopper reads and what the filters match on can
-// never drift apart. Prices are Kuwaiti retail, in dinar.
+// AUTHORING: a phone declares `storages` and `colors`; the storage x colour
+// variant matrix is expanded in products.js. Enumerating variants by hand does
+// not scale — the S26 Ultra alone is three storages across four finishes, and
+// twelve hand-written variants per phone is where typos and stale prices live.
+// Adding a model is a handful of lines, not a dozen variant objects.
+//
+// Unlike Xcite, one phone is ONE listing. They publish a separate product per
+// colour, which is why the same 256GB iPhone 17 Pro Max appears at 389.900,
+// 409.900 and 429.900 there depending on the finish.
+//
+// `soldOut` names specific "storage/colour" combinations that are out of stock,
+// so those states are exercised by real data rather than only in theory.
+//
+// Model names stay in Latin script in both languages: that is how these phones
+// are marketed, sold and searched for here.
 
 export const phones = [
   // --- Apple ---------------------------------------------------------------
   {
-    id: 'iphone-15-pro-max',
-    icon: 'phone',
+    id: 'iphone-17-pro-max',
     category: 'phones',
     brand: 'apple',
     badge: { ar: 'الأكثر مبيعًا', en: 'Best Seller' },
-    name: { ar: 'iPhone 15 Pro Max', en: 'iPhone 15 Pro Max' },
+    name: { ar: 'iPhone 17 Pro Max', en: 'iPhone 17 Pro Max' },
     description: {
-      ar: 'إطار تيتانيوم وزوم بصري ٥x، وأقوى شريحة وضعتها أبل في هاتف.',
-      en: 'A titanium frame, 5x optical zoom, and the fastest chip Apple has put in a phone.'
+      ar: 'أكبر شاشة وأطول بطارية في أي آيفون، بإطار تيتانيوم.',
+      en: 'The biggest screen and longest battery in any iPhone, in a titanium frame.'
     },
-    attributes: { ram: 8, screen: 6.7, battery: 4441, camera: 48, network: '5g', os: 'ios', refreshRate: 120 },
-    variants: [
-      { id: 'iphone-15-pro-max-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 449.9, stock: 7 },
-      { id: 'iphone-15-pro-max-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 519.9, stock: 3 },
-      { id: 'iphone-15-pro-max-1tb', label: { ar: '١ تيرا', en: '1TB' }, price: 599.9, stock: 0 }
-    ]
+    attributes: { screen: 6.9, camera: 48, battery: 4832, refreshRate: 120, os: 'ios' },
+    storages: [
+      { size: '256GB', price: 389.9 },
+      { size: '512GB', price: 449.9 },
+      { size: '2TB', price: 639.9 }
+    ],
+    colors: ['cosmic-orange', 'deep-blue', 'silver'],
+    soldOut: ['2TB/silver', '2TB/deep-blue']
   },
   {
-    id: 'iphone-15-pro',
-    icon: 'phone',
+    id: 'iphone-17-pro',
     category: 'phones',
     brand: 'apple',
-    name: { ar: 'iPhone 15 Pro', en: 'iPhone 15 Pro' },
+    name: { ar: 'iPhone 17 Pro', en: 'iPhone 17 Pro' },
     description: {
       ar: 'نفس قوة البرو ماكس بحجم يريح اليد الواحدة.',
       en: 'The same Pro power in a size you can still use one-handed.'
     },
-    attributes: { ram: 8, screen: 6.1, battery: 3274, camera: 48, network: '5g', os: 'ios', refreshRate: 120 },
-    variants: [
-      { id: 'iphone-15-pro-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 379.9, stock: 12 },
-      { id: 'iphone-15-pro-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 419.9, stock: 5 },
-      { id: 'iphone-15-pro-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 489.9, stock: 2 }
-    ]
+    attributes: { screen: 6.3, camera: 48, battery: 3988, refreshRate: 120, os: 'ios' },
+    storages: [
+      { size: '256GB', price: 364.9 },
+      { size: '1TB', price: 499.9 }
+    ],
+    colors: ['deep-blue', 'cosmic-orange', 'silver'],
+    soldOut: ['1TB/cosmic-orange']
+  },
+  {
+    id: 'iphone-air',
+    category: 'phones',
+    brand: 'apple',
+    badge: { ar: 'جديد', en: 'New' },
+    name: { ar: 'iPhone Air', en: 'iPhone Air' },
+    description: {
+      ar: 'أنحف آيفون على الإطلاق، بدون تنازل عن الأداء.',
+      en: 'The thinnest iPhone ever made, with no compromise on speed.'
+    },
+    attributes: { screen: 6.5, camera: 48, battery: 3149, refreshRate: 120, os: 'ios' },
+    storages: [{ size: '512GB', price: 369.9 }],
+    colors: ['light-gold', 'silver', 'black']
   },
   {
     id: 'iphone-15',
-    icon: 'phone',
     category: 'phones',
     brand: 'apple',
     name: { ar: 'iPhone 15', en: 'iPhone 15' },
     description: {
-      ar: 'كاميرا ٤٨ ميجابكسل ومنفذ USB-C، بسعر أقرب للمتناول.',
-      en: 'A 48MP camera and USB-C, at a price that lands closer to reach.'
+      ar: 'الطريق الأرخص لنظام iOS، بكاميرا ما زالت ممتازة.',
+      en: 'The cheapest way into iOS, with a camera that still holds up.'
     },
-    attributes: { ram: 6, screen: 6.1, battery: 3349, camera: 48, network: '5g', os: 'ios', refreshRate: 60 },
-    variants: [
-      { id: 'iphone-15-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 289.9, stock: 18 },
-      { id: 'iphone-15-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 329.9, stock: 9 }
-    ]
-  },
-  {
-    id: 'iphone-14',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'apple',
-    name: { ar: 'iPhone 14', en: 'iPhone 14' },
-    description: {
-      ar: 'الجيل السابق بسعر أهدأ، وأداء ما زال ممتازًا لسنوات.',
-      en: 'Last year’s flagship at a calmer price, with years of life left in it.'
-    },
-    attributes: { ram: 6, screen: 6.1, battery: 3279, camera: 12, network: '5g', os: 'ios', refreshRate: 60 },
-    variants: [
-      { id: 'iphone-14-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 239.9, stock: 14 },
-      { id: 'iphone-14-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 279.9, stock: 4 }
-    ]
-  },
-  {
-    id: 'iphone-se',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'apple',
-    name: { ar: 'iPhone SE', en: 'iPhone SE' },
-    description: {
-      ar: 'أرخص طريق لنظام iOS، بشريحة سريعة وحجم صغير.',
-      en: 'The cheapest way into iOS, with a fast chip in a small body.'
-    },
-    attributes: { ram: 4, screen: 4.7, battery: 2018, camera: 12, network: '5g', os: 'ios', refreshRate: 60 },
-    variants: [
-      { id: 'iphone-se-64', label: { ar: '٦٤ جيجا', en: '64GB' }, price: 149.9, stock: 21 },
-      { id: 'iphone-se-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 169.9, stock: 11 }
-    ]
+    attributes: { screen: 6.1, camera: 48, battery: 3349, refreshRate: 60, os: 'ios' },
+    storages: [{ size: '128GB', price: 199.9 }],
+    colors: ['black', 'blue', 'pink']
   },
 
   // --- Samsung -------------------------------------------------------------
   {
-    id: 'galaxy-s24-ultra',
-    icon: 'phone',
+    id: 'galaxy-s26-ultra',
     category: 'phones',
     brand: 'samsung',
     badge: { ar: 'جديد', en: 'New' },
-    name: { ar: 'Galaxy S24 Ultra', en: 'Galaxy S24 Ultra' },
+    name: { ar: 'Galaxy S26 Ultra', en: 'Galaxy S26 Ultra' },
     description: {
       ar: 'قلم S Pen وكاميرا ٢٠٠ ميجابكسل وشاشة تقرأها تحت شمس الظهر.',
       en: 'An S Pen, a 200MP camera, and a screen you can read in midday sun.'
     },
-    attributes: { ram: 12, screen: 6.8, battery: 5000, camera: 200, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'galaxy-s24-ultra-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 429.9, stock: 9 },
-      { id: 'galaxy-s24-ultra-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 489.9, stock: 6 },
-      { id: 'galaxy-s24-ultra-1tb', label: { ar: '١ تيرا', en: '1TB' }, price: 559.9, stock: 1 }
-    ]
+    attributes: { screen: 6.9, camera: 200, battery: 5000, refreshRate: 120, os: 'android' },
+    storages: [
+      { size: '256GB', price: 299.9 },
+      { size: '512GB', price: 339.9 },
+      { size: '1TB', price: 414.9 }
+    ],
+    colors: ['black', 'white', 'violet', 'blue'],
+    soldOut: ['1TB/violet']
   },
   {
-    id: 'galaxy-s24-plus',
-    icon: 'phone',
+    id: 'galaxy-z-fold7',
     category: 'phones',
     brand: 'samsung',
-    name: { ar: 'Galaxy S24+', en: 'Galaxy S24+' },
+    name: { ar: 'Galaxy Z Fold7', en: 'Galaxy Z Fold7' },
     description: {
-      ar: 'شاشة كبيرة وبطارية تكفي اليوم كامل بدون قلق.',
-      en: 'A big screen and a battery that clears a full day without thinking about it.'
+      ar: 'هاتف ينفتح ليصير جهازًا لوحيًا كامل الحجم.',
+      en: 'A phone that unfolds into a full-size tablet.'
     },
-    attributes: { ram: 12, screen: 6.7, battery: 4900, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'galaxy-s24-plus-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 329.9, stock: 8 },
-      { id: 'galaxy-s24-plus-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 379.9, stock: 3 }
-    ]
+    attributes: { screen: 8.0, camera: 200, battery: 4400, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 429.9 }],
+    colors: ['silver', 'black']
   },
   {
-    id: 'galaxy-s24',
-    icon: 'phone',
+    id: 'galaxy-s25-edge',
     category: 'phones',
     brand: 'samsung',
-    name: { ar: 'Galaxy S24', en: 'Galaxy S24' },
+    name: { ar: 'Galaxy S25 Edge', en: 'Galaxy S25 Edge' },
     description: {
-      ar: 'حجم مضبوط وأداء رائد، بأدوات ذكاء اصطناعي مدمجة.',
-      en: 'Compact size, flagship speed, with AI tools built into the system.'
+      ar: 'أنحف جالاكسي، بإطار تيتانيوم وشاشة كبيرة.',
+      en: 'The slimmest Galaxy, with a titanium frame and a big screen.'
     },
-    attributes: { ram: 8, screen: 6.2, battery: 4000, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'galaxy-s24-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 269.9, stock: 15 },
-      { id: 'galaxy-s24-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 299.9, stock: 10 }
-    ]
+    attributes: { screen: 6.7, camera: 200, battery: 3900, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 179.9 }],
+    colors: ['titanium-silver', 'titanium-icyblue', 'titanium-jetblack']
   },
   {
-    id: 'galaxy-a55',
-    icon: 'phone',
+    id: 'galaxy-s25-fe',
     category: 'phones',
     brand: 'samsung',
-    name: { ar: 'Galaxy A55', en: 'Galaxy A55' },
+    name: { ar: 'Galaxy S25 FE', en: 'Galaxy S25 FE' },
     description: {
-      ar: 'الخيار المتوازن: شاشة ممتازة وبطارية كبيرة بسعر معقول.',
-      en: 'The balanced pick — a great screen and a big battery for sensible money.'
+      ar: 'مواصفات قريبة من الرائد بسعر أهدأ بكثير.',
+      en: 'Near-flagship specs at a much calmer price.'
     },
-    attributes: { ram: 8, screen: 6.6, battery: 5000, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'galaxy-a55-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 119.9, stock: 24 },
-      { id: 'galaxy-a55-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 139.9, stock: 17 }
-    ]
-  },
-  {
-    id: 'galaxy-a35',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'samsung',
-    name: { ar: 'Galaxy A35', en: 'Galaxy A35' },
-    description: {
-      ar: 'كل الأساسيات مضبوطة، بدون ما تدفع زيادة على أشياء ما تحتاجها.',
-      en: 'Every basic done properly, without paying for things you would not use.'
-    },
-    attributes: { ram: 6, screen: 6.6, battery: 5000, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'galaxy-a35-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 89.9, stock: 30 },
-      { id: 'galaxy-a35-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 104.9, stock: 12 }
-    ]
-  },
-  {
-    id: 'galaxy-a15',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'samsung',
-    name: { ar: 'Galaxy A15', en: 'Galaxy A15' },
-    description: {
-      ar: 'هاتف يومي بسيط وبطارية تدوم، لأول هاتف أو هاتف احتياطي.',
-      en: 'A simple daily phone with lasting battery — a first phone, or a spare.'
-    },
-    attributes: { ram: 4, screen: 6.5, battery: 5000, camera: 50, network: '4g', os: 'android', refreshRate: 90 },
-    variants: [
-      { id: 'galaxy-a15-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 49.9, stock: 38 }
-    ]
+    attributes: { screen: 6.7, camera: 50, battery: 4900, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 159.9 }],
+    colors: ['white', 'blue', 'navy']
   },
 
-  // --- Xiaomi --------------------------------------------------------------
+  // --- Huawei --------------------------------------------------------------
   {
-    id: 'xiaomi-14-ultra',
-    icon: 'phone',
+    id: 'huawei-pura-90s-pro-max',
     category: 'phones',
-    brand: 'xiaomi',
-    name: { ar: 'Xiaomi 14 Ultra', en: 'Xiaomi 14 Ultra' },
+    brand: 'huawei',
+    name: { ar: 'Huawei Pura 90S Pro Max', en: 'Huawei Pura 90S Pro Max' },
     description: {
-      ar: 'كاميرا بعدسات Leica، لمن يصوّر أكثر مما يتصفح.',
-      en: 'Leica optics, for people who shoot more than they scroll.'
+      ar: 'كاميرا رائدة وشاشة OLED كبيرة بمعدل تحديث عالٍ.',
+      en: 'A flagship camera and a large, high-refresh OLED display.'
     },
-    attributes: { ram: 16, screen: 6.73, battery: 5300, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'xiaomi-14-ultra-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 379.9, stock: 4 }
-    ]
+    attributes: { screen: 6.9, camera: 50, battery: 5200, refreshRate: 120, os: 'harmonyos' },
+    storages: [
+      { size: '256GB', price: 329.9 },
+      { size: '512GB', price: 349.9 }
+    ],
+    colors: ['orange', 'gold', 'black']
   },
   {
-    id: 'xiaomi-14',
-    icon: 'phone',
+    id: 'huawei-pura-90s-pro',
     category: 'phones',
-    brand: 'xiaomi',
-    name: { ar: 'Xiaomi 14', en: 'Xiaomi 14' },
+    brand: 'huawei',
+    name: { ar: 'Huawei Pura 90S Pro', en: 'Huawei Pura 90S Pro' },
     description: {
-      ar: 'مواصفات رائدة بحجم صغير وسعر أقل من المنافسين.',
-      en: 'Flagship internals in a small body, for less than the obvious rivals.'
+      ar: 'حجم أصغر وسعر أقل، بنفس لغة التصميم.',
+      en: 'A smaller body and a lower price, in the same design language.'
     },
-    attributes: { ram: 12, screen: 6.36, battery: 4610, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'xiaomi-14-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 259.9, stock: 7 },
-      { id: 'xiaomi-14-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 299.9, stock: 5 }
-    ]
+    attributes: { screen: 6.6, camera: 50, battery: 4900, refreshRate: 120, os: 'harmonyos' },
+    storages: [{ size: '256GB', price: 249.9 }],
+    colors: ['pink', 'orange', 'black']
   },
   {
-    id: 'redmi-note-13-pro',
-    icon: 'phone',
+    id: 'huawei-nova-15-max',
     category: 'phones',
-    brand: 'xiaomi',
-    badge: { ar: 'قيمة ممتازة', en: 'Great Value' },
-    name: { ar: 'Redmi Note 13 Pro', en: 'Redmi Note 13 Pro' },
+    brand: 'huawei',
+    name: { ar: 'Huawei nova 15 Max', en: 'Huawei nova 15 Max' },
     description: {
-      ar: 'كاميرا ٢٠٠ ميجابكسل بسعر ما تتوقعه منها أبدًا.',
-      en: 'A 200MP camera at a price you would never expect it at.'
+      ar: 'شاشة ضخمة وبطارية كبيرة بأقل من ١٠٠ دينار.',
+      en: 'A huge screen and a big battery for under 100 dinar.'
     },
-    attributes: { ram: 8, screen: 6.67, battery: 5100, camera: 200, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'redmi-note-13-pro-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 79.9, stock: 26 },
-      { id: 'redmi-note-13-pro-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 94.9, stock: 13 }
-    ]
-  },
-  {
-    id: 'redmi-13c',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'xiaomi',
-    name: { ar: 'Redmi 13C', en: 'Redmi 13C' },
-    description: {
-      ar: 'أرخص هاتف في المتجر، وما زال يشتغل بسلاسة ليومك.',
-      en: 'The cheapest phone we stock, and still smooth enough for a normal day.'
-    },
-    attributes: { ram: 4, screen: 6.74, battery: 5000, camera: 50, network: '4g', os: 'android', refreshRate: 90 },
-    variants: [
-      { id: 'redmi-13c-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 34.9, stock: 45 }
-    ]
-  },
-  {
-    id: 'poco-x6-pro',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'xiaomi',
-    name: { ar: 'POCO X6 Pro', en: 'POCO X6 Pro' },
-    description: {
-      ar: 'أسرع معالج في فئته، مصمم للألعاب قبل أي شيء.',
-      en: 'The fastest chip in its class, built for gaming before anything else.'
-    },
-    attributes: { ram: 12, screen: 6.67, battery: 5000, camera: 64, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'poco-x6-pro-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 89.9, stock: 19 },
-      { id: 'poco-x6-pro-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 104.9, stock: 8 }
-    ]
-  },
-
-  // --- Google --------------------------------------------------------------
-  {
-    id: 'pixel-8-pro',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'google',
-    name: { ar: 'Pixel 8 Pro', en: 'Pixel 8 Pro' },
-    description: {
-      ar: 'أفضل معالجة صور في السوق، وسبع سنوات تحديثات.',
-      en: 'The best photo processing on the market, and seven years of updates.'
-    },
-    attributes: { ram: 12, screen: 6.7, battery: 5050, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'pixel-8-pro-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 289.9, stock: 6 },
-      { id: 'pixel-8-pro-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 329.9, stock: 4 }
-    ]
-  },
-  {
-    id: 'pixel-8',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'google',
-    name: { ar: 'Pixel 8', en: 'Pixel 8' },
-    description: {
-      ar: 'أندرويد نظيف بدون إضافات، وكاميرا تصحح لك كل لقطة.',
-      en: 'Clean Android with nothing bolted on, and a camera that fixes every shot.'
-    },
-    attributes: { ram: 8, screen: 6.2, battery: 4575, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'pixel-8-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 209.9, stock: 11 },
-      { id: 'pixel-8-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 239.9, stock: 5 }
-    ]
-  },
-  {
-    id: 'pixel-8a',
-    icon: 'phone',
-    category: 'phones',
-    brand: 'google',
-    name: { ar: 'Pixel 8a', en: 'Pixel 8a' },
-    description: {
-      ar: 'كاميرا البكسل بنص السعر — أفضل صفقة في القائمة.',
-      en: 'Pixel photography at half the price — the best deal on this list.'
-    },
-    attributes: { ram: 8, screen: 6.1, battery: 4492, camera: 64, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'pixel-8a-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 159.9, stock: 16 }
-    ]
+    attributes: { screen: 6.84, camera: 50, battery: 5500, refreshRate: 120, os: 'harmonyos' },
+    storages: [{ size: '256GB', price: 99.9 }],
+    colors: ['cyan', 'gold', 'black']
   },
 
   // --- Honor ---------------------------------------------------------------
   {
-    id: 'honor-magic6-pro',
-    icon: 'phone',
+    id: 'honor-600',
     category: 'phones',
     brand: 'honor',
-    name: { ar: 'Honor Magic6 Pro', en: 'Honor Magic6 Pro' },
+    name: { ar: 'Honor 600', en: 'Honor 600' },
     description: {
-      ar: 'شاشة ساطعة جدًا وبطارية ضخمة، ينافس الرواد مباشرة.',
-      en: 'An extremely bright screen and a huge battery, taking flagships head on.'
+      ar: 'متخصص في البورتريه، بحجم مريح وسعر متوسط.',
+      en: 'A portrait specialist, in a comfortable size at a mid-range price.'
     },
-    attributes: { ram: 12, screen: 6.8, battery: 5600, camera: 180, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'honor-magic6-pro-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 329.9, stock: 5 }
-    ]
+    attributes: { screen: 6.55, camera: 200, battery: 5500, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 129.0 }],
+    colors: ['orange', 'gold', 'black']
   },
   {
-    id: 'honor-200-pro',
-    icon: 'phone',
+    id: 'honor-x9d',
     category: 'phones',
     brand: 'honor',
-    name: { ar: 'Honor 200 Pro', en: 'Honor 200 Pro' },
+    badge: { ar: 'قيمة ممتازة', en: 'Great Value' },
+    name: { ar: 'Honor X9D', en: 'Honor X9D' },
     description: {
-      ar: 'متخصص في تصوير البورتريه، بمعالجة مستوحاة من استوديوهات التصوير.',
-      en: 'A portrait specialist, with processing modelled on real photo studios.'
+      ar: 'شاشة مقاومة للكسر وبطارية ضخمة، لمن يوقع هاتفه كثيرًا.',
+      en: 'A drop-resistant screen and a huge battery, for people who drop their phone.'
     },
-    attributes: { ram: 12, screen: 6.78, battery: 5200, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'honor-200-pro-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 219.9, stock: 9 }
-    ]
+    attributes: { screen: 6.79, camera: 108, battery: 8300, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 109.0 }],
+    colors: ['brown', 'green', 'gold']
   },
   {
-    id: 'honor-x9b',
-    icon: 'phone',
+    id: 'honor-400-lite',
     category: 'phones',
     brand: 'honor',
-    name: { ar: 'Honor X9b', en: 'Honor X9b' },
+    name: { ar: 'Honor 400 Lite', en: 'Honor 400 Lite' },
     description: {
-      ar: 'شاشة مقاومة للكسر، لمن يوقع هاتفه أكثر من مرة بالشهر.',
-      en: 'A drop-resistant screen, for anyone who drops their phone more than once a month.'
+      ar: 'خفيف ونحيف بسعر في المتناول، لكل يوم.',
+      en: 'Light and slim at an accessible price, for every day.'
     },
-    attributes: { ram: 8, screen: 6.78, battery: 5800, camera: 108, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'honor-x9b-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 79.9, stock: 22 }
-    ]
+    attributes: { screen: 6.7, camera: 108, battery: 5230, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 79.9 }],
+    colors: ['green', 'black']
   },
 
-  // --- Nothing -------------------------------------------------------------
+  // --- Oppo ----------------------------------------------------------------
   {
-    id: 'nothing-phone-2',
-    icon: 'phone',
+    id: 'oppo-reno-16',
     category: 'phones',
-    brand: 'nothing',
-    name: { ar: 'Nothing Phone (2)', en: 'Nothing Phone (2)' },
+    brand: 'oppo',
+    name: { ar: 'Oppo Reno 16', en: 'Oppo Reno 16' },
     description: {
-      ar: 'ظهر شفاف بإضاءة Glyph — الهاتف الوحيد اللي أحد يسألك عنه.',
-      en: 'A transparent back with Glyph lighting — the one phone people ask you about.'
+      ar: 'حجم صغير مريح، وتصوير بورتريه قوي.',
+      en: 'A genuinely compact body, with strong portrait photography.'
     },
-    attributes: { ram: 12, screen: 6.7, battery: 4700, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'nothing-phone-2-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 189.9, stock: 7 },
-      { id: 'nothing-phone-2-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 219.9, stock: 2 }
-    ]
+    attributes: { screen: 6.32, camera: 50, battery: 6000, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 209.9 }],
+    colors: ['twilight-violet', 'pop-white']
   },
   {
-    id: 'nothing-phone-2a',
-    icon: 'phone',
+    id: 'oppo-reno-16f',
     category: 'phones',
-    brand: 'nothing',
-    name: { ar: 'Nothing Phone (2a)', en: 'Nothing Phone (2a)' },
+    brand: 'oppo',
+    name: { ar: 'Oppo Reno 16F', en: 'Oppo Reno 16F' },
     description: {
-      ar: 'نفس التصميم المميز بسعر النصف تقريبًا.',
-      en: 'The same distinctive design for roughly half the price.'
+      ar: 'شاشة أكبر وسعر أقل من رينو ١٦ العادي.',
+      en: 'A bigger screen and a lower price than the standard Reno 16.'
     },
-    attributes: { ram: 8, screen: 6.7, battery: 5000, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'nothing-phone-2a-128', label: { ar: '١٢٨ جيجا', en: '128GB' }, price: 99.9, stock: 20 },
-      { id: 'nothing-phone-2a-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 114.9, stock: 14 }
-    ]
+    attributes: { screen: 6.67, camera: 50, battery: 6000, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 149.9 }],
+    colors: ['pop-white', 'twilight-violet']
+  },
+  {
+    id: 'oppo-a6',
+    category: 'phones',
+    brand: 'oppo',
+    name: { ar: 'Oppo A6', en: 'Oppo A6' },
+    description: {
+      ar: 'بطارية تدوم يومين وهيكل مقاوم للماء والغبار.',
+      en: 'Two-day battery life in a water and dust resistant body.'
+    },
+    attributes: { screen: 6.75, camera: 50, battery: 6500, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 106.9 }],
+    colors: ['gold', 'blue']
+  },
+  {
+    id: 'oppo-a6t',
+    category: 'phones',
+    brand: 'oppo',
+    name: { ar: 'Oppo A6T', en: 'Oppo A6T' },
+    description: {
+      ar: 'أرخص خيار من أوبو، ببطارية كبيرة وشاشة واسعة.',
+      en: 'The most affordable Oppo, with a big battery and a wide screen.'
+    },
+    attributes: { screen: 6.75, camera: 50, battery: 6500, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 91.9 }],
+    colors: ['blue', 'violet']
   },
 
-  // --- OnePlus -------------------------------------------------------------
+  // --- Xiaomi --------------------------------------------------------------
   {
-    id: 'oneplus-12',
-    icon: 'phone',
+    id: 'redmi-note-15-pro',
     category: 'phones',
-    brand: 'oneplus',
-    name: { ar: 'OnePlus 12', en: 'OnePlus 12' },
+    brand: 'xiaomi',
+    name: { ar: 'Redmi Note 15 Pro', en: 'Redmi Note 15 Pro' },
     description: {
-      ar: 'شحن سريع جدًا وأداء ثابت تحت الضغط.',
-      en: 'Very fast charging, and performance that holds up under pressure.'
+      ar: 'شاشة AMOLED كبيرة وأداء قوي بأقل من ١٠٠ دينار.',
+      en: 'A large AMOLED display and real speed for under 100 dinar.'
     },
-    attributes: { ram: 12, screen: 6.82, battery: 5400, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'oneplus-12-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 269.9, stock: 8 },
-      { id: 'oneplus-12-512', label: { ar: '٥١٢ جيجا', en: '512GB' }, price: 309.9, stock: 3 }
-    ]
+    attributes: { screen: 6.83, camera: 200, battery: 5800, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 99.9 }],
+    colors: ['black', 'blue']
+  },
+
+  // --- Tecno ---------------------------------------------------------------
+  {
+    id: 'tecno-camon-50-ultra',
+    category: 'phones',
+    brand: 'tecno',
+    name: { ar: 'Tecno Camon 50 Ultra', en: 'Tecno Camon 50 Ultra' },
+    description: {
+      ar: 'كاميرا قوية وشاشة منحنية بسعر متوسط.',
+      en: 'A strong camera and a curved display at a mid-range price.'
+    },
+    attributes: { screen: 6.78, camera: 100, battery: 5200, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 152.9 }],
+    colors: ['black', 'gold']
   },
   {
-    id: 'oneplus-nord-ce4',
-    icon: 'phone',
+    id: 'tecno-pova-curve-2',
     category: 'phones',
-    brand: 'oneplus',
-    name: { ar: 'OnePlus Nord CE4', en: 'OnePlus Nord CE4' },
+    brand: 'tecno',
+    name: { ar: 'Tecno POVA Curve 2', en: 'Tecno POVA Curve 2' },
     description: {
-      ar: 'يشحن من صفر لنص البطارية في أقل من ١٥ دقيقة.',
-      en: 'Charges from empty to half in under 15 minutes.'
+      ar: 'شاشة منحنية وشحن سريع، بسعر تحت ١٣٠ دينار.',
+      en: 'A curved screen and fast charging, under 130 dinar.'
     },
-    attributes: { ram: 8, screen: 6.7, battery: 5500, camera: 50, network: '5g', os: 'android', refreshRate: 120 },
-    variants: [
-      { id: 'oneplus-nord-ce4-256', label: { ar: '٢٥٦ جيجا', en: '256GB' }, price: 109.9, stock: 18 }
-    ]
+    attributes: { screen: 6.78, camera: 64, battery: 6000, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 124.9 }],
+    colors: ['storm-titanium', 'melting-silver', 'mystic-purple']
+  },
+  {
+    id: 'tecno-spark-50',
+    category: 'phones',
+    brand: 'tecno',
+    name: { ar: 'Tecno Spark 50', en: 'Tecno Spark 50' },
+    description: {
+      ar: 'أرخص هاتف ٥G في المتجر، ببطارية ٦٥٠٠ وشحن سريع.',
+      en: 'The cheapest 5G phone we stock, with a 6500mAh battery and fast charging.'
+    },
+    attributes: { screen: 6.78, camera: 50, battery: 6500, refreshRate: 120, os: 'android' },
+    storages: [{ size: '256GB', price: 74.9 }],
+    colors: ['black', 'cyan']
   }
 ];

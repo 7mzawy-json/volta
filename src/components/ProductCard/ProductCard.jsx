@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
-import { getDefaultVariant, getPriceRange, getTotalStock, hasVariantChoice } from '../../data/products.js';
+import { getDefaultVariant, getPriceRange, getTotalStock, hasVariantChoice, getProductColors } from '../../data/products.js';
+import { getColor } from '../../data/colors.js';
+import DeviceRender from '../DeviceRender/DeviceRender.jsx';
 import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
 import styles from './ProductCard.module.css';
 import { formatPrice } from '../../utils/currency.js';
@@ -13,8 +16,13 @@ export default function ProductCard({ product }) {
   const { toggle, isFavorited } = useWishlist();
 
   const favorited = isFavorited(product.id);
+  const [preview, setPreview] = useState(null);
   const inStock = getTotalStock(product) > 0;
   const { min } = getPriceRange(product);
+  const isPhone = product.category === 'phones';
+  const colorways = isPhone ? getProductColors(product) : [];
+  // Hovering a swatch previews that finish without leaving the listing.
+  const swatch = preview || colorways[0];
   // A listing sold in several sizes shows a "from" price, since the headline
   // number would otherwise be a promise the cheapest variant might not keep.
   const showFrom = hasVariantChoice(product);
@@ -32,7 +40,17 @@ export default function ProductCard({ product }) {
   return (
     <Link to={`/products/${product.id}`} className={styles.card}>
       <div className={styles.visual}>
-        <ProductGlyph icon={product.icon} size={72} className={styles.glyph} />
+        {isPhone ? (
+          <DeviceRender
+            color={swatch}
+            brand={product.brand}
+            wide={product.attributes?.screen >= 7.5}
+            size={58}
+            className={styles.device}
+          />
+        ) : (
+          <ProductGlyph icon={product.icon} size={72} className={styles.glyph} />
+        )}
         {product.badge && <span className={styles.badge}>{product.badge[lang]}</span>}
         {!inStock && <span className={styles.soldOut}>{t.product.outOfStock}</span>}
         <button
@@ -49,6 +67,22 @@ export default function ProductCard({ product }) {
       </div>
       <div className={styles.info}>
         <p className={styles.name}>{product.name[lang]}</p>
+        {colorways.length > 1 && (
+          <div className={styles.cardSwatches}>
+            {colorways.slice(0, 5).map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`${styles.cardSwatch} ${swatch === c ? styles.cardSwatchOn : ''}`}
+                style={{ background: getColor(c).hex }}
+                onMouseEnter={() => setPreview(c)}
+                onFocus={() => setPreview(c)}
+                onClick={(e) => { e.preventDefault(); setPreview(c); }}
+                aria-label={getColor(c).name[lang]}
+              />
+            ))}
+          </div>
+        )}
         <div className={styles.bottomRow}>
           <span className={styles.price}>
             {showFrom && <span className={styles.fromLabel}>{t.product.from} </span>}
