@@ -1,0 +1,19 @@
+.toastLayer {
+  position: fixed;
+  top: 20px;
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--primitive-radius-full);
+  box-shadow: var(--primitive-shadow-glow-strong);
+  animation: toastIn 250ms var(--motion-ease-standard);
+}

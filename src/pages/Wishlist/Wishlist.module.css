@@ -1,0 +1,36 @@
+.page {
+  padding-block: 32px 64px;
+}
+
+.page h1 {
+  font-size: var(--primitive-fontSize-3xl);
+  margin-bottom: 28px;
+}
+
+.empty {
+  padding-block: 60px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-muted-foreground);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

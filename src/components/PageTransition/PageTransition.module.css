@@ -1,0 +1,6 @@
+.page {
+  animation: fadeSlideIn var(--motion-page) var(--motion-ease-standard);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
