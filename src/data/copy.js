@@ -29,7 +29,15 @@ export const copy = {
     facets: {
       title: 'تصفية',
       clear: 'مسح الكل',
-      results: 'نتيجة',
+      // Arabic distinguishes six plural categories; Intl.PluralRules picks one.
+      results: {
+        zero: 'نتائج',
+        one: 'نتيجة واحدة',
+        two: 'نتيجتان',
+        few: 'نتائج',
+        many: 'نتيجة',
+        other: 'نتيجة'
+      },
       brand: 'الماركة',
       storage: 'السعة',
       ram: 'الذاكرة',
@@ -143,7 +151,7 @@ export const copy = {
     facets: {
       title: 'Filter',
       clear: 'Clear all',
-      results: 'results',
+      results: { one: 'result', other: 'results' },
       brand: 'Brand',
       storage: 'Storage',
       ram: 'RAM',

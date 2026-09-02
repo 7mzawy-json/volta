@@ -11,6 +11,7 @@ import {
   productMatchesFacet
 } from '../../data/products.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
+import { plural } from '../../utils/plural.js';
 import styles from './Products.module.css';
 
 export default function Products() {
@@ -66,9 +67,7 @@ export default function Products() {
 
   const activeFacetCount = facets.reduce((n, f) => n + selectedFor(f.id).length, 0);
 
-  // Products matching everything EXCEPT the facets — this is the population the
-  // facet option counts are computed from, so the numbers describe what is
-  // actually reachable rather than the whole catalogue.
+  // Products matching category and search, before any facet is applied.
   const beforeFacets = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
@@ -94,6 +93,18 @@ export default function Products() {
     return list;
     // searchParams drives the facet selections, so it belongs in the deps.
   }, [beforeFacets, facets, sort, searchParams]);
+
+  // Counts for one facet are computed against everything matching the OTHER
+  // facets but not this one. Narrowing by the facet's own selection would drive
+  // every unpicked option to zero and make it unpickable; ignoring the other
+  // facets would promise more than the filter can deliver — "1TB (2)" while
+  // Apple is selected, when only one of those two is an iPhone.
+  const populationFor = (facet) =>
+    beforeFacets.filter((p) =>
+      facets.every(
+        (other) => other.id === facet.id || productMatchesFacet(p, other, selectedFor(other.id))
+      )
+    );
 
   const facetValueLabel = (facet, value) => {
     if (facet.id === 'brand') return brandLabels[value] || value;
@@ -149,7 +160,7 @@ export default function Products() {
             </div>
 
             {facets.map((facet) => {
-              const options = getFacetOptions(facet, beforeFacets);
+              const options = getFacetOptions(facet, populationFor(facet));
               if (!options.length) return null;
               const selected = selectedFor(facet.id);
 
@@ -179,7 +190,7 @@ export default function Products() {
 
         <div className={styles.results}>
           <p className={styles.resultCount}>
-            {filtered.length} {t.facets.results}
+            {filtered.length} {plural(t.facets.results, filtered.length, lang)}
           </p>
 
           {filtered.length === 0 ? (
