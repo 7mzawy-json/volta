@@ -1,14 +1,13 @@
-# VOLTA — Brand Guidelines v2.0
+# VOLTA — Brand Guidelines v2.1
 
-> Last updated: 2026-09-01
-> Status: Draft — pending final sign-off before build
-> Supersedes: v1.0 (NABD) — full identity pivot, see Changelog
+> Last updated: 2026-09-03
+> Status: In build — identity locked, catalogue direction revised in v2.1
+> Supersedes: v2.0 (accessories-only scope), v1.0 (NABD) — see Changelog
 
 ## Brand Concept
 
-**VOLTA** — a curated electronics accessories shop (chargers, audio, phone & laptop
-accessories, small smart-home gadgets) for young professionals and students in the
-Gulf/MENA region who want their tech to look as good as it works. The name evokes
+**VOLTA** — a curated electronics shop for young professionals and students in Kuwait
+and the wider Gulf who want their tech to look as good as it works. The name evokes
 voltage/electricity — direct, high-energy, unmistakably tech. The mark is a **symmetric
 neon-green thunderbolt**: two mirrored bolt strokes meeting at a central point, forming
 a balanced diamond-like silhouette rather than the usual single-direction jagged bolt —
@@ -20,6 +19,35 @@ high-contrast, tech-forward identity: black-dominant surfaces, a single unmistak
 neon-green signal color, white for content and contrast.
 
 **Slogan:** اشحن طاقتك — *"Power Up"*
+
+### Catalogue scope (revised in v2.1)
+
+VOLTA leads with **smartphones** and supports them with the accessories the brand
+started from — chargers, audio, phone and laptop accessories, small smart-home gadgets.
+
+The shift from accessories-only is deliberate. VOLTA is positioned against **Xcite**,
+Kuwait's largest electronics chain, and phones are the category that decides where
+people shop; an accessories-only shop cannot credibly claim to be a better version of
+them. Phones plus phone accessories is also a coherent story rather than a scope grab:
+you buy the phone, then the charger and the case for it.
+
+Depth over breadth still holds. VOLTA is not trying to match Xcite's fourteen
+departments — no washing machines, no air conditioning, no perfume. It goes deep in one
+vertical and stays curated everywhere else. "Curated" is a promise about *selection*,
+not about *smallness*.
+
+### Market
+
+The shop is built for **Kuwait**, and that is not cosmetic:
+
+- **Currency is the Kuwaiti dinar, always at three decimal places** — `429.900 KD`,
+  never `429.90` and never `$`. The dinar divides into 1000 fils. Getting this wrong is
+  the single most obvious tell that a storefront was not built for this market.
+- **Arabic leads, English follows.** Arabic is the default language and RTL is the
+  default direction; English is the toggle, not the other way round.
+- **Model names stay in Latin script in both languages.** "iPhone 17 Pro Max" is how the
+  phone is marketed, sold and searched for here. Transliterating it into Arabic would
+  make it harder to find, not more local. The same applies to storage sizes (`256GB`).
 
 ## Quick Reference
 
@@ -205,12 +233,19 @@ Minimum clear space = height of the bolt mark on all sides.
 
 ### Photography Style
 
+> Aspirational, not shipped. Nothing in the build uses photography — see *Product
+> rendering* below for what actually ships and why. Keep this section as the brief for
+> any future shoot or licensed imagery.
+
 - **Lighting:** Dramatic, high-contrast studio lighting on black backgrounds, with a
   neon-green rim light or reflection as the signature accent — the opposite of soft/warm
 - **Subjects:** Product isolated on black, or in-hand against a dark environment
 - **Color treatment:** Deep blacks, punchy whites, neon-green highlight only — no warm
   tones, no busy multicolor backgrounds
 - **Composition:** Clean, high-contrast, one clear focal subject, negative space in black
+- **One hard rule that carries over to the renders:** the product's own finish is never
+  recoloured to fit the palette. Neon green is the interface's signal colour, not a
+  filter applied to merchandise — a Cosmic Orange phone stays Cosmic Orange.
 
 ### Icons
 
@@ -218,12 +253,38 @@ Minimum clear space = height of the bolt mark on all sides.
 - On hover/active: stroke shifts to Neon Green
 - Fill: None (outline only), except badges/counters which are solid neon with black glyphs
 
-### Content Note — Demo Products
+### Product rendering — what ships instead of photography (v2.1)
 
-The prototype ships with **placeholder/demo tech products** (e.g. wireless earbuds,
-charging pads, power banks, a smartwatch, a mechanical keyboard) — this is a concept
-build, not a live catalog, so product content should look real enough to demonstrate
-the UI/UX (real-sounding names, prices, specs) without claiming to be an actual SKU.
+The prototype does **not** use product photography, and this is a decision rather than a
+gap. Real photographs would mean shipping either Xcite's or the manufacturers'
+copyrighted media in a project that gets submitted and possibly published.
+
+Phones are **drawn from their own data** instead:
+
+- The body takes the **actual finish** being shown — a Cosmic Orange iPhone renders
+  Cosmic Orange, a Titanium Icyblue Galaxy renders Titanium Icyblue. Selecting a colour
+  changes the render.
+- **Camera layout follows the brand** — Apple gets a squircle module with three lenses,
+  Samsung bare vertical lenses with no housing, everyone else a circular island — so an
+  iPhone reads as an iPhone beside a Galaxy rather than as one repeated icon.
+- Foldables draw with a wider body and a fold seam.
+- Detailing flips between light and dark depending on the finish, so a silver body keeps
+  its edges against the black page and a black one keeps its own.
+
+This also protects a core claim of the project. Vector renders cost a few KB for the
+entire catalogue; a page of real product photography costs megabytes, and page weight is
+precisely the ground VOLTA beats Xcite on.
+
+If real photography is ever added, it goes **per variant**, not per product — the colour
+axis already exists in the data and the render already keys off it.
+
+### Content Note — catalogue realism
+
+Phone models, storage tiers, colourways and prices **mirror what Xcite actually sells in
+Kuwait**, so the comparison is like-for-like rather than a strawman. Accessories remain
+VOLTA-branded demo products with real-sounding names, prices and specs.
+
+This is still a concept build, not a live shop: no real stock, no real payment.
 
 ---
 
@@ -320,6 +381,15 @@ have to be visible by default there, or the quick-add action becomes undiscovera
 
 ## AI Image Generation
 
+> **Not used in the current build.** Product visuals ship as colour-accurate vector
+> renders (see *Product rendering*). This section is kept for marketing and campaign
+> imagery — hero art, the Google Flow ad, social — where generated imagery is
+> appropriate and no real product needs to be depicted accurately.
+>
+> Do not use these prompts to generate *product* images: a generated iPhone that is not
+> quite an iPhone is worse than an honest render, and the colour axis in the data would
+> have nothing to key off.
+
 ### Base Prompt Template
 
 Always prepend to image generation prompts:
@@ -374,3 +444,4 @@ lighting, minimal composition, high-contrast tech-forward feel.
 |---------|------|---------|
 | 1.0 | 2026-09-01 | Initial guidelines — NABD identity (warm/boutique direction) |
 | 2.0 | 2026-09-01 | Full pivot to VOLTA — new name, symmetric neon-green thunderbolt mark, black/neon-green/white palette, added UX Principles section (minimal friction, consistent hover language, visual hierarchy, responsive, smooth page transitions, demo product content) |
+| 2.1 | 2026-09-03 | Catalogue scope widened from accessories-only to **smartphones-led** (positioning against Xcite requires the category that decides where people shop). Added **Market** section: Kuwaiti dinar at three decimals, Arabic-first, Latin model names. Replaced the AI-photography plan with **colour-accurate vector device renders** — finish-driven, brand-specific camera layouts — and recorded why (copyright, and page weight is the ground we beat Xcite on). Phone lineup and pricing now mirror Xcite's live catalogue. Identity itself — mark, palette, type, voice, UX principles — unchanged. |
