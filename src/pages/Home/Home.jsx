@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
-import { getProduct, getByCategory, getPriceRange, getProductColors, categories } from '../../data/products.js';
+import { getPriceRange, getProductColors, categories } from '../../data/products.js';
+import { pickHomepage } from './homepageProducts.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
 import DeviceRender from '../../components/DeviceRender/DeviceRender.jsx';
 import Button from '../../components/Button/Button.jsx';
 import BoltMark from '../../components/BoltMark/BoltMark.jsx';
 import Reveal from '../../components/Reveal/Reveal.jsx';
+import ScrollShowcase from '../../components/ScrollShowcase/ScrollShowcase.jsx';
 import { getColor } from '../../data/colors.js';
 import { formatPrice } from '../../utils/currency.js';
 import styles from './Home.module.css';
@@ -18,10 +20,6 @@ const categoryIcons = {
   accessories: 'keyboard',
   smart: 'hub'
 };
-
-// The two phones the homepage argues for. Named rather than derived: a homepage
-// is an editorial decision about what to lead with, not a query result.
-const SPOTLIGHT_IDS = ['iphone-17-pro-max', 'galaxy-s26-ultra'];
 
 function Spotlight({ product, flipped }) {
   const { lang, t } = useLanguage();
@@ -69,10 +67,10 @@ function Spotlight({ product, flipped }) {
 
 export default function Home() {
   const { lang, t } = useLanguage();
-  const phones = getByCategory('phones');
-  const featured = phones.slice(0, 4);
-  const heroPhone = getProduct(SPOTLIGHT_IDS[0]);
-  const spotlights = SPOTLIGHT_IDS.map(getProduct);
+  // Every slot on this page shows a DIFFERENT phone, and the featured row a
+  // different brand in each card. See homepageProducts.js for why that is a
+  // function with tests rather than four lines of slicing.
+  const { hero: heroPhone, spotlights, featured } = pickHomepage();
 
   return (
     <main className={styles.page}>
@@ -108,8 +106,15 @@ export default function Home() {
         </div>
       </section>
 
-      {spotlights.map((product, i) => (
-        <Spotlight key={product?.id || i} product={product} flipped={i % 2 === 1} />
+      {/* The lead product is a pinned sequence rather than a third static band:
+          it turns and steps through its specs as the page scrolls. The second
+          spotlight stays editorial, so the page has two rhythms instead of two
+          of the same thing. Crucially this REPLACED a spotlight rather than
+          adding a section — a new one would have needed a product, and every
+          interesting phone was already spoken for. */}
+      <ScrollShowcase product={spotlights[0]} />
+      {spotlights.slice(1).map((product, i) => (
+        <Spotlight key={product?.id || i} product={product} flipped />
       ))}
 
       {/* Bento — four claims, the largest tile carrying the strongest one. */}

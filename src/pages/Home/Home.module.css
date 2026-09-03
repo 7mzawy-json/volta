@@ -4,7 +4,14 @@
    neon stays a signal, not a wash, so the products carry the colour. */
 
 .page {
-  overflow-x: hidden;
+  /* clip, NOT hidden. `overflow: hidden` makes this element a scroll container,
+     and a scroll container between a `position: sticky` child and the viewport
+     is what the child sticks to — so the pinned showcase inside simply scrolled
+     away with the page and left a tall empty gap. `clip` does the same visual
+     job (full-bleed panels and glows cannot cause sideways scroll) without
+     creating a scroll container, so sticky still resolves against the viewport.
+     The 375px overflow guard in the a11y suite covers the clipping half. */
+  overflow-x: clip;
 }
 
 /* --- hero ---------------------------------------------------------------- */

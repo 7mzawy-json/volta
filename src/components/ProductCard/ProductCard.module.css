@@ -8,6 +8,12 @@
   background: var(--box-bg);
   border: 1px solid var(--box-border);
   border-radius: var(--box-radius);
+  /* --card-shadow was defined in the token file for both themes and applied
+     nowhere. The card even transitioned box-shadow while never having one.
+     A card fill of #FFFDF5 on a #FAF7EA page is 1.05:1 — the fill can never
+     separate the card from the page on its own, so the lift has to come from
+     the edge and the shadow together. */
+  box-shadow: var(--card-shadow);
   overflow: hidden;
   transition: border-color var(--motion-hover) var(--motion-ease-standard),
     background var(--motion-hover) var(--motion-ease-standard),

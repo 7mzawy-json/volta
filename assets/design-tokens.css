@@ -95,7 +95,12 @@
   --color-surface-hover: #FFFFFA;
   --color-foreground: #0A0A0A;      /* dark mode's background becomes light mode's ink */
   --color-muted-foreground: #5C5A50;
-  --color-border: #EAE4D1;
+  /* 1.76:1 against the ivory page. The previous #EAE4D1 measured 1.18:1 —
+     technically a border, visually nothing, which is why every card looked
+     like part of the background. Decorative edges do not need the 3:1 that
+     WCAG 1.4.11 asks of CONTROL boundaries (see --input-border), because a
+     card is identified by its contents; they do need to be seen. */
+  --color-border: #C9BC94;
   --color-primary: #0E7A2E;         /* deep green: text, links, outlines — 5.1:1 */
   --color-primary-hover: #0B6325;
   --color-primary-foreground: #FFFDF5;
@@ -148,7 +153,9 @@
   --color-surface-hover: #1F2023;
   --color-foreground: #FFFFFF;
   --color-muted-foreground: #9A9AA1;
-  --color-border: #2A2C30;
+  /* 1.93:1, up from 1.42:1. Dark mode had the same flatness as light; the
+     neon and the glows disguised it. */
+  --color-border: #3D4148;
   --color-primary: #39FF14;
   --color-primary-hover: #2ECC0F;
   --color-primary-foreground: #0A0A0A;
@@ -192,13 +199,17 @@
 
   --box-bg: #FFFDF5;
   --box-bg-hover: #FFFFFA;
-  --box-border: #EAE4D1;
+  --box-border: #C9BC94;
   --box-border-hover: #0E7A2E;
   --box-shadow-hover: 0 6px 18px -6px rgba(90, 84, 60, 0.28);
   --box-radius: 0.875rem;
 
   --input-bg: #FFFDF5;
-  --input-border: #E0D9C2;
+  /* 3.16:1 against the field fill, clearing WCAG 1.4.11 for control
+     boundaries. #E0D9C2 measured 1.38:1 — the checkout inputs were
+     effectively borderless. axe does not test this reliably, which is how
+     it survived a clean accessibility suite. */
+  --input-border: #9C8F66;
   --input-focus-ring: #0E7A2E;
   --input-padding-x: 0.75rem;
   --input-padding-y: 0.5rem;
@@ -234,12 +245,13 @@
 
   --box-bg: #16171A;
   --box-bg-hover: #1F2023;
-  --box-border: #2A2C30;
+  --box-border: #3D4148;
   --box-border-hover: #39FF14;
   --box-shadow-hover: 0 0 20px rgba(57, 255, 20, 0.35);
 
   --input-bg: #16171A;
-  --input-border: #2A2C30;
+  /* 3.24:1 against the field fill — WCAG 1.4.11, as in light mode. */
+  --input-border: #626974;
   --input-focus-ring: #39FF14;
 
   --card-bg: #16171A;

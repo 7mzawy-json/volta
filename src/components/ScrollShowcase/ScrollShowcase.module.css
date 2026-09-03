@@ -1,0 +1,214 @@
+/* The pinned product sequence.
+   --p is a plain 0-1 number set from JS. Every motion below is derived from it
+   in calc(), so the browser does the interpolation and JS only ever writes one
+   custom property per frame. */
+
+.showcase {
+  /* The extra height IS the scroll runway: the sticky child holds the viewport
+     for however much of this is left. 260vh gives each of the three specs a
+     comfortable beat without the section outstaying its welcome. */
+  height: 260vh;
+  position: relative;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+  width: 100%;
+}
+
+/* --- the device ---------------------------------------------------------- */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 380px;
+  height: 380px;
+  max-width: 90%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow-strong), transparent 70%);
+  /* Comes up as the sequence runs, so the product feels lit rather than moved. */
+  opacity: calc(0.35 + var(--p) * 0.65);
+}
+
+.device {
+  position: relative;
+  color: var(--color-primary);
+  /* The whole gesture: the phone rises slightly, turns through 24 degrees and
+     grows a little. Small numbers on purpose — this is a product turning to
+     face you, not a carousel. */
+  transform:
+    translateY(calc(var(--p) * -26px))
+    rotate(calc(var(--p) * 24deg))
+    scale(calc(0.88 + var(--p) * 0.24));
+  transform-origin: 50% 55%;
+}
+
+/* Arabic reads right-to-left, so the turn should open toward the reader from
+   the other side. Without this the phone rotates away from the copy. */
+[dir='rtl'] .device {
+  transform:
+    translateY(calc(var(--p) * -26px))
+    rotate(calc(var(--p) * -24deg))
+    scale(calc(0.88 + var(--p) * 0.24));
+}
+
+/* --- the copy ------------------------------------------------------------- */
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.label {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: var(--display-md);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.1;
+}
+
+.beats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 2px;
+  padding: 0;
+  width: 100%;
+}
+
+.beat {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  /* Off-beat specs are DIFFERENTIATED, not faded.
+     They were `opacity: 0.38`, which put 30px bold text on the ivory page at
+     2.52:1 against a 3:1 requirement — the accessibility suite caught it. Any
+     opacity low enough to read as "inactive" is too low to read at all, so the
+     state is carried by colour and scale instead, both of which stay legible.
+     The sequence is an emphasis, not a reveal: a spec you cannot read is not
+     a spec. */
+  transform: scale(0.94);
+  transform-origin: center left;
+  transition:
+    transform var(--motion-hover) var(--motion-ease-standard),
+    color var(--motion-hover) var(--motion-ease-standard);
+}
+
+[dir='rtl'] .beat {
+  transform-origin: center right;
+}
+
+.beatActive {
+  transform: scale(1);
+}
+
+.beatValue {
+  font-size: clamp(1.9rem, 5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  /* 6.45:1 on the ivory page — quiet, and still comfortably readable. */
+  color: var(--color-muted-foreground);
+  transition: color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.beatActive .beatValue {
+  color: var(--color-primary);
+}
+
+.beatUnit {
+  font-size: 0.45em;
+  font-weight: 600;
+  margin-inline-start: 2px;
+  color: var(--color-muted-foreground);
+}
+
+.beatLabel {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+}
+
+.price {
+  font-size: var(--primitive-fontSize-lg);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.from {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+}
+
+/* --- reduced motion / no pinning ------------------------------------------ */
+
+/* Someone who has asked for less motion gets the same content as an ordinary
+   section: no runway, no pin, every spec at full strength. */
+.still {
+  height: auto;
+}
+
+.still .sticky {
+  position: static;
+  height: auto;
+  padding-block: clamp(48px, 8vw, 96px);
+}
+
+.still .glow {
+  opacity: 0.5;
+}
+
+.still .device,
+[dir='rtl'] .still .device {
+  transform: none;
+}
+
+.still .beat,
+[dir='rtl'] .still .beat {
+  transform: none;
+}
+
+.still .beatValue {
+  color: var(--color-foreground);
+}
+
+@media (min-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+
+  .stage {
+    min-height: 420px;
+  }
+}
