@@ -1,11 +1,11 @@
 // Kuwaiti addressing.
 //
-// A single "city" text field is not how addresses work here. Kuwait is divided
-// into six governorates, and within them an address is a block, a street and a
-// building number — "12 Gulf Road, Kuwait City" is a western shape that nobody
-// would actually write on a delivery form. Getting this right is the same class
-// of decision as pricing in dinar at three decimals: it is the difference
-// between a storefront built for this market and one merely translated into it.
+// Kuwait is divided into six governorates, each containing multiple cities and
+// areas. A delivery address therefore carries both levels before block, street
+// and building — not a western "street address, city" pair. Getting this right
+// is the same class of decision as pricing in dinar at three decimals: it is the
+// difference between a storefront built for this market and one merely
+// translated into it.
 
 export const governorates = [
   { id: 'capital', name: { ar: 'العاصمة', en: 'Capital' } },

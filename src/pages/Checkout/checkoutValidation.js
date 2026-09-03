@@ -44,6 +44,11 @@ export function validateCheckout(values, payment, now = new Date()) {
   if (!hasValue(values.governorate)) errors.governorate = 'required';
   else if (!governorateIds.includes(values.governorate)) errors.governorate = 'governorate';
 
+  // City / area is intentionally free text. Governorates are a closed set, but
+  // their localities are numerous and an incomplete dropdown would reject real
+  // delivery addresses.
+  if (!hasValue(values.city)) errors.city = 'required';
+
   for (const field of ['block', 'street', 'building']) {
     if (!hasValue(values[field])) errors[field] = 'required';
     else if (!isAddressPart(values[field])) errors[field] = 'addressPart';

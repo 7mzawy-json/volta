@@ -24,6 +24,7 @@ export default function Checkout() {
   const [form, setForm] = useState({
     fullName: '',
     governorate: '',
+    city: '',
     block: '',
     street: '',
     building: '',
@@ -39,7 +40,7 @@ export default function Checkout() {
   // aria-invalid was not set yet, so focus never moved. Refs point at the real
   // inputs and are valid immediately.
   const inputs = useRef({});
-  const FIELD_ORDER = ['fullName', 'governorate', 'block', 'street', 'building', 'phone', 'cardNumber', 'expiry', 'cvc'];
+  const FIELD_ORDER = ['fullName', 'governorate', 'city', 'block', 'street', 'building', 'phone', 'cardNumber', 'expiry', 'cvc'];
   const [submitted, setSubmitted] = useState(false);
 
   if (lineItems.length === 0) return <Navigate to="/cart" replace />;
@@ -117,8 +118,8 @@ export default function Checkout() {
             <h2>{t.checkout.shippingInfo}</h2>
             {field('fullName', t.checkout.fullName, { autoComplete: 'name' })}
 
-            {/* Governorate is a closed set of six, so it is a select rather than
-                a free-text "city" — there is no seventh valid answer. */}
+            {/* Governorate is a closed set of six. City / area stays free text
+                because every governorate contains many valid localities. */}
             <label className={styles.field}>
               <span>{t.checkout.governorate}</span>
               <select
@@ -142,9 +143,11 @@ export default function Checkout() {
               )}
             </label>
 
-            {/* Block, street, building — how a Kuwaiti address is actually given. */}
+            {field('city', t.checkout.city, { autoComplete: 'address-level2' })}
+
+            {/* City / area, block, street and building mirror a Kuwaiti address. */}
             <div className={styles.fieldRow}>
-              {field('block', t.checkout.block, { inputMode: 'numeric', autoComplete: 'address-level2' })}
+              {field('block', t.checkout.block, { inputMode: 'numeric' })}
               {field('street', t.checkout.street, { inputMode: 'numeric' })}
               {field('building', t.checkout.building, { autoComplete: 'address-line1' })}
             </div>

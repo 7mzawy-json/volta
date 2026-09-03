@@ -10,6 +10,7 @@ const NOW = new Date('2026-09-03T12:00:00Z');
 const validForm = {
   fullName: 'Noura Al-Sabah',
   governorate: 'capital',
+  city: 'Kuwait City',
   block: '3',
   street: '40',
   building: '12A',
@@ -20,7 +21,7 @@ const validForm = {
   cvc: '123'
 };
 
-const FIELDS = ['fullName', 'governorate', 'block', 'street', 'building', 'phone'];
+const FIELDS = ['fullName', 'governorate', 'city', 'block', 'street', 'building', 'phone'];
 
 test('a fully valid Kuwaiti address passes', () => {
   assert.deepEqual(validateCheckout(validForm, 'visa', NOW), {});
@@ -62,6 +63,12 @@ test('changing to Apple Pay preserves shipping errors and removes only card erro
 test('governorate must be one of the six, not merely non-empty', () => {
   assert.equal(validateCheckout({ ...validForm, governorate: 'atlantis' }, 'visa', NOW).governorate, 'governorate');
   assert.equal(validateCheckout({ ...validForm, governorate: 'jahra' }, 'visa', NOW).governorate, undefined);
+});
+
+test('city or area is required and accepts both storefront scripts', () => {
+  assert.equal(validateCheckout({ ...validForm, city: '' }, 'visa', NOW).city, 'required');
+  assert.equal(validateCheckout({ ...validForm, city: 'السالمية' }, 'visa', NOW).city, undefined);
+  assert.equal(validateCheckout({ ...validForm, city: 'Salmiya' }, 'visa', NOW).city, undefined);
 });
 
 test('accepts Kuwaiti mobile numbers and rejects landlines and wrong lengths', () => {
