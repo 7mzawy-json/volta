@@ -60,7 +60,7 @@ export default function ProductCard({ product }) {
       <div className={styles.info}>
         <p className={styles.name}>
           <Link to={`/products/${product.id}`} className={styles.nameLink}>
-            {product.name[lang]}
+            <bdi className={styles.nameBdi}>{product.name[lang]}</bdi>
           </Link>
         </p>
 

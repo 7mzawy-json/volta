@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
+import { useDialog } from '../../hooks/useDialog.js';
 import BoltMark from '../BoltMark/BoltMark.jsx';
 import SearchBox from '../SearchBox/SearchBox.jsx';
 import styles from './Nav.module.css';
@@ -17,6 +18,9 @@ export default function Nav() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpenPhone, setSearchOpenPhone] = useState(false);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const drawerRef = useDialog(menuOpen, closeMenu);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -73,7 +77,7 @@ export default function Nav() {
 
           <button
             type="button"
-            className={styles.iconBtn}
+            className={`${styles.iconBtn} ${styles.desktopAction}`}
             onClick={toggleTheme}
             aria-label={isDark ? t.misc.themeToLight : t.misc.themeToDark}
             title={isDark ? t.misc.themeToLight : t.misc.themeToDark}
@@ -96,7 +100,7 @@ export default function Nav() {
             {t.nav.langSwitch}
           </button>
 
-          <NavLink to="/wishlist" className={styles.iconBtn} aria-label={t.nav.wishlist}>
+          <NavLink to="/wishlist" className={`${styles.iconBtn} ${styles.desktopAction}`} aria-label={t.nav.wishlist}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 21s-7.5-4.9-10-9.3C.5 8.2 2.2 4.5 6 4.5c2.1 0 3.7 1.2 4.5 2.7C11.3 5.7 12.9 4.5 15 4.5c3.8 0 5.5 3.7 4 7.2C19.5 16.1 12 21 12 21z" />
             </svg>
@@ -114,20 +118,62 @@ export default function Nav() {
         </div>
       </div>
 
-      <div className={`${styles.drawer} ${menuOpen ? styles.drawerOpen : ''}`}>
+      {menuOpen && <div className={styles.scrim} aria-hidden="true" onClick={closeMenu} />}
+      <aside
+        ref={drawerRef}
+        className={`${styles.drawer} ${menuOpen ? styles.drawerOpen : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t.nav.menu}
+        tabIndex={-1}
+        inert={menuOpen ? undefined : ''}
+      >
+        <div className={styles.drawerHeader}>
+          <span className={styles.drawerTitle}>{t.nav.menu}</span>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={closeMenu}
+            aria-label={t.misc.close}
+          >
+            ✕
+          </button>
+        </div>
+
         <nav className={styles.drawerLinks}>
-          <NavLink to="/" className={linkClass} end onClick={() => setMenuOpen(false)}>
+          <NavLink to="/" className={linkClass} end onClick={closeMenu}>
             {t.nav.home}
           </NavLink>
-          <NavLink to="/products" className={linkClass} onClick={() => setMenuOpen(false)}>
+          <NavLink to="/products" className={linkClass} onClick={closeMenu}>
             {t.nav.products}
           </NavLink>
-          <NavLink to="/wishlist" className={linkClass} onClick={() => setMenuOpen(false)}>
-            {t.nav.wishlist}
+          <NavLink to="/wishlist" className={linkClass} onClick={closeMenu}>
+            <span>{t.nav.wishlist}</span>
+            {wishCount > 0 && <span className={styles.drawerBadge}>{wishCount}</span>}
           </NavLink>
         </nav>
-      </div>
-      {menuOpen && <button className={styles.scrim} aria-hidden="true" onClick={() => setMenuOpen(false)} />}
+
+        <div className={styles.drawerActions}>
+          <button
+            type="button"
+            className={styles.drawerThemeBtn}
+            onClick={toggleTheme}
+            aria-label={isDark ? t.misc.themeToLight : t.misc.themeToDark}
+          >
+            {isDark ? (
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="4.2" />
+                <path d="M12 2.6v2.2M12 19.2v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6" />
+              </svg>
+            ) : (
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                <path d="M20.5 14.2A8.4 8.4 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" />
+              </svg>
+            )}
+            <span>{isDark ? t.misc.themeToLight : t.misc.themeToDark}</span>
+          </button>
+        </div>
+      </aside>
     </header>
   );
 }
