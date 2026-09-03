@@ -7,3 +7,6 @@ __MACOSX/
 .vite/
 playwright-report/
 test-results/
+
+# Deploy bundle: a rebuildable artefact of dist/, which is itself ignored.
+volta-netlify.zip
