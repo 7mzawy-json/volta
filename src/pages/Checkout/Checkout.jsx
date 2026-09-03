@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { variantLabel } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
+import { governorates } from '../../data/kuwait.js';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
 import { formatPrice } from '../../utils/currency.js';
@@ -22,8 +23,11 @@ export default function Checkout() {
 
   const [form, setForm] = useState({
     fullName: '',
-    address: '',
-    city: '',
+    governorate: '',
+    block: '',
+    street: '',
+    building: '',
+    details: '',
     phone: '',
     cardNumber: '',
     expiry: '',
@@ -35,7 +39,7 @@ export default function Checkout() {
   // aria-invalid was not set yet, so focus never moved. Refs point at the real
   // inputs and are valid immediately.
   const inputs = useRef({});
-  const FIELD_ORDER = ['fullName', 'address', 'city', 'phone', 'cardNumber', 'expiry', 'cvc'];
+  const FIELD_ORDER = ['fullName', 'governorate', 'block', 'street', 'building', 'phone', 'cardNumber', 'expiry', 'cvc'];
   const [submitted, setSubmitted] = useState(false);
 
   if (lineItems.length === 0) return <Navigate to="/cart" replace />;
@@ -112,13 +116,46 @@ export default function Checkout() {
           <section className={styles.block}>
             <h2>{t.checkout.shippingInfo}</h2>
             {field('fullName', t.checkout.fullName, { autoComplete: 'name' })}
-            {field('address', t.checkout.address, { autoComplete: 'street-address' })}
+
+            {/* Governorate is a closed set of six, so it is a select rather than
+                a free-text "city" — there is no seventh valid answer. */}
+            <label className={styles.field}>
+              <span>{t.checkout.governorate}</span>
+              <select
+                ref={(el) => { inputs.current.governorate = el; }}
+                value={form.governorate}
+                onChange={update('governorate')}
+                aria-invalid={errors.governorate ? 'true' : undefined}
+                aria-describedby={errors.governorate ? 'err-governorate' : undefined}
+                className={errors.governorate ? styles.inputInvalid : undefined}
+                autoComplete="address-level1"
+              >
+                <option value="">{t.checkout.governoratePlaceholder}</option>
+                {governorates.map((g) => (
+                  <option key={g.id} value={g.id}>{g.name[lang]}</option>
+                ))}
+              </select>
+              {errors.governorate && (
+                <span className={styles.error} id="err-governorate" role="alert">
+                  {t.errors[errors.governorate]}
+                </span>
+              )}
+            </label>
+
+            {/* Block, street, building — how a Kuwaiti address is actually given. */}
             <div className={styles.fieldRow}>
-              {field('city', t.checkout.city, { autoComplete: 'address-level2' })}
+              {field('block', t.checkout.block, { inputMode: 'numeric', autoComplete: 'address-level2' })}
+              {field('street', t.checkout.street, { inputMode: 'numeric' })}
+              {field('building', t.checkout.building, { autoComplete: 'address-line1' })}
+            </div>
+
+            <div className={styles.fieldRow}>
+              {field('details', t.checkout.details, { autoComplete: 'address-line2' })}
               {field('phone', t.checkout.phone, {
                 type: 'tel',
                 inputMode: 'tel',
-                autoComplete: 'tel'
+                autoComplete: 'tel',
+                placeholder: '5555 1234'
               })}
             </div>
           </section>

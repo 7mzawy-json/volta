@@ -5,15 +5,26 @@ import { validateCheckout } from './checkoutValidation.js';
 
 const NOW = new Date('2026-09-03T12:00:00Z');
 
+// Kuwaiti address shape: governorate + block + street + building, not a western
+// "street address, city" pair.
 const validForm = {
   fullName: 'Noura Al-Sabah',
-  address: '12 Gulf Road',
-  city: 'Kuwait City',
+  governorate: 'capital',
+  block: '3',
+  street: '40',
+  building: '12A',
+  details: '',
   phone: '+965 5555-1234',
   cardNumber: '4242 4242 4242 4242',
   expiry: '10/26',
   cvc: '123'
 };
+
+const FIELDS = ['fullName', 'governorate', 'block', 'street', 'building', 'phone'];
+
+test('a fully valid Kuwaiti address passes', () => {
+  assert.deepEqual(validateCheckout(validForm, 'visa', NOW), {});
+});
 
 test('returns stable error codes that can be translated at render time', () => {
   const errors = validateCheckout({ ...validForm, fullName: '' }, 'visa', NOW);
@@ -23,49 +34,59 @@ test('returns stable error codes that can be translated at render time', () => {
   assert.equal(copy.ar.errors[errors.fullName], 'هذي الخانة مطلوبة');
 });
 
+test('every error code has copy in both languages', () => {
+  const emptyForm = Object.fromEntries(Object.keys(validForm).map((key) => [key, '']));
+  const codes = new Set([
+    ...Object.values(validateCheckout(emptyForm, 'visa', NOW)),
+    ...Object.values(validateCheckout({ ...validForm, governorate: 'atlantis', phone: 'abc' }, 'visa', NOW))
+  ]);
+
+  for (const code of codes) {
+    assert.ok(copy.en.errors[code], `missing English copy for "${code}"`);
+    assert.ok(copy.ar.errors[code], `missing Arabic copy for "${code}"`);
+  }
+});
+
 test('changing to Apple Pay preserves shipping errors and removes only card errors', () => {
   const emptyForm = Object.fromEntries(Object.keys(validForm).map((key) => [key, '']));
 
   assert.deepEqual(Object.keys(validateCheckout(emptyForm, 'visa', NOW)), [
-    'fullName',
-    'address',
-    'city',
-    'phone',
+    ...FIELDS,
     'cardNumber',
     'expiry',
     'cvc'
   ]);
-  assert.deepEqual(Object.keys(validateCheckout(emptyForm, 'applepay', NOW)), [
-    'fullName',
-    'address',
-    'city',
-    'phone'
-  ]);
+  assert.deepEqual(Object.keys(validateCheckout(emptyForm, 'applepay', NOW)), FIELDS);
 });
 
-test('rejects alphabetic phone and card values even when digit counts are sufficient', () => {
-  const errors = validateCheckout({
-    ...validForm,
-    phone: 'abc12345678',
-    cardNumber: 'abc1234567890123456'
-  }, 'visa', NOW);
+test('governorate must be one of the six, not merely non-empty', () => {
+  assert.equal(validateCheckout({ ...validForm, governorate: 'atlantis' }, 'visa', NOW).governorate, 'governorate');
+  assert.equal(validateCheckout({ ...validForm, governorate: 'jahra' }, 'visa', NOW).governorate, undefined);
+});
 
-  assert.equal(errors.phone, 'phone');
+test('accepts Kuwaiti mobile numbers and rejects landlines and wrong lengths', () => {
+  const phone = (p) => validateCheckout({ ...validForm, phone: p }, 'visa', NOW).phone;
+
+  assert.equal(phone('55551234'), undefined);      // 5-prefix mobile
+  assert.equal(phone('66551234'), undefined);      // 6-prefix
+  assert.equal(phone('99887766'), undefined);      // 9-prefix
+  assert.equal(phone('+965 9988 7766'), undefined); // country code tolerated
+  assert.equal(phone('22334455'), 'phone');        // landline: 2-prefix
+  assert.equal(phone('5555123'), 'phone');         // too short
+  assert.equal(phone('abc12345'), 'phone');        // letters
+});
+
+test('rejects alphabetic card values even when digit counts are sufficient', () => {
+  const errors = validateCheckout({ ...validForm, cardNumber: 'abc1234567890123456' }, 'visa', NOW);
   assert.equal(errors.cardNumber, 'cardNumber');
 });
 
 test('rejects impossible or expired expiry dates', () => {
-  assert.equal(
-    validateCheckout({ ...validForm, expiry: '99/99' }, 'visa', NOW).expiry,
-    'expiry'
-  );
-  assert.equal(
-    validateCheckout({ ...validForm, expiry: '08/26' }, 'visa', NOW).expiry,
-    'expiry'
-  );
-});
+  const expiry = (e) => validateCheckout({ ...validForm, expiry: e }, 'visa', NOW).expiry;
 
-test('accepts supported formatting and a current or future expiry', () => {
-  assert.deepEqual(validateCheckout(validForm, 'mastercard', NOW), {});
-  assert.deepEqual(validateCheckout({ ...validForm, expiry: '09/26' }, 'visa', NOW), {});
+  assert.equal(expiry('99/99'), 'expiry');  // month 99 does not exist
+  assert.equal(expiry('00/30'), 'expiry');  // month 00 does not exist
+  assert.equal(expiry('08/26'), 'expiry');  // one month before NOW
+  assert.equal(expiry('09/26'), undefined); // the current month is still valid
+  assert.equal(expiry('01/30'), undefined);
 });

@@ -1,10 +1,18 @@
+import { governorateIds, isKuwaitiMobile } from '../../data/kuwait.js';
+
+// Pure checkout validation.
+//
+// Returns stable error CODES, never translated strings: storing translated text
+// froze messages in whichever language was active when the error was raised, so
+// a language toggle left them stale. The caller translates at render.
+//
+// Character classes are checked BEFORE digits are counted. Stripping non-digits
+// and then counting confuses sanitisation with validation, and let values like
+// "abc12345678" pass as an 8-digit phone number.
+
 const digits = (value) => value.replace(/\D/g, '');
 
 const hasValue = (value) => Boolean(value?.trim());
-
-const isPhoneValid = (value) => (
-  /^\+?[\d\s()-]+$/.test(value.trim()) && digits(value).length >= 8
-);
 
 const isCardNumberValid = (value) => (
   /^[\d\s-]+$/.test(value.trim()) && digits(value).length === 16
@@ -22,15 +30,27 @@ const isExpiryValid = (value, now) => {
   return year > currentYear || (year === currentYear && month >= currentMonth);
 };
 
+// Block, street and building are short alphanumerics — "3", "12A", "Street 40".
+// Deliberately permissive on shape but not on emptiness or length.
+const isAddressPart = (value) => /^[\w؀-ۿ\s/.-]{1,24}$/.test(value.trim());
+
 export function validateCheckout(values, payment, now = new Date()) {
   const errors = {};
 
-  for (const field of ['fullName', 'address', 'city']) {
+  if (!hasValue(values.fullName)) errors.fullName = 'required';
+
+  // Governorate is a closed set, so an unknown value is invalid rather than
+  // merely empty — that distinction matters if the select is ever tampered with.
+  if (!hasValue(values.governorate)) errors.governorate = 'required';
+  else if (!governorateIds.includes(values.governorate)) errors.governorate = 'governorate';
+
+  for (const field of ['block', 'street', 'building']) {
     if (!hasValue(values[field])) errors[field] = 'required';
+    else if (!isAddressPart(values[field])) errors[field] = 'addressPart';
   }
 
   if (!hasValue(values.phone)) errors.phone = 'required';
-  else if (!isPhoneValid(values.phone)) errors.phone = 'phone';
+  else if (!isKuwaitiMobile(values.phone)) errors.phone = 'phone';
 
   if (payment !== 'applepay') {
     if (!hasValue(values.cardNumber)) errors.cardNumber = 'required';

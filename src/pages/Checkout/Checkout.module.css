@@ -185,3 +185,21 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* The governorate select shares the input styling so the address block reads as
+   one group rather than a form with a stray dropdown in it. */
+.field select {
+  width: 100%;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border-radius: var(--input-radius);
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.field select:focus {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 1px;
+}
