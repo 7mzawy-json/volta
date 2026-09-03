@@ -72,9 +72,29 @@ export function useDialog(open, onClose) {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
+    // Announce that an overlay is open, so unrelated fixed-position UI can move
+    // out of its way. The toast layer lives above CartProvider in the tree and
+    // cannot read drawer state, so a document-level flag is how it finds out —
+    // the same decoupling the theme already uses.
+    //
+    // Counted, not boolean: two dialogs can overlap (a filter drawer open when a
+    // toast-triggering action opens the cart), and the flag must survive the
+    // first one closing.
+    const depth = Number(document.documentElement.dataset.overlayDepth || 0) + 1;
+    document.documentElement.dataset.overlayDepth = String(depth);
+    document.documentElement.dataset.overlay = 'open';
+
     return () => {
       document.removeEventListener('keydown', onKeyDown, true);
       document.body.style.overflow = previousOverflow;
+
+      const next = Number(document.documentElement.dataset.overlayDepth || 1) - 1;
+      if (next > 0) {
+        document.documentElement.dataset.overlayDepth = String(next);
+      } else {
+        delete document.documentElement.dataset.overlayDepth;
+        delete document.documentElement.dataset.overlay;
+      }
       // Only pull focus back if it is still inside the closing dialog; if the
       // user has already clicked elsewhere, stealing it would be worse.
       if (node.contains(document.activeElement) && restoreTo.current instanceof HTMLElement) {

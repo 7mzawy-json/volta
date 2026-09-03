@@ -1,6 +1,10 @@
 .toastLayer {
   position: fixed;
   top: 20px;
+  /* No transition on `top`. The toast and the drawer appear together, and the
+     overlay flag lands a frame later — animating the move made the toast slide
+     *through* the drawer heading over 200ms instead of stepping clear of it in
+     one frame. Instant is less visible than smooth here. */
   inset-inline: 0;
   display: flex;
   justify-content: center;
@@ -16,4 +20,16 @@
   border-radius: var(--primitive-radius-full);
   box-shadow: var(--primitive-shadow-glow-strong);
   animation: toastIn 250ms var(--motion-ease-standard);
+}
+
+/* An open drawer puts its heading exactly where the toast sits, and the toast
+   (z-index 1000) wins — so adding to cart covered the words "Your Cart" with
+   "Added to cart". The toast drops below a drawer header while any overlay is
+   open. Moved rather than suppressed: suppressing would silently discard
+   feedback, and a future toast type might be the only signal for its action.
+
+   The flag is set by useDialog, so every dialog gets this — including the nav
+   drawer once that becomes one. */
+:root[data-overlay='open'] .toastLayer {
+  top: 88px;
 }
