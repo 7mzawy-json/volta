@@ -162,6 +162,28 @@ export const copy = {
       themeToDark: 'الوضع الداكن',
       themeToLight: 'الوضع الفاتح'
     },
+    compare: {
+      title: 'مقارنة الهواتف',
+      add: 'قارن',
+      cta: 'قارن',
+      clear: 'مسح',
+      remove: 'إزالة',
+      empty: 'ما اخترت أي هاتف للمقارنة. اختار هاتفين على الأقل من صفحة المنتجات.',
+      browse: 'تصفح الهواتف',
+      attribute: 'الخاصية',
+      best: 'الأفضل في هذا الصف',
+      legend: 'الصفوف الباهتة متطابقة بين كل الأجهزة. الأرقام الملوّنة هي الأفضل في صفها.',
+      rows: {
+        price: 'السعر',
+        brand: 'الماركة',
+        screen: 'الشاشة',
+        camera: 'الكاميرا',
+        battery: 'البطارية',
+        refreshRate: 'معدل التحديث',
+        storage: 'السعات',
+        color: 'الألوان'
+      }
+    },
     errors: {
       required: 'هذي الخانة مطلوبة',
       phone: 'رقم الهاتف لازم يكون ٨ أرقام على الأقل',
@@ -330,6 +352,28 @@ export const copy = {
       priceMax: 'Maximum price',
       themeToDark: 'Switch to dark mode',
       themeToLight: 'Switch to light mode'
+    },
+    compare: {
+      title: 'Compare phones',
+      add: 'Compare',
+      cta: 'Compare',
+      clear: 'Clear',
+      remove: 'Remove',
+      empty: 'Nothing selected yet. Pick at least two phones from the products page.',
+      browse: 'Browse phones',
+      attribute: 'Attribute',
+      best: 'best in this row',
+      legend: 'Dimmed rows are identical across every phone. Highlighted figures lead their row.',
+      rows: {
+        price: 'Price',
+        brand: 'Brand',
+        screen: 'Screen',
+        camera: 'Camera',
+        battery: 'Battery',
+        refreshRate: 'Refresh rate',
+        storage: 'Storage options',
+        color: 'Colours'
+      }
     },
     errors: {
       required: 'This field is required',

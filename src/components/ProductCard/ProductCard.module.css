@@ -51,7 +51,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(10, 10, 10, 0.55);
+  background: var(--chip-overlay);
   color: var(--color-foreground);
   border: none;
   opacity: 1;
@@ -147,7 +147,7 @@
   position: absolute;
   top: 12px;
   inset-inline-end: 52px;
-  background: rgba(10, 10, 10, 0.85);
+  background: var(--chip-overlay);
   color: var(--color-muted-foreground);
   border: 1px solid var(--box-border);
   font-size: var(--primitive-fontSize-xs);
@@ -221,4 +221,61 @@
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;
   border-radius: var(--box-radius);
+}
+
+/* Compare toggle. Sits above the overlay like the other controls, and the real
+   checkbox stays in the DOM (visually hidden) so the label, focus ring and form
+   semantics all still work. */
+.compareRow {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+  font-size: var(--primitive-fontSize-xs);
+  color: var(--color-muted-foreground);
+  cursor: pointer;
+  user-select: none;
+}
+
+.compareInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.compareBox {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid var(--box-border);
+  flex: none;
+  transition: background var(--motion-hover) var(--motion-ease-standard),
+              border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.compareInput:checked + .compareBox {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.compareInput:focus-visible + .compareBox {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.compareRow:hover .compareBox {
+  border-color: var(--color-primary);
+}
+
+/* At the four-phone ceiling the remaining boxes read as unavailable rather than
+   broken. */
+.compareInput:disabled + .compareBox {
+  opacity: 0.4;
+}
+
+.compareInput:disabled ~ span {
+  opacity: 0.5;
 }

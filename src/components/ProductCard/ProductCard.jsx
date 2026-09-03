@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
+import { useCompare } from '../../context/CompareContext.jsx';
 import { getDefaultVariant, getPriceRange, getTotalStock, hasVariantChoice, getProductColors } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
 import DeviceRender from '../DeviceRender/DeviceRender.jsx';
@@ -14,6 +15,7 @@ export default function ProductCard({ product }) {
   const { lang, t } = useLanguage();
   const { addItem } = useCart();
   const { toggle, isFavorited } = useWishlist();
+  const { toggle: toggleCompare, isComparing, isFull } = useCompare();
 
   const favorited = isFavorited(product.id);
   const [preview, setPreview] = useState(null);
@@ -84,6 +86,21 @@ export default function ProductCard({ product }) {
               />
             ))}
           </div>
+        )}
+
+        {isPhone && (
+          <label className={styles.compareRow}>
+            <input
+              type="checkbox"
+              className={styles.compareInput}
+              checked={isComparing(product.id)}
+              // Full means full: silently ignoring the click would look broken.
+              disabled={!isComparing(product.id) && isFull}
+              onChange={() => toggleCompare(product.id)}
+            />
+            <span className={styles.compareBox} aria-hidden="true" />
+            <span>{t.compare.add}</span>
+          </label>
         )}
 
         <div className={styles.bottomRow}>

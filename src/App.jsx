@@ -5,6 +5,7 @@ import { LanguageProvider } from './context/LanguageContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
+import { CompareProvider } from './context/CompareContext.jsx';
 import Nav from './components/Nav/Nav.jsx';
 import Footer from './components/Footer/Footer.jsx';
 import CartDrawer from './components/CartDrawer/CartDrawer.jsx';
@@ -17,6 +18,8 @@ import Checkout from './pages/Checkout/Checkout.jsx';
 import Confirmation from './pages/Confirmation/Confirmation.jsx';
 import Wishlist from './pages/Wishlist/Wishlist.jsx';
 import NotFound from './pages/NotFound/NotFound.jsx';
+import Compare from './pages/Compare/Compare.jsx';
+import CompareTray from './components/CompareTray/CompareTray.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -40,12 +43,14 @@ function AppShell() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/compare" element={<Compare />} />
           {/* Catch-all: an unknown URL must land somewhere useful, in both languages. */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </PageTransition>
       <Footer />
       <CartDrawer />
+      <CompareTray />
     </>
   );
 }
@@ -57,7 +62,9 @@ export default function App() {
       <ToastProvider>
         <CartProvider>
           <WishlistProvider>
-            <AppShell />
+            <CompareProvider>
+              <AppShell />
+            </CompareProvider>
           </WishlistProvider>
         </CartProvider>
       </ToastProvider>

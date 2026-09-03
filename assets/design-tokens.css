@@ -124,6 +124,11 @@
   /* Ring drawn around a product colour swatch. Must contrast with the SWATCH,
      not the page, so it darkens on ivory and lightens on black. */
   --swatch-ring: rgba(0, 0, 0, 0.20);
+  /* Chips floated over a product image (wishlist heart, sold-out marker).
+     These were hardcoded dark overlays, which in light mode put a near-black
+     icon on a near-black chip. The chip follows the theme; the icon keeps
+     using --color-foreground, so both flip together. */
+  --chip-overlay: rgba(255, 253, 245, 0.86);
 
   --spacing-component: 1rem;
   --spacing-section: 3rem;
@@ -167,6 +172,7 @@
   --shadow-ambient: rgba(0, 0, 0, 0.55);
   --focus-halo: rgba(57, 255, 20, 0.35);
   --swatch-ring: rgba(255, 255, 255, 0.28);
+  --chip-overlay: rgba(10, 10, 10, 0.55);
 }
 
 /* === COMPONENTS === */

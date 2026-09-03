@@ -1,0 +1,102 @@
+.tray {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 45;
+  background: var(--color-surface);
+  border-top: 1px solid var(--box-border);
+  box-shadow: 0 -8px 24px -12px var(--shadow-ambient);
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(110%);
+  transition: transform var(--motion-page, 300ms) var(--motion-ease-standard);
+}
+
+.trayShown {
+  transform: none;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.slots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  cursor: pointer;
+  padding: 0;
+}
+
+.slot:hover {
+  border-color: var(--color-primary);
+}
+
+.slotX {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1px solid var(--box-border);
+  font-size: 9px;
+  display: grid;
+  place-items: center;
+  color: var(--color-muted-foreground);
+}
+
+/* Dashed placeholders show the remaining capacity without needing a sentence. */
+.slotEmpty {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1px dashed var(--box-border);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  color: var(--color-foreground);
+}
+
+@media (max-width: 520px) {
+  /* The empty placeholders are the first thing to go when space is short. */
+  .slotEmpty {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tray {
+    transition: none;
+  }
+}
