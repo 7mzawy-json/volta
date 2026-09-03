@@ -25,7 +25,7 @@
   width: min(46vw, 560px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(57, 255, 20, 0.16) 0%, transparent 68%);
+  background: radial-gradient(circle, var(--glow-strong) 0%, transparent 68%);
   filter: blur(18px);
   pointer-events: none;
 }
@@ -74,7 +74,7 @@
 .heroVisual {
   display: flex;
   justify-content: center;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.65));
+  filter: drop-shadow(0 24px 44px var(--shadow-ambient));
 }
 
 /* The render carries an intrinsic width attribute; overriding it here lets the
@@ -154,14 +154,14 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--swatch-ring);
 }
 
 .spotlightVisual {
   position: relative;
   display: flex;
   justify-content: center;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(0 24px 44px var(--shadow-ambient));
 }
 
 .spotlightGlow {
@@ -172,7 +172,7 @@
   width: min(38vw, 420px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(57, 255, 20, 0.13) 0%, transparent 66%);
+  background: radial-gradient(circle, var(--glow-strong) 0%, transparent 66%);
   pointer-events: none;
 }
 
@@ -311,7 +311,7 @@
   transform: translate(-50%, -50%);
   width: min(70vw, 760px);
   aspect-ratio: 2 / 1;
-  background: radial-gradient(ellipse, rgba(57, 255, 20, 0.12) 0%, transparent 68%);
+  background: radial-gradient(ellipse, var(--glow-soft) 0%, transparent 68%);
   pointer-events: none;
 }
 

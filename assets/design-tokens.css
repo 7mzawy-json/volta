@@ -71,8 +71,73 @@
      Desktop: @media (min-width: 1024px) { ... }
 */
 
-/* === SEMANTIC === */
+/* === SEMANTIC ===
+   Two themes, one set of names. Every component consumes these names only, so a
+   theme is a change of values here rather than a change of code anywhere else.
+
+   LIGHT is the default (bare :root) because the shop opens in light mode. DARK
+   is the original VOLTA identity, preserved exactly, under [data-theme='dark'].
+
+   The one rule that shapes the light palette: the brand neon #39FF14 measures
+   1.36:1 against ivory — invisible as text, and far below the 4.5:1 minimum. But
+   BLACK ON NEON is 14.6:1, the same ratio the neon achieves on black. So in
+   light mode the neon stays a FILL (buttons, badges, active chips) and a deep
+   green #0E7A2E carries text, links and outlines at 5.1:1.
+   Do not "restore" the neon to a text or border colour in light mode. It fails.
+*/
+
+/* --- LIGHT (default) --- */
 :root {
+  color-scheme: light;
+
+  --color-background: #FAF7EA;      /* warm ivory */
+  --color-surface: #FFFDF5;         /* card / raised */
+  --color-surface-hover: #FFFFFA;
+  --color-foreground: #0A0A0A;      /* dark mode's background becomes light mode's ink */
+  --color-muted-foreground: #5C5A50;
+  --color-border: #EAE4D1;
+  --color-primary: #0E7A2E;         /* deep green: text, links, outlines — 5.1:1 */
+  --color-primary-hover: #0B6325;
+  --color-primary-foreground: #FFFDF5;
+  --color-neon: #39FF14;            /* the brand signal — FILLS ONLY in light mode */
+  --color-neon-foreground: #0A0A0A;
+  --color-secondary: #0A0A0A;
+  --color-secondary-foreground: #0A0A0A;
+  --color-accent: #0E7A2E;
+  --color-ring: #0E7A2E;
+  --color-success: #0E7A2E;
+  --color-warning: #A66A00;
+  --color-warning-light: #FEF9C3;
+  --color-error: #C62828;
+  --color-error-light: #FEE2E2;
+  --color-info: #1D4ED8;
+  --color-info-light: #DBEAFE;
+
+  /* Glows are the dark-mode signature and cannot survive on ivory as light
+     bloom. They become a soft green tint instead, so the same shapes read as
+     depth rather than disappearing. */
+  --glow-strong: rgba(14, 122, 46, 0.13);
+  --glow-soft: rgba(14, 122, 46, 0.08);
+  --glow-hover: rgba(14, 122, 46, 0.22);
+  --shadow-ambient: rgba(90, 84, 60, 0.16);
+  --focus-halo: rgba(14, 122, 46, 0.30);
+  /* Ring drawn around a product colour swatch. Must contrast with the SWATCH,
+     not the page, so it darkens on ivory and lightens on black. */
+  --swatch-ring: rgba(0, 0, 0, 0.20);
+
+  --spacing-component: 1rem;
+  --spacing-section: 3rem;
+  --motion-hover: 200ms;
+  --motion-page: 300ms;
+  --motion-feedback: 500ms;
+  --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-feedback: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- DARK (the original identity, unchanged) --- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
   --color-background: #0A0A0A;
   --color-surface: #16171A;
   --color-surface-hover: #1F2023;
@@ -82,6 +147,8 @@
   --color-primary: #39FF14;
   --color-primary-hover: #2ECC0F;
   --color-primary-foreground: #0A0A0A;
+  --color-neon: #39FF14;
+  --color-neon-foreground: #0A0A0A;
   --color-secondary: #FFFFFF;
   --color-secondary-foreground: #FFFFFF;
   --color-accent: #39FF14;
@@ -93,50 +160,93 @@
   --color-error-light: #FEE2E2;
   --color-info: #3B82F6;
   --color-info-light: #DBEAFE;
-  --spacing-component: 1rem;
-  --spacing-section: 3rem;
-  --motion-hover: 200ms;
-  --motion-page: 300ms;
-  --motion-feedback: 500ms;
-  --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --motion-ease-feedback: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --glow-strong: rgba(57, 255, 20, 0.16);
+  --glow-soft: rgba(57, 255, 20, 0.10);
+  --glow-hover: rgba(57, 255, 20, 0.50);
+  --shadow-ambient: rgba(0, 0, 0, 0.55);
+  --focus-halo: rgba(57, 255, 20, 0.35);
+  --swatch-ring: rgba(255, 255, 255, 0.28);
 }
 
 /* === COMPONENTS === */
+
+/* --- LIGHT (default) --- */
 :root {
+  --button-primary-bg: #39FF14;      /* neon survives here: black on neon = 14.6:1 */
+  --button-primary-fg: #0A0A0A;
+  --button-primary-hover-bg: #2ECC0F;
+  --button-secondary-border: #0E7A2E;
+  --button-secondary-fg: #0E7A2E;
+  --button-secondary-hover-border: #0A0A0A;
+  --button-padding-x: 1.5rem;
+  --button-padding-y: 0.75rem;
+  --button-radius: 0.875rem;
+  --button-font-size: 1rem;
+
+  --box-bg: #FFFDF5;
+  --box-bg-hover: #FFFFFA;
+  --box-border: #EAE4D1;
+  --box-border-hover: #0E7A2E;
+  --box-shadow-hover: 0 6px 18px -6px rgba(90, 84, 60, 0.28);
+  --box-radius: 0.875rem;
+
+  --input-bg: #FFFDF5;
+  --input-border: #E0D9C2;
+  --input-focus-ring: #0E7A2E;
+  --input-padding-x: 0.75rem;
+  --input-padding-y: 0.5rem;
+  --input-radius: 0.875rem;
+
+  --card-bg: #FFFDF5;
+  --card-border: #EAE4D1;
+  --card-shadow: 0 2px 8px -2px rgba(90, 84, 60, 0.14);
+  --card-shadow-hover: 0 6px 18px -6px rgba(90, 84, 60, 0.28);
+  --card-padding: 1.5rem;
+  --card-radius: 0.875rem;
+
+  --badge-bg: #39FF14;
+  --badge-fg: #0A0A0A;
+  --badge-radius: 9999px;
+
+  --drawer-bg: #FFFDF5;
+  --drawer-border: #EAE4D1;
+  --drawer-radius: 1.25rem;
+  --drawer-shadow: 0 10px 30px -5px rgba(90, 84, 60, 0.25);
+
+  --scrim: rgba(40, 36, 24, 0.42);
+}
+
+/* --- DARK --- */
+:root[data-theme='dark'] {
   --button-primary-bg: #39FF14;
   --button-primary-fg: #0A0A0A;
   --button-primary-hover-bg: #2ECC0F;
   --button-secondary-border: #FFFFFF;
   --button-secondary-fg: #FFFFFF;
   --button-secondary-hover-border: #39FF14;
-  --button-padding-x: 1.5rem;
-  --button-padding-y: 0.75rem;
-  --button-radius: 0.875rem;
-  --button-font-size: 1rem;
+
   --box-bg: #16171A;
   --box-bg-hover: #1F2023;
   --box-border: #2A2C30;
   --box-border-hover: #39FF14;
-  --box-shadow-hover: 0 0 20px rgba(57,255,20,0.35);
-  --box-radius: 0.875rem;
+  --box-shadow-hover: 0 0 20px rgba(57, 255, 20, 0.35);
+
   --input-bg: #16171A;
   --input-border: #2A2C30;
   --input-focus-ring: #39FF14;
-  --input-padding-x: 0.75rem;
-  --input-padding-y: 0.5rem;
-  --input-radius: 0.875rem;
+
   --card-bg: #16171A;
   --card-border: #2A2C30;
-  --card-shadow: 0 4px 12px -2px rgba(0,0,0,0.5);
-  --card-shadow-hover: 0 0 20px rgba(57,255,20,0.35);
-  --card-padding: 1.5rem;
-  --card-radius: 0.875rem;
+  --card-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --card-shadow-hover: 0 0 20px rgba(57, 255, 20, 0.35);
+
   --badge-bg: #39FF14;
   --badge-fg: #0A0A0A;
-  --badge-radius: 9999px;
+
   --drawer-bg: #0A0A0A;
   --drawer-border: #2A2C30;
-  --drawer-radius: 1.25rem;
-  --drawer-shadow: 0 10px 30px -5px rgba(0,0,0,0.6);
+  --drawer-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
+
+  --scrim: rgba(0, 0, 0, 0.6);
 }

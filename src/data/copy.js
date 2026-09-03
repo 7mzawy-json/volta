@@ -152,7 +152,9 @@ export const copy = {
       noResults: 'ما لقينا نتائج — جرّب كلمة ثانية.',
       close: 'إغلاق',
       priceMin: 'أقل سعر',
-      priceMax: 'أعلى سعر'
+      priceMax: 'أعلى سعر',
+      themeToDark: 'الوضع الداكن',
+      themeToLight: 'الوضع الفاتح'
     },
     errors: {
       required: 'هذي الخانة مطلوبة',
@@ -317,7 +319,9 @@ export const copy = {
       noResults: "No results — try a different search.",
       close: 'Close',
       priceMin: 'Minimum price',
-      priceMax: 'Maximum price'
+      priceMax: 'Maximum price',
+      themeToDark: 'Switch to dark mode',
+      themeToLight: 'Switch to light mode'
     },
     errors: {
       required: 'This field is required',

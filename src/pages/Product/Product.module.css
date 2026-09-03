@@ -38,7 +38,7 @@
   width: 240px;
   height: 240px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(57, 255, 20, 0.16), transparent 70%);
+  background: radial-gradient(circle, var(--glow-strong), transparent 70%);
 }
 
 .badge {
@@ -286,7 +286,7 @@
   height: 30px;
   border-radius: 50%;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid var(--swatch-ring);
   cursor: pointer;
   transition: transform var(--motion-hover) var(--motion-ease-standard),
               box-shadow var(--motion-hover) var(--motion-ease-standard);

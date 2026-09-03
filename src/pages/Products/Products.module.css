@@ -228,7 +228,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--swatch-ring);
   cursor: pointer;
   padding: 0;
   transition: transform var(--motion-hover) var(--motion-ease-standard),
@@ -337,7 +337,7 @@
   inset: 0;
   z-index: 60;
   border: none;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--scrim);
 }
 
 .filterClose {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useTheme } from '../../context/ThemeContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import BoltMark from '../BoltMark/BoltMark.jsx';
@@ -8,6 +9,7 @@ import styles from './Nav.module.css';
 
 export default function Nav() {
   const { lang, toggleLang, t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const { count, openDrawer } = useCart();
   const { count: wishCount } = useWishlist();
   const navigate = useNavigate();
@@ -90,6 +92,27 @@ export default function Nav() {
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.3-4.3" />
             </svg>
+          </button>
+
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={toggleTheme}
+            aria-label={isDark ? t.misc.themeToLight : t.misc.themeToDark}
+            title={isDark ? t.misc.themeToLight : t.misc.themeToDark}
+          >
+            {isDark ? (
+              /* In dark mode, offer the sun. */
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="4.2" />
+                <path d="M12 2.6v2.2M12 19.2v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6" />
+              </svg>
+            ) : (
+              /* In light mode, offer the moon. */
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                <path d="M20.5 14.2A8.4 8.4 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" />
+              </svg>
+            )}
           </button>
 
           <button type="button" className={styles.langBtn} onClick={toggleLang}>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 import { LanguageProvider } from './context/LanguageContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
@@ -51,7 +52,8 @@ function AppShell() {
 
 export default function App() {
   return (
-    <LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
       <ToastProvider>
         <CartProvider>
           <WishlistProvider>
@@ -59,6 +61,7 @@ export default function App() {
           </WishlistProvider>
         </CartProvider>
       </ToastProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

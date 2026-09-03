@@ -21,7 +21,7 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 1 / 1;
-  background: radial-gradient(circle at 50% 45%, rgba(57, 255, 20, 0.08), transparent 70%);
+  background: radial-gradient(circle at 50% 45%, var(--glow-soft), transparent 70%);
   color: var(--color-primary);
 }
 
@@ -99,8 +99,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-primary);
-  color: var(--color-primary-foreground);
+  /* Same action as the full Add to Cart button, so it takes the same neon fill
+     rather than the deep-green ink colour. Black on neon is 14.6:1 in either
+     theme, which is why the brand signal survives the switch to ivory. */
+  background: var(--color-neon);
+  color: var(--color-neon-foreground);
   border: none;
   opacity: 1;
   transform: scale(1);
@@ -135,7 +138,7 @@
   }
 
   .card:hover .glyph {
-    filter: drop-shadow(0 0 12px rgba(57, 255, 20, 0.5));
+    filter: drop-shadow(0 0 12px var(--glow-hover));
   }
 }
 
@@ -161,7 +164,7 @@
 }
 
 .device {
-  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 6px 18px var(--shadow-ambient));
   transition: transform var(--motion-hover) var(--motion-ease-standard);
 }
 
@@ -177,7 +180,7 @@
   height: 12px;
   border-radius: 50%;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid var(--swatch-ring);
   cursor: pointer;
 }
 

@@ -1,7 +1,7 @@
-# VOLTA — Brand Guidelines v2.1
+# VOLTA — Brand Guidelines v2.2
 
 > Last updated: 2026-09-03
-> Status: In build — identity locked, catalogue direction revised in v2.1
+> Status: In build — identity locked; light mode added and made default in v2.2
 > Supersedes: v2.0 (accessories-only scope), v1.0 (NABD) — see Changelog
 
 ## Brand Concept
@@ -63,6 +63,12 @@ The shop is built for **Kuwait**, and that is not cosmetic:
 
 ## 1. Color Palette
 
+> **Two themes since v2.2.** The palette below is the **dark** identity, unchanged and
+> still the brand's signature. **Light mode is now the default** the shop opens in — see
+> *Light mode (warm ivory)* at the end of this section. Every value below has a light-mode
+> counterpart in [`assets/design-tokens.css`](../assets/design-tokens.css); components only
+> ever reference token names, never these hexes directly.
+
 ### Primary Colors
 
 | Name | Hex | RGB | Usage |
@@ -107,6 +113,44 @@ as distinct system states, not be mistaken for brand/interactive accents.
   primary CTA uses black text on a neon fill, not white-on-neon
 - Muted Gray (#9A9AA1) on Black: 7.4:1 (AAA) — safe for secondary/caption text
 - All interactive elements meet WCAG 2.1 AA; touch targets ≥ 44×44px
+
+### Light mode — warm ivory (added v2.2, and the default)
+
+| Role | Hex | Contrast | Usage |
+|------|-----|----------|-------|
+| Background | `#FAF7EA` | — | Warm ivory. Paper, not white |
+| Surface | `#FFFDF5` | — | Cards, drawers, inputs |
+| Foreground | `#0A0A0A` | 18.4:1 | Body text. *Dark mode's background becomes light mode's ink* |
+| Muted foreground | `#5C5A50` | 6.5:1 | Secondary text |
+| Primary (ink) | `#0E7A2E` | 5.1:1 | Links, outlines, labels, active states |
+| Neon | `#39FF14` | 14.6:1 *as a fill* | Primary CTA, badges — black text on neon |
+| Border | `#EAE4D1` | — | Hairlines |
+
+**The one rule that governs this palette:** the brand neon measures **1.36:1 against ivory**
+— effectively invisible, and nowhere near the 4.5:1 minimum. But **black on neon is 14.6:1**,
+exactly the ratio it achieves on black. So in light mode:
+
+- The neon is a **fill only** — Add to Cart, quick-add, badges. Never text, never a border,
+  never a link colour. This is why the brand still reads as VOLTA on a pale ground.
+- **`#0E7A2E` deep green** carries everything the neon used to carry as *ink*.
+
+Do not "restore" the neon to a text or outline colour in light mode. It fails, and the
+failure is not subtle.
+
+**Glows** are the dark identity's signature and cannot survive on ivory as light bloom.
+They become a soft green tint (`--glow-strong` / `--glow-soft`) so the same shapes read as
+depth rather than vanishing.
+
+Light mode was verified by measuring every rendered text node against its true painted
+background: **0 failures across 91 elements** on the listing and 50 on the product page, in
+both languages.
+
+### Theme behaviour
+
+Light on first visit — a brand decision, not a device one, so `prefers-color-scheme` is
+deliberately **not** consulted. An explicit choice is stored in `volta-theme` and always
+wins afterwards. Only dark is stamped as `data-theme="dark"` on `<html>`; light is the bare
+`:root` default, so the attribute never duplicates the default it would contradict.
 
 ---
 
@@ -445,3 +489,4 @@ lighting, minimal composition, high-contrast tech-forward feel.
 | 1.0 | 2026-09-01 | Initial guidelines — NABD identity (warm/boutique direction) |
 | 2.0 | 2026-09-01 | Full pivot to VOLTA — new name, symmetric neon-green thunderbolt mark, black/neon-green/white palette, added UX Principles section (minimal friction, consistent hover language, visual hierarchy, responsive, smooth page transitions, demo product content) |
 | 2.1 | 2026-09-03 | Catalogue scope widened from accessories-only to **smartphones-led** (positioning against Xcite requires the category that decides where people shop). Added **Market** section: Kuwaiti dinar at three decimals, Arabic-first, Latin model names. Replaced the AI-photography plan with **colour-accurate vector device renders** — finish-driven, brand-specific camera layouts — and recorded why (copyright, and page weight is the ground we beat Xcite on). Phone lineup and pricing now mirror Xcite's live catalogue. Identity itself — mark, palette, type, voice, UX principles — unchanged. |
+| 2.2 | 2026-09-03 | Added a **light mode and made it the default**: warm ivory `#FAF7EA` ground, `#0A0A0A` ink (the dark theme's background inverted), and `#0E7A2E` deep green for links and outlines. The dark palette is preserved exactly and moves under `[data-theme='dark']`. The brand neon stays a **fill only** in light mode because it measures 1.36:1 against ivory as text but 14.6:1 as black-on-neon. Theme is light on first visit by brand decision (`prefers-color-scheme` deliberately not consulted); an explicit choice persists. Verified 0 contrast failures across 141 rendered text nodes in both languages. |
