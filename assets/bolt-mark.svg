@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1024" height="1024">
+  <!-- VOLTA BoltMark, exported from src/components/BoltMark/BoltMark.jsx so the
+       ad and the site draw the same geometry. Symmetric two-stroke bolt, not a
+       jagged weather bolt. Colour is the brand neon; on video it sits on
+       #0A0A0A, never on white. -->
+  <polygon points="12,1 6,12 11,12 12,23 18,12 13,12" fill="#39FF14" />
+</svg>
