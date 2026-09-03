@@ -318,3 +318,25 @@
   opacity: 0.45;
   text-decoration: line-through;
 }
+
+/* Sticky bar contents. The name truncates rather than wrapping — the bar must
+   stay one line tall so it never eats the page on a phone. */
+.stickyInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stickyName {
+  font-weight: 700;
+  font-size: var(--primitive-fontSize-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stickyPrice {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}

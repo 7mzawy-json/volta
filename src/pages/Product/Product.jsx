@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
@@ -8,13 +8,15 @@ import {
   getRelated,
   getDefaultVariant,
   getStorageOptions,
-  getProductColors
+  getProductColors,
+  getCompanions
 } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
 import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
 import DeviceRender from '../../components/DeviceRender/DeviceRender.jsx';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
+import StickyBuyBar from '../../components/StickyBuyBar/StickyBuyBar.jsx';
 import styles from './Product.module.css';
 import { formatPrice } from '../../utils/currency.js';
 
@@ -35,6 +37,41 @@ export default function Product() {
   const [color, setColor] = useState(fallback?.color);
   const [pickedFor, setPickedFor] = useState(id);
   const [qty, setQty] = useState(1);
+  // The sticky buy bar appears once this row scrolls above the viewport. The
+  // page owns both the element and the decision — handing a ref to the bar and
+  // letting it observe across a component boundary silently never fired.
+  const actionRowRef = useRef(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const el = actionRowRef.current;
+    if (!el) return;
+
+    // Measure live rather than trusting entry.boundingClientRect, which is a
+    // snapshot from when the intersection was recorded and lags a fast jump.
+    const update = () => setShowStickyBar(el.getBoundingClientRect().bottom < 0);
+
+    // Two triggers on purpose, and they are not redundant:
+    //   - IntersectionObserver is the right primitive for "has this element left
+    //     the viewport" and fires on layout changes that emit no scroll event.
+    //   - a passive scroll listener covers the case where the observer delivers
+    //     nothing. That is not hypothetical: in the automation pane used to test
+    //     this, IO delivered zero callbacks — not even the initial one the spec
+    //     requires — because the pane was not painting.
+    // Both call the same idempotent update, so whichever fires first wins and a
+    // duplicate call is harmless.
+    const observer = new IntersectionObserver(update, { threshold: 0 });
+    observer.observe(el);
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [id]);
 
   if (!product) return <Navigate to="/products" replace />;
 
@@ -80,6 +117,7 @@ export default function Product() {
   };
 
   const related = getRelated(id);
+  const companions = getCompanions(id);
   const favorited = isFavorited(product.id);
   const inStock = variant.stock > 0;
   const low = inStock && variant.stock <= LOW_STOCK_AT;
@@ -173,7 +211,7 @@ export default function Product() {
             ))}
           </ul>
 
-          <div className={styles.actionRow}>
+          <div className={styles.actionRow} ref={actionRowRef}>
             <div className={styles.qtyPicker}>
               <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
               <span>{qty}</span>
@@ -202,6 +240,17 @@ export default function Product() {
         </div>
       </div>
 
+      {companions.length > 0 && (
+        <section className={styles.related}>
+          <h2>{t.product.companions}</h2>
+          <div className={styles.relatedGrid}>
+            {companions.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {related.length > 0 && (
         <section className={styles.related}>
           <h2>{t.product.related}</h2>
@@ -212,6 +261,16 @@ export default function Product() {
           </div>
         </section>
       )}
+
+      <StickyBuyBar show={showStickyBar}>
+        <div className={styles.stickyInfo}>
+          <span className={styles.stickyName}>{product.name[lang]}</span>
+          <span className={styles.stickyPrice}>{formatPrice(variant.price, lang)}</span>
+        </div>
+        <Button variant="primary" onClick={() => addItem(variant.id, qty)} disabled={!inStock}>
+          {inStock ? t.product.addToCart : t.product.outOfStock}
+        </Button>
+      </StickyBuyBar>
     </main>
   );
 }

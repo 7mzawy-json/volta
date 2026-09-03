@@ -1,0 +1,33 @@
+.bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--color-surface);
+  border-top: 1px solid var(--box-border);
+  box-shadow: 0 -8px 24px -12px var(--shadow-ambient);
+  padding: 10px 0;
+  /* Slides out of the way rather than unmounting, so the transition has
+     something to animate and focus order stays stable. */
+  transform: translateY(110%);
+  transition: transform var(--motion-page, 300ms) var(--motion-ease-standard);
+  /* Keeps clear of the iOS home indicator and Android gesture bar. */
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+.barShown {
+  transform: none;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

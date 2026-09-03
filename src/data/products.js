@@ -415,3 +415,26 @@ export function getRelated(id, count = 3) {
   const others = products.filter((p) => p.id !== id && p.category !== current.category);
   return [...same, ...others].slice(0, count);
 }
+
+// Things that go WITH this product, as opposed to things like it.
+//
+// getRelated always fills from the same category first, so with 22 phones a
+// phone page showed three more phones and never an accessory — the accessories
+// half of the catalogue was unreachable from the vertical that drives traffic.
+// This is the other half of that relationship: you have chosen the phone, here
+// is what it needs.
+//
+// Ordered deliberately rather than by category listing order: a charger is the
+// near-universal companion purchase, audio next, then the rest. Smart-home is
+// excluded — a hub is not a phone accessory, and padding the strip with a weak
+// suggestion makes the strong ones look arbitrary.
+const COMPANION_ORDER = ['chargers', 'audio', 'accessories'];
+
+export function getCompanions(id, count = 3) {
+  const current = getProduct(id);
+  if (!current || current.category !== 'phones') return [];
+
+  return COMPANION_ORDER.flatMap((category) =>
+    getByCategory(category).filter((p) => getTotalStock(p) > 0)
+  ).slice(0, count);
+}

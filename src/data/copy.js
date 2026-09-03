@@ -19,7 +19,11 @@ export const copy = {
       secondaryCta: 'استكشف كل المنتجات'
     },
     spotlight: {
-      label: 'الأضواء',
+      // "الأضواء" was a literal rendering of "Spotlight" — it means "the lights"
+      // and reads as machine translation. "الأبرز" (the standout) is what an
+      // Arabic editor would actually label this section, and it stays distinct
+      // from "منتجات مختارة" used by the featured grid below it.
+      label: 'الأبرز',
       cta: 'اعرف أكثر'
     },
     bento: {
@@ -100,6 +104,7 @@ export const copy = {
       lowStock: 'كمية محدودة',
       storage: 'السعة',
       from: 'يبدأ من',
+      companions: 'كمّل عدّتك',
       backToProducts: 'رجوع للمنتجات'
     },
     filters: {
@@ -267,6 +272,7 @@ export const copy = {
       lowStock: 'Only a few left',
       storage: 'Storage',
       from: 'From',
+      companions: 'Complete your setup',
       backToProducts: 'Back to Products'
     },
     filters: {
