@@ -204,6 +204,16 @@ export const copy = {
       browse: 'تصفح الهواتف',
       home: 'الرئيسية'
     },
+    meta: {
+      products: 'تسوق هواتف وإكسسوارات مختارة للكويت، مع أسعار واضحة وخيارات اللون والسعة في صفحة واحدة.',
+      cart: 'راجع الأجهزة والإكسسوارات والكميات التي اخترتها قبل الانتقال إلى الدفع التجريبي في فولتا.',
+      checkout: 'أدخل عنوان التوصيل الكويتي واختر طريقة الدفع لإكمال تجربة شراء فولتا بدون أي عملية دفع حقيقية.',
+      confirmation: 'راجع تأكيد الطلب وملخص المنتجات بعد إكمال تجربة الشراء التجريبية من فولتا.',
+      wishlist: 'احفظ الهواتف والإكسسوارات التي أعجبتك وارجع لها بسرعة عندما تكون مستعدًا للاختيار.',
+      compare: 'قارن أسعار الهواتف وشاشاتها وكاميراتها وبطارياتها جنبًا إلى جنب لتختار الجهاز الأنسب لك.',
+      notFound: 'الصفحة المطلوبة غير موجودة؛ ارجع إلى منتجات فولتا أو الصفحة الرئيسية لمتابعة التسوق.',
+      socialImageAlt: 'علامة فولتا الخضراء وشعار اشحن طاقتك على خلفية داكنة'
+    },
     footer: {
       rights: 'جميع الحقوق محفوظة',
       demo: 'مشروع تجريبي بواجهة React — بدون خادم أو معالجة دفع حقيقية.'
@@ -401,6 +411,16 @@ export const copy = {
       message: 'The link may be wrong, or the page may have moved. Head back to the phones or to the homepage.',
       browse: 'Browse phones',
       home: 'Home'
+    },
+    meta: {
+      products: 'Shop phones and accessories selected for Kuwait, with clear prices and every colour and storage option on one page.',
+      cart: 'Review the devices, accessories and quantities you selected before continuing to VOLTA’s demo checkout.',
+      checkout: 'Enter a Kuwaiti delivery address and choose a payment method to complete the VOLTA demo without a real charge.',
+      confirmation: 'Review the order confirmation and product summary after completing VOLTA’s demonstration purchase flow.',
+      wishlist: 'Save the phones and accessories you like, then return to them quickly when you are ready to choose.',
+      compare: 'Compare phone prices, screens, cameras and batteries side by side to find the device that fits you best.',
+      notFound: 'The requested page does not exist; return to VOLTA products or the homepage to continue shopping.',
+      socialImageAlt: 'VOLTA’s green bolt and Power Up tagline on a dark background'
     },
     footer: {
       rights: 'All rights reserved',

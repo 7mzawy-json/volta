@@ -3,13 +3,25 @@ import { copy } from '../data/copy.js';
 
 const LanguageContext = createContext(null);
 
+function initialLanguage() {
+  try {
+    return localStorage.getItem('volta-lang') === 'en' ? 'en' : 'ar';
+  } catch {
+    return 'ar';
+  }
+}
+
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState(() => localStorage.getItem('volta-lang') || 'ar');
+  const [lang, setLang] = useState(initialLanguage);
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    localStorage.setItem('volta-lang', lang);
+    try {
+      localStorage.setItem('volta-lang', lang);
+    } catch {
+      // Language switching still works for this session when storage is blocked.
+    }
   }, [lang]);
 
   const toggleLang = () => setLang((l) => (l === 'ar' ? 'en' : 'ar'));

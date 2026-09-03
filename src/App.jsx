@@ -20,6 +20,7 @@ import Wishlist from './pages/Wishlist/Wishlist.jsx';
 import NotFound from './pages/NotFound/NotFound.jsx';
 import Compare from './pages/Compare/Compare.jsx';
 import CompareTray from './components/CompareTray/CompareTray.jsx';
+import DocumentHead from './components/DocumentHead/DocumentHead.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -32,6 +33,7 @@ function ScrollToTop() {
 function AppShell() {
   return (
     <>
+      <DocumentHead />
       <ScrollToTop />
       <Nav />
       <PageTransition>

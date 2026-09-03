@@ -15,5 +15,12 @@ const dinarFormat = new Intl.NumberFormat('en-KW', {
 
 export function formatPrice(amount, lang = 'ar') {
   const label = CURRENCY_LABEL[lang] || CURRENCY_LABEL.en;
-  return `${dinarFormat.format(amount)} ${label}`;
+  return `${formatPriceValue(amount)} ${label}`;
+}
+
+// Machine-readable offers still need the dinar's three decimal places, but not
+// the visible KD / د.ك suffix. Keep that representation on the same formatter
+// as shopper-facing prices so structured data cannot drift to two decimals.
+export function formatPriceValue(amount) {
+  return dinarFormat.format(amount);
 }
