@@ -4,6 +4,9 @@ dist/
 __MACOSX/
 ._*
 *.local
+
+# Local deploy origin; .env.example documents the shape.
+.env
 .vite/
 playwright-report/
 test-results/

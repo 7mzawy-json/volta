@@ -58,8 +58,45 @@ src/
   utils/        # currency, pluralisation, document metadata
 assets/         # design tokens (the source of both themes), brand mark
 docs/           # brand guidelines, user flow, ad script and its production guide
+scripts/        # build and deploy tooling: per-route head prerender, Netlify-like server
 tests/          # accessibility and layout checks that need a real browser
 ```
+
+## Deploying
+
+The site is static. Build it, then upload the **contents** of `dist/` — Netlify's
+drag-and-drop wants `index.html` at the root of the archive, not nested inside a folder.
+
+```bash
+VITE_SITE_ORIGIN=https://your-site.netlify.app npm run build
+```
+
+Set the origin, or copy `.env.example` to `.env` and set it once. It matters more than it
+looks: **link previews are built by scrapers that do not run JavaScript.** WhatsApp,
+Facebook, Slack, iMessage and LinkedIn read the HTML exactly as served, and Open Graph
+requires an absolute URL, so the address has to be baked in at build time rather than
+discovered from `window.location` the way the browser does it.
+
+With the origin set, the build writes one small HTML file per route — 46 of them — each
+carrying its own title, description, canonical URL, Open Graph tags and (on product pages)
+JSON-LD. They all load the same bundle; only the head differs. Netlify serves a matching
+file before it consults `public/_redirects`, so a shared product link previews as that
+product, while any unmatched path still falls through the SPA rewrite to `index.html`.
+
+Without the origin the build still succeeds and prints a warning, and the tags stay
+relative — the previous behaviour, rather than a wrong absolute URL pointing at someone
+else's site.
+
+To check a build the way Netlify will serve it:
+
+```bash
+node scripts/serve-dist.js
+```
+
+`vite preview` is not a substitute here — it answers every path with the root
+`index.html`, so the per-route heads never appear and a broken deploy looks fine. The
+script above resolves static files first, exactly as Netlify does, and reports which of the
+two happened in an `x-volta-served` header.
 
 ## Documentation
 
