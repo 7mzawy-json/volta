@@ -200,10 +200,19 @@
   z-index: 1;
 }
 
-.favBtn,
+/* These sit above the stretched product link so they stay clickable.
+   NOTE: only a z-index is set here, never `position`. .favBtn is already
+   `position: absolute` pinned to the top inline-end corner, and blanket-setting
+   `position: relative` on it cancelled that and dropped the heart into the flex
+   flow, floating vertically centred over the phone. z-index works on any
+   positioned element, so the absolute pin and the stacking both survive. */
 .quickAdd,
 .cardSwatch {
   position: relative;
+  z-index: 2;
+}
+
+.favBtn {
   z-index: 2;
 }
 
