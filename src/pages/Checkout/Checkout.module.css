@@ -153,3 +153,35 @@
     top: 100px;
   }
 }
+
+/* Validation states. The message sits under its field and is wired up with
+   aria-describedby, so it is announced rather than only seen. */
+.error {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-error, #FF5A5A);
+  font-size: var(--primitive-fontSize-xs);
+  font-weight: 500;
+}
+
+.inputInvalid {
+  border-color: var(--color-error, #FF5A5A);
+}
+
+.inputInvalid:focus {
+  outline-color: var(--color-error, #FF5A5A);
+}
+
+/* The radio itself is visually hidden but still focusable and operable with
+   arrow keys — the styled label is what the shopper sees. */
+.paymentInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.paymentOption:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

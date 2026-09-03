@@ -154,6 +154,13 @@ export const copy = {
       priceMin: 'أقل سعر',
       priceMax: 'أعلى سعر'
     },
+    errors: {
+      required: 'هذي الخانة مطلوبة',
+      phone: 'رقم الهاتف لازم يكون ٨ أرقام على الأقل',
+      cardNumber: 'رقم البطاقة لازم يكون ١٦ رقم',
+      expiry: 'التاريخ لازم يكون بصيغة شهر/سنة',
+      cvc: 'الرمز لازم يكون ٣ أرقام'
+    },
     notFound: {
       title: 'ما لقينا الصفحة',
       message: 'الرابط غلط أو الصفحة انحذفت. تقدر ترجع للهواتف أو للرئيسية.',
@@ -311,6 +318,13 @@ export const copy = {
       close: 'Close',
       priceMin: 'Minimum price',
       priceMax: 'Maximum price'
+    },
+    errors: {
+      required: 'This field is required',
+      phone: 'Phone number needs at least 8 digits',
+      cardNumber: 'Card number should be 16 digits',
+      expiry: 'Use MM/YY',
+      cvc: 'CVC should be 3 digits'
     },
     notFound: {
       title: 'We could not find that page',

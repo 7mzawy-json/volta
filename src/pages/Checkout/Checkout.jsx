@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
-import Button from '../../components/Button/Button.jsx';
-import styles from './Checkout.module.css';
 import { variantLabel } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
+import Button from '../../components/Button/Button.jsx';
+import styles from './Checkout.module.css';
 import { formatPrice } from '../../utils/currency.js';
 
 const paymentMethods = [
@@ -14,26 +14,80 @@ const paymentMethods = [
   { id: 'applepay', label: 'Apple Pay' }
 ];
 
+const digits = (v) => v.replace(/\D/g, '');
+
 export default function Checkout() {
   const { lang, t } = useLanguage();
   const { lineItems, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ fullName: '', address: '', city: '', phone: '' });
+  const [form, setForm] = useState({
+    fullName: '',
+    address: '',
+    city: '',
+    phone: '',
+    cardNumber: '',
+    expiry: '',
+    cvc: ''
+  });
   const [payment, setPayment] = useState('visa');
+  const [errors, setErrors] = useState({});
+  // Focusing by DOM query right after setErrors read the PREVIOUS render, where
+  // aria-invalid was not set yet, so focus never moved. Refs point at the real
+  // inputs and are valid immediately.
+  const inputs = useRef({});
+  const FIELD_ORDER = ['fullName', 'address', 'city', 'phone', 'cardNumber', 'expiry', 'cvc'];
+  const [submitted, setSubmitted] = useState(false);
 
-  if (lineItems.length === 0) {
-    return <Navigate to="/cart" replace />;
-  }
+  if (lineItems.length === 0) return <Navigate to="/cart" replace />;
 
-  const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const needsCard = payment !== 'applepay';
+
+  // Validation is bilingual and lives here rather than in the browser's built-in
+  // messages, which are locale-of-the-browser rather than locale-of-the-shop —
+  // an Arabic storefront would otherwise show English validation to some users.
+  const validate = (values) => {
+    const next = {};
+    for (const field of ['fullName', 'address', 'city']) {
+      if (!values[field].trim()) next[field] = t.errors.required;
+    }
+    if (!values.phone.trim()) next.phone = t.errors.required;
+    else if (digits(values.phone).length < 8) next.phone = t.errors.phone;
+
+    if (needsCard) {
+      if (!values.cardNumber.trim()) next.cardNumber = t.errors.required;
+      else if (digits(values.cardNumber).length !== 16) next.cardNumber = t.errors.cardNumber;
+
+      if (!values.expiry.trim()) next.expiry = t.errors.required;
+      else if (!/^\d{2}\s*\/\s*\d{2}$/.test(values.expiry.trim())) next.expiry = t.errors.expiry;
+
+      if (!values.cvc.trim()) next.cvc = t.errors.required;
+      else if (digits(values.cvc).length !== 3) next.cvc = t.errors.cvc;
+    }
+    return next;
+  };
+
+  const update = (key) => (e) => {
+    const values = { ...form, [key]: e.target.value };
+    setForm(values);
+    // Errors only re-evaluate after a first failed submit, so the form does not
+    // scold someone while they are still typing their first character.
+    if (submitted) setErrors(validate(values));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmitted(true);
+    const found = validate(form);
+    setErrors(found);
+    if (Object.keys(found).length) {
+      const firstKey = FIELD_ORDER.find((k) => found[k]);
+      inputs.current[firstKey]?.focus();
+      return;
+    }
 
     // Snapshot the order BEFORE clearing the cart. The confirmation page has to
-    // show what was bought, and by the time it renders the cart is empty — so the
-    // lines have to travel with the navigation rather than be re-read from state.
+    // show what was bought, and by the time it renders the cart is empty.
     const order = {
       id: Math.floor(1000 + Math.random() * 9000),
       total: subtotal,
@@ -51,63 +105,104 @@ export default function Checkout() {
     navigate('/confirmation', { state: { order } });
   };
 
+  const field = (key, label, extra = {}) => (
+    <label className={styles.field}>
+      <span>{label}</span>
+      <input
+        ref={(el) => { inputs.current[key] = el; }}
+        value={form[key]}
+        onChange={update(key)}
+        aria-invalid={errors[key] ? 'true' : undefined}
+        aria-describedby={errors[key] ? `err-${key}` : undefined}
+        className={errors[key] ? styles.inputInvalid : undefined}
+        {...extra}
+      />
+      {errors[key] && (
+        <span className={styles.error} id={`err-${key}`} role="alert">
+          {errors[key]}
+        </span>
+      )}
+    </label>
+  );
+
   return (
     <main className={`container ${styles.page}`}>
       <h1>{t.checkout.title}</h1>
       <p className={styles.demoNotice}>{t.checkout.demoNotice}</p>
 
-      <form className={styles.layout} onSubmit={handleSubmit}>
+      {/* noValidate: the browser's own bubbles are in the browser's language, not
+          the shop's, so validation is handled here and reported in both. */}
+      <form className={styles.layout} onSubmit={handleSubmit} noValidate>
         <div className={styles.formCol}>
           <section className={styles.block}>
             <h2>{t.checkout.shippingInfo}</h2>
-            <label className={styles.field}>
-              <span>{t.checkout.fullName}</span>
-              <input required value={form.fullName} onChange={update('fullName')} />
-            </label>
-            <label className={styles.field}>
-              <span>{t.checkout.address}</span>
-              <input required value={form.address} onChange={update('address')} />
-            </label>
+            {field('fullName', t.checkout.fullName, { autoComplete: 'name' })}
+            {field('address', t.checkout.address, { autoComplete: 'street-address' })}
             <div className={styles.fieldRow}>
-              <label className={styles.field}>
-                <span>{t.checkout.city}</span>
-                <input required value={form.city} onChange={update('city')} />
-              </label>
-              <label className={styles.field}>
-                <span>{t.checkout.phone}</span>
-                <input required type="tel" value={form.phone} onChange={update('phone')} />
-              </label>
+              {field('city', t.checkout.city, { autoComplete: 'address-level2' })}
+              {field('phone', t.checkout.phone, {
+                type: 'tel',
+                inputMode: 'tel',
+                autoComplete: 'tel'
+              })}
             </div>
           </section>
 
           <section className={styles.block}>
             <h2>{t.checkout.payment}</h2>
-            <div className={styles.paymentOptions}>
+
+            {/* A real radiogroup: these were styled buttons, which gave no group
+                semantics, no arrow-key navigation and no announced selection. */}
+            <div
+              className={styles.paymentOptions}
+              role="radiogroup"
+              aria-label={t.checkout.payment}
+            >
               {paymentMethods.map((m) => (
-                <button
-                  type="button"
+                <label
                   key={m.id}
                   className={`${styles.paymentOption} ${payment === m.id ? styles.paymentActive : ''}`}
-                  onClick={() => setPayment(m.id)}
                 >
+                  <input
+                    type="radio"
+                    name="payment"
+                    value={m.id}
+                    checked={payment === m.id}
+                    onChange={() => {
+                      setPayment(m.id);
+                      if (submitted) setErrors({});
+                    }}
+                    className={styles.paymentInput}
+                  />
                   {m.label}
-                </button>
+                </label>
               ))}
             </div>
-            {payment !== 'applepay' && (
+
+            {needsCard && (
               <div className={styles.fieldRow}>
-                <label className={styles.field}>
-                  <span>{t.checkout.cardNumber}</span>
-                  <input placeholder="4242 4242 4242 4242" />
-                </label>
-                <label className={styles.field} style={{ maxWidth: 110 }}>
-                  <span>{t.checkout.expiry}</span>
-                  <input placeholder="MM/YY" />
-                </label>
-                <label className={styles.field} style={{ maxWidth: 90 }}>
-                  <span>{t.checkout.cvc}</span>
-                  <input placeholder="123" />
-                </label>
+                {/* autoComplete is deliberately OFF on the card fields. This demo
+                    never processes a payment, so inviting the browser to autofill
+                    someone's real card into it would be careless. Shipping fields
+                    keep autocomplete, where it only helps. */}
+                {field('cardNumber', t.checkout.cardNumber, {
+                  placeholder: '4242 4242 4242 4242',
+                  inputMode: 'numeric',
+                  autoComplete: 'off',
+                  maxLength: 19
+                })}
+                {field('expiry', t.checkout.expiry, {
+                  placeholder: 'MM/YY',
+                  inputMode: 'numeric',
+                  autoComplete: 'off',
+                  maxLength: 5
+                })}
+                {field('cvc', t.checkout.cvc, {
+                  placeholder: '123',
+                  inputMode: 'numeric',
+                  autoComplete: 'off',
+                  maxLength: 3
+                })}
               </div>
             )}
           </section>
