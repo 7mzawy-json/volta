@@ -9,6 +9,7 @@ export const copy = {
       cart: 'السلة',
       wishlist: 'المفضلة',
       menu: 'القائمة',
+      seeAllResults: 'عرض كل النتائج',
       langSwitch: 'English'
     },
     hero: {
@@ -189,6 +190,7 @@ export const copy = {
       cart: 'Cart',
       wishlist: 'Wishlist',
       menu: 'Menu',
+      seeAllResults: 'See all results',
       langSwitch: 'العربية'
     },
     hero: {

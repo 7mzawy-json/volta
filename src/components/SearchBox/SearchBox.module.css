@@ -1,0 +1,125 @@
+.wrap {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--color-muted-foreground);
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.field:focus-within {
+  border-color: var(--color-primary);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-muted-foreground);
+}
+
+/* Clears the browser's own search cancel button, which sits awkwardly inside a
+   pill and cannot be styled consistently across engines. */
+.input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.panel {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 8px);
+  z-index: 70;
+  background: var(--color-surface);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius, 12px);
+  box-shadow: 0 12px 32px -10px var(--shadow-ambient);
+  overflow: hidden;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.itemActive {
+  background: var(--box-bg-hover);
+}
+
+.thumb {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 7px;
+  background: var(--box-bg);
+  color: var(--color-primary);
+}
+
+.itemName {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.itemPrice {
+  color: var(--color-muted-foreground);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--primitive-fontSize-xs);
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.seeAll {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-top: 1px solid var(--box-border);
+  background: none;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: var(--primitive-fontSize-sm);
+  cursor: pointer;
+}
+
+.seeAll:hover {
+  background: var(--box-bg-hover);
+}
