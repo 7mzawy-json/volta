@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDialog } from '../../hooks/useDialog.js';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
-import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
+import ProductVisual from '../ProductVisual/ProductVisual.jsx';
 import Button from '../Button/Button.jsx';
 import styles from './CartDrawer.module.css';
 import { variantLabel } from '../../data/products.js';
@@ -55,7 +55,7 @@ export default function CartDrawer() {
               {lineItems.map(({ variantId, qty, product, variant }) => (
                 <li key={variantId} className={styles.item}>
                   <div className={styles.itemGlyph}>
-                    <ProductGlyph icon={product.icon} size={40} />
+                    <ProductVisual product={product} color={variant.color} size={product.category === 'phones' ? 26 : 40} />
                   </div>
                   <div className={styles.itemInfo}>
                     <p className={styles.itemName}>{product.name[lang]}</p>

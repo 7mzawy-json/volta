@@ -83,6 +83,17 @@ const paths = {
 };
 
 export default function ProductGlyph({ icon, size = 64, className = '' }) {
+  // An unknown icon used to fall through to `chargepad` in silence, which is how
+  // headphones, a case and a dock all shipped to the cart drawer drawn as a
+  // charging pad — plausible enough that nothing looked broken. Failing loudly in
+  // development turns that into something you notice the first time.
+  if (import.meta.env?.DEV && icon && !paths[icon]) {
+    console.warn(
+      `[ProductGlyph] no glyph for "${icon}" — falling back to chargepad. ` +
+        `Use ProductVisual for products; it renders accessories via AccessoryRender.`
+    );
+  }
+
   return (
     <svg
       width={size}

@@ -1,6 +1,6 @@
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
-import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
+import ProductVisual from '../../components/ProductVisual/ProductVisual.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Cart.module.css';
 import { variantLabel } from '../../data/products.js';
@@ -32,7 +32,7 @@ export default function Cart() {
           {lineItems.map(({ variantId, qty, product, variant }) => (
             <li key={variantId} className={styles.item}>
               <div className={styles.glyphBox}>
-                <ProductGlyph icon={product.icon} size={48} />
+                <ProductVisual product={product} color={variant.color} size={product.category === 'phones' ? 30 : 48} />
               </div>
               <div className={styles.info}>
                 <p className={styles.name}>{product.name[lang]}</p>
