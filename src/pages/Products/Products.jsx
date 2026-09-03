@@ -158,6 +158,7 @@ export default function Products() {
 
   return (
     <main className={`container ${styles.page}`}>
+      <h1 className={styles.srOnly}>{t.nav.products}</h1>
       <div className={styles.toolbar}>
         <div className={styles.tabs}>
           <button
