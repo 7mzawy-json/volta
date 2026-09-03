@@ -173,10 +173,14 @@ export const accessories = [
       ar: 'شاحن جداري صغير بتقنية GaN يشحن الهاتف واللابتوب بنفس الوقت.',
       en: 'A compact GaN wall charger that runs a phone and a laptop at once.'
     },
-    attributes: { wattage: 65, ports: 3, connection: 'wired' },
+    attributes: { wattage: 65, ports: 3, connection: 'wired', fullChargeMinutes: 45 },
     specs: {
-      ar: ['65 واط موزّعة بذكاء', 'منفذان USB-C ومنفذ USB-A', 'أصغر من شاحن عادي'],
-      en: ['65W shared intelligently', 'Two USB-C and one USB-A', 'Smaller than a standard brick']
+      // The 45-minute figure is the brand's canonical benefit line (it appears in
+      // brand-guidelines §4 as the product-page tone example) and the Google Flow
+      // ad is built on it. It belongs on the product too: an ad may not claim
+      // something the catalogue does not, so the two are stated in one place.
+      ar: ['شحن كامل خلال 45 دقيقة', '65 واط موزّعة بذكاء', 'منفذان USB-C ومنفذ USB-A'],
+      en: ['Full charge in 45 minutes', '65W shared intelligently', 'Two USB-C and one USB-A']
     },
     price: 14.9,
     colors: ['white', 'black']
