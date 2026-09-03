@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useCompare, MAX_COMPARE } from '../../context/CompareContext.jsx';
 import { getProductColors } from '../../data/products.js';
@@ -12,16 +12,17 @@ import styles from './CompareTray.module.css';
 // visibly happens, and the shopper has no idea the selection exists or how to
 // act on it. The tray is the feedback and the call to action in one.
 //
-// Hidden on the comparison page itself, where it would be describing the page
-// you are already looking at.
+// Shown only on browsing routes (see COMPARE_SURFACES in CompareContext). It is
+// hidden on the comparison page, which it would merely describe, and on the
+// product, cart and checkout pages, where it fought the sticky buy bar for the
+// bottom of the screen and covered checkout content.
 export default function CompareTray() {
   const { lang, t } = useLanguage();
-  const { products, remove, clear, count } = useCompare();
-  const location = useLocation();
+  const { products, remove, clear, count, canCompare } = useCompare();
   const navigate = useNavigate();
 
-  const onComparePage = location.pathname === '/compare';
-  const show = count > 0 && !onComparePage;
+  // Only where comparison is actionable — see COMPARE_SURFACES.
+  const show = count > 0 && canCompare;
 
   return (
     <div

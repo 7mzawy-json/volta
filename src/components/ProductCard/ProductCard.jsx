@@ -14,7 +14,7 @@ export default function ProductCard({ product }) {
   const { lang, t } = useLanguage();
   const { addItem } = useCart();
   const { toggle, isFavorited } = useWishlist();
-  const { toggle: toggleCompare, isComparing, isFull } = useCompare();
+  const { toggle: toggleCompare, isComparing, isFull, canCompare } = useCompare();
 
   const favorited = isFavorited(product.id);
   const [preview, setPreview] = useState(null);
@@ -81,7 +81,7 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        {isPhone && (
+        {isPhone && canCompare && (
           <label className={styles.compareRow}>
             <input
               type="checkbox"

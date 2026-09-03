@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getProduct } from '../data/products.js';
 
 const CompareContext = createContext(null);
@@ -8,6 +9,19 @@ const CompareContext = createContext(null);
 // comparison and becomes a spreadsheet, and on a phone it would be unreadable
 // well before that.
 export const MAX_COMPARE = 4;
+
+// Comparison is a BROWSING feature, so it only exists on routes whose job is
+// showing a set you might choose between.
+//
+// It used to appear everywhere. That put the tray on the product page fighting
+// the sticky buy bar for the bottom of the screen (and winning, at z-index 45
+// against 40, so it covered the primary CTA), and left it sitting over the
+// checkout form where comparing phones is not the task any more.
+//
+// The control and its feedback travel together: where the tray is hidden the
+// compare checkbox is hidden too, because a tick-box that produces no visible
+// result is worse than no tick-box.
+const COMPARE_SURFACES = ['/', '/products', '/wishlist'];
 
 function readStored() {
   try {
@@ -23,6 +37,9 @@ function readStored() {
 
 export function CompareProvider({ children }) {
   const [ids, setIds] = useState(readStored);
+  const { pathname } = useLocation();
+  // Exact match only: "/products" is a listing, "/products/iphone-15" is not.
+  const canCompare = COMPARE_SURFACES.includes(pathname);
 
   useEffect(() => {
     try {
@@ -53,6 +70,7 @@ export function CompareProvider({ children }) {
         remove,
         clear,
         count: ids.length,
+        canCompare,
         isComparing: (id) => ids.includes(id),
         isFull: ids.length >= MAX_COMPARE
       }}
