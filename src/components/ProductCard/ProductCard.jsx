@@ -6,8 +6,7 @@ import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useCompare } from '../../context/CompareContext.jsx';
 import { getDefaultVariant, getPriceRange, getTotalStock, hasVariantChoice, getProductColors } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
-import DeviceRender from '../DeviceRender/DeviceRender.jsx';
-import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
+import ProductVisual from '../ProductVisual/ProductVisual.jsx';
 import styles from './ProductCard.module.css';
 import { formatPrice } from '../../utils/currency.js';
 
@@ -24,7 +23,8 @@ export default function ProductCard({ product }) {
   const showFrom = hasVariantChoice(product);
 
   const isPhone = product.category === 'phones';
-  const colorways = isPhone ? getProductColors(product) : [];
+  // Accessories carry finishes as well, so colourways are not phone-only.
+  const colorways = getProductColors(product);
   const swatch = preview || colorways[0];
 
   const handleAdd = () => addItem(getDefaultVariant(product).id, 1);
@@ -38,17 +38,10 @@ export default function ProductCard({ product }) {
   return (
     <article className={styles.card}>
       <div className={styles.visual}>
-        {isPhone ? (
-          <DeviceRender
-            color={swatch}
-            brand={product.brand}
-            wide={product.attributes?.screen >= 7.5}
-            size={58}
-            className={styles.device}
-          />
-        ) : (
-          <ProductGlyph icon={product.icon} size={72} className={styles.glyph} />
-        )}
+        {/* Accessories use a square viewBox while phones use a tall one, so the same
+                    `size` renders an accessory visibly smaller. The larger number here is
+                    what makes both fill the card's square visual area equally. */}
+                <ProductVisual product={product} color={swatch} size={isPhone ? 58 : 96} className={styles.device} />
         {product.badge && <span className={styles.badge}>{product.badge[lang]}</span>}
         {!inStock && <span className={styles.soldOut}>{t.product.outOfStock}</span>}
         <button

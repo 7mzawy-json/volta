@@ -12,8 +12,7 @@ import {
   getCompanions
 } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
-import ProductGlyph from '../../components/ProductGlyph/ProductGlyph.jsx';
-import DeviceRender from '../../components/DeviceRender/DeviceRender.jsx';
+import ProductVisual from '../../components/ProductVisual/ProductVisual.jsx';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
 import StickyBuyBar from '../../components/StickyBuyBar/StickyBuyBar.jsx';
@@ -133,16 +132,7 @@ export default function Product() {
       <div className={styles.layout}>
         <div className={styles.visual}>
           <div className={styles.glow} />
-          {isPhone ? (
-            <DeviceRender
-              color={variant.color}
-              brand={product.brand}
-              wide={product.attributes?.screen >= 7.5}
-              size={150}
-            />
-          ) : (
-            <ProductGlyph icon={product.icon} size={180} />
-          )}
+          <ProductVisual product={product} color={variant.color} size={isPhone ? 150 : 170} />
           {product.badge && <span className={styles.badge}>{product.badge[lang]}</span>}
         </div>
 

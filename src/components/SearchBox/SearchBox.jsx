@@ -3,8 +3,7 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { searchProducts } from '../../data/search.js';
 import { getPriceRange, getProductColors } from '../../data/products.js';
-import DeviceRender from '../DeviceRender/DeviceRender.jsx';
-import ProductGlyph from '../ProductGlyph/ProductGlyph.jsx';
+import ProductVisual from '../ProductVisual/ProductVisual.jsx';
 import { formatPrice } from '../../utils/currency.js';
 import styles from './SearchBox.module.css';
 
@@ -140,11 +139,7 @@ export default function SearchBox({ className = '', onNavigate }) {
                       onMouseDown={(e) => { e.preventDefault(); goToProduct(p); }}
                     >
                       <span className={styles.thumb}>
-                        {isPhone ? (
-                          <DeviceRender color={getProductColors(p)[0]} brand={p.brand} size={20} />
-                        ) : (
-                          <ProductGlyph icon={p.icon} size={24} />
-                        )}
+                        <ProductVisual product={p} size={isPhone ? 20 : 26} />
                       </span>
                       <span className={styles.itemName}>{p.name[lang]}</span>
                       <span className={styles.itemPrice}>
