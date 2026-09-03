@@ -33,12 +33,160 @@
   cursor: pointer;
 }
 
+/* --- tools: differences switch + column pager ---------------------------- */
+
+.tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-bottom: 12px;
+}
+
+/* Same sliding switch as the product filters. Reused rather than restyled so a
+   toggle means the same thing everywhere in the storefront. */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: var(--primitive-fontSize-sm);
+  user-select: none;
+}
+
+.toggleName {
+  font-weight: 600;
+}
+
+.switchInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--box-border);
+  transition: background var(--motion-hover) var(--motion-ease-standard);
+}
+
+.switchKnob {
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-muted-foreground);
+  transition: transform var(--motion-hover) var(--motion-ease-standard),
+              background var(--motion-hover) var(--motion-ease-standard);
+}
+
+.switchInput:checked + .switch {
+  background: var(--color-primary);
+}
+
+.switchInput:checked + .switch .switchKnob {
+  background: var(--color-primary-foreground);
+  /* The knob slides toward the end of the line: right in English, left in
+     Arabic. The transform does not flip on its own, so RTL restates it. */
+  transform: translateX(14px);
+}
+
+[dir='rtl'] .switchInput:checked + .switch .switchKnob {
+  transform: translateX(-14px);
+}
+
+.switchInput:focus-visible + .switch {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--box-border);
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--motion-hover) var(--motion-ease-standard),
+              color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.pagerBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pagerBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pagerBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.position {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+  font-variant-numeric: tabular-nums;
+  min-width: 46px;
+  text-align: center;
+}
+
+/* --- table --------------------------------------------------------------- */
+
 /* Horizontal scroll rather than crushed columns on narrow screens. */
 .scroller {
+  /* Width of the sticky attribute column. Shared with scroll-padding below so
+     a snapped column never lands underneath it. */
+  --label-col: 136px;
+
   overflow-x: auto;
   border: 1px solid var(--box-border);
   border-radius: var(--box-radius, 12px);
   background: var(--box-bg);
+
+  /* Load-bearing. .visually-hidden is position:absolute, and an absolutely
+     positioned element is only clipped by an ancestor that is its CONTAINING
+     BLOCK — overflow alone is not enough. With every ancestor static, the
+     screen-reader text in the cells resolved against the initial containing
+     block instead, landed at the off-screen x of its own scrolled cell, and
+     stretched the DOCUMENT 119px wider than the viewport at 375px. The page
+     scrolled sideways and the heading fell off the edge.
+     Do not remove this without re-measuring documentElement.scrollWidth. */
+  position: relative;
+
+  /* Columns lock into place instead of drifting to a half-read position. Only
+     engages when the table is actually wider than the port. */
+  scroll-snap-type: inline mandatory;
+  scroll-padding-inline-start: var(--label-col);
+}
+
+/* Focusable region (WCAG 2.1.1), so it needs a focus ring like any control. */
+.scroller:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .table {
@@ -53,7 +201,10 @@
   font-size: var(--primitive-fontSize-sm);
   font-weight: 600;
   color: var(--color-muted-foreground);
-  white-space: nowrap;
+  /* Fixed rather than shrink-to-fit: scroll-padding needs a width it can count
+     on, and the longest label differs per language. Wraps instead of nowrap
+     because a fixed column has to be allowed to use a second line. */
+  inline-size: var(--label-col);
   /* The label column stays put while the phones scroll past it, so you never
      lose track of which row you are reading. */
   position: sticky;
@@ -68,6 +219,7 @@
   min-width: 140px;
   border-bottom: 1px solid var(--box-border);
   vertical-align: bottom;
+  scroll-snap-align: start;
 }
 
 .headLink {

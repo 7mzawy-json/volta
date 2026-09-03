@@ -74,7 +74,25 @@ async function scan(page, testInfo, label, language) {
   expect(describeViolations(results.violations), `${label} has axe violations`).toEqual([]);
 }
 
+// Wishlist and compare are read from storage at boot, so seeding has to happen
+// before any page script runs. Without this the suite scanned three empty
+// states: an empty wishlist, an empty comparison page, and every route with the
+// compare tray absent.
+const SEEDED_COMPARE = ['iphone-17-pro-max', 'iphone-17-pro'];
+const SEEDED_WISHLIST = ['iphone-17-pro-max'];
+
+async function seedBrowsingState(page) {
+  await page.addInitScript(
+    ([compare, wishlist]) => {
+      localStorage.setItem('volta-compare', JSON.stringify(compare));
+      localStorage.setItem('volta-wishlist', JSON.stringify(wishlist));
+    },
+    [SEEDED_COMPARE, SEEDED_WISHLIST]
+  );
+}
+
 async function openInLanguage(page, language) {
+  await seedBrowsingState(page);
   await page.goto('/');
   if (languages[language].switchLabel) {
     await page.getByRole('button', { name: languages[language].switchLabel, exact: true }).click();
@@ -124,5 +142,107 @@ for (const [language, labels] of Object.entries(languages)) {
     await scan(page, testInfo, 'checkout', language);
     await completeCheckout(page, labels);
     await scan(page, testInfo, 'confirmation', language);
+  });
+}
+
+// Backlog item 6 — the comparison table is wider than a phone screen, so it has
+// to say so. A scrollbar is not a signal that a fourth column exists.
+//
+// Runs at every configured viewport: the pager is supposed to appear only when
+// the table actually overflows, and asserting "present" at 375 and "absent when
+// it fits" is the whole contract.
+test('mobile comparison offers orientation and a differences filter', async ({ page }, testInfo) => {
+  await seedBrowsingState(page);
+  await page.goto('/compare');
+
+  const scroller = page.getByRole('group', { name: /مقارنة|Compare/ });
+  await expect(scroller).toBeVisible();
+
+  // Focusable, because a region you can only reach by scrolling must be
+  // reachable from the keyboard too (WCAG 2.1.1).
+  await expect(scroller).toHaveAttribute('tabindex', '0');
+
+  // Pinned rather than discovered: at 375 the table MUST overflow (that is the
+  // condition item 6 exists for) and at 1280 two columns MUST fit, so the
+  // affordances stay absent. An if/else on a measured value would quietly pass
+  // whichever branch it happened to take.
+  const overflows = await scroller.evaluate((el) => el.scrollWidth - el.clientWidth > 4);
+  expect(overflows).toBe(testInfo.project.name === 'mobile-375');
+  const snap = await scroller.evaluate((el) => getComputedStyle(el).scrollSnapType);
+  expect(snap).toContain('mandatory');
+
+  const next = page.getByRole('button', { name: 'الهاتف التالي', exact: true });
+  const prev = page.getByRole('button', { name: 'الهاتف السابق', exact: true });
+
+  if (overflows) {
+    await expect(next).toBeVisible();
+    // Nothing precedes the first column.
+    await expect(prev).toBeDisabled();
+
+    const columnBefore = await scroller.evaluate((el) => el.scrollLeft);
+    await next.click();
+    await expect(prev).toBeEnabled();
+    const columnAfter = await scroller.evaluate((el) => el.scrollLeft);
+    // Direction-agnostic: RTL scrollLeft is negative, so compare distance moved.
+    expect(Math.abs(columnAfter - columnBefore)).toBeGreaterThan(20);
+  } else {
+    await expect(next).toHaveCount(0);
+  }
+
+  // The two seeded phones are both Apple, so brand, camera and refresh rate are
+  // identical and the switch has something real to remove.
+  const rows = page.locator('tbody tr');
+  const total = await rows.count();
+  await page.getByText('الاختلافات فقط', { exact: true }).click();
+  const remaining = await rows.count();
+  expect(remaining).toBeGreaterThan(0);
+  expect(remaining).toBeLessThan(total);
+
+  await testInfo.attach('compare-orientation.json', {
+    body: JSON.stringify({ overflows, snap, total, remaining }, null, 2),
+    contentType: 'application/json'
+  });
+});
+
+// No route may scroll sideways on a phone.
+//
+// This exists because /compare did, and nothing caught it: axe does not check
+// overflow, and the scans that would have seen it were running against an EMPTY
+// comparison page. A page that slides horizontally under the thumb loses its
+// heading off the edge, which is the same defect class as the mobile header
+// (backlog item 1) — so it is worth a guard rather than another discovery.
+const NARROW_ROUTES = [
+  '/',
+  '/products',
+  '/products?category=phones',
+  '/products/iphone-17-pro-max',
+  '/wishlist',
+  '/compare',
+  '/cart',
+  '/checkout',
+  '/definitely-missing'
+];
+
+for (const language of Object.keys(languages)) {
+  test(`${language} storefront never scrolls sideways at 375px`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-375', 'phone-width check');
+
+    await seedBrowsingState(page);
+    await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
+
+    const overflowing = [];
+    for (const route of NARROW_ROUTES) {
+      await page.goto(route);
+      await page.locator('main').waitFor({ state: 'visible' });
+      const measured = await page.evaluate(() => ({
+        doc: document.documentElement.scrollWidth,
+        view: document.documentElement.clientWidth
+      }));
+      if (measured.doc > measured.view) {
+        overflowing.push(`${route} (+${measured.doc - measured.view}px)`);
+      }
+    }
+
+    expect(overflowing, 'routes wider than the viewport').toEqual([]);
   });
 }

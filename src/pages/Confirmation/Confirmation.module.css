@@ -12,11 +12,15 @@
 
 .glow {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  /* Centred with inset + auto margins rather than a 50% offset plus a negative
+     translate. The offset version needs a DIRECTIONAL property to work: paired
+     with translate(-50%) it centres under left but pushes the glow off-centre
+     under inset-inline-start in RTL, because the transform does not flip. This
+     form has no direction in it at all. */
+  inset: 0;
+  margin: auto;
   width: 320px;
   height: 320px;
-  transform: translate(-50%, -50%);
   background: radial-gradient(circle, var(--glow-strong), transparent 70%);
   z-index: 0;
 }

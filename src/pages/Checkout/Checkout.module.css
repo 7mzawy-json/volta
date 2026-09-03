@@ -159,17 +159,17 @@
 .error {
   display: block;
   margin-top: 6px;
-  color: var(--color-error, #FF5A5A);
+  color: var(--color-error);
   font-size: var(--primitive-fontSize-xs);
   font-weight: 500;
 }
 
 .inputInvalid {
-  border-color: var(--color-error, #FF5A5A);
+  border-color: var(--color-error);
 }
 
 .inputInvalid:focus {
-  outline-color: var(--color-error, #FF5A5A);
+  outline-color: var(--color-error);
 }
 
 /* The radio itself is visually hidden but still focusable and operable with

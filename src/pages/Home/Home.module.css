@@ -245,16 +245,6 @@
   max-width: 52ch;
 }
 
-/* The one number worth shouting. Sits large and quiet rather than in a badge. */
-.tileStat {
-  margin-top: 18px;
-  font-size: var(--display-md);
-  font-weight: 700;
-  color: var(--color-primary);
-  letter-spacing: var(--display-tracking);
-  font-variant-numeric: tabular-nums;
-}
-
 /* --- categories ---------------------------------------------------------- */
 
 .categoryGrid {

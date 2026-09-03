@@ -208,7 +208,7 @@
 /* Stock urgency states. Low stock earns attention without alarm; sold out is
    stated plainly rather than shouted. */
 .stockLow {
-  color: var(--color-warning, #FFB020);
+  color: var(--color-warning);
   font-weight: 600;
   font-size: var(--primitive-fontSize-sm);
 }

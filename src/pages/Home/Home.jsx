@@ -121,7 +121,6 @@ export default function Home() {
           <Reveal className={`${styles.tile} ${styles.tileWide}`}>
             <h3 className={styles.tileTitle}>{t.bento.speed.title}</h3>
             <p className={styles.tileBody}>{t.bento.speed.body}</p>
-            <p className={styles.tileStat}>75 KB</p>
           </Reveal>
           <Reveal className={styles.tile} delay={80}>
             <h3 className={styles.tileTitle}>{t.bento.arabic.title}</h3>
