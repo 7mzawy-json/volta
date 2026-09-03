@@ -7,14 +7,13 @@ import { getColor } from '../../data/colors.js';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
 import { formatPrice } from '../../utils/currency.js';
+import { validateCheckout } from './checkoutValidation.js';
 
 const paymentMethods = [
   { id: 'visa', label: 'Visa' },
   { id: 'mastercard', label: 'Mastercard' },
   { id: 'applepay', label: 'Apple Pay' }
 ];
-
-const digits = (v) => v.replace(/\D/g, '');
 
 export default function Checkout() {
   const { lang, t } = useLanguage();
@@ -43,42 +42,18 @@ export default function Checkout() {
 
   const needsCard = payment !== 'applepay';
 
-  // Validation is bilingual and lives here rather than in the browser's built-in
-  // messages, which are locale-of-the-browser rather than locale-of-the-shop —
-  // an Arabic storefront would otherwise show English validation to some users.
-  const validate = (values) => {
-    const next = {};
-    for (const field of ['fullName', 'address', 'city']) {
-      if (!values[field].trim()) next[field] = t.errors.required;
-    }
-    if (!values.phone.trim()) next.phone = t.errors.required;
-    else if (digits(values.phone).length < 8) next.phone = t.errors.phone;
-
-    if (needsCard) {
-      if (!values.cardNumber.trim()) next.cardNumber = t.errors.required;
-      else if (digits(values.cardNumber).length !== 16) next.cardNumber = t.errors.cardNumber;
-
-      if (!values.expiry.trim()) next.expiry = t.errors.required;
-      else if (!/^\d{2}\s*\/\s*\d{2}$/.test(values.expiry.trim())) next.expiry = t.errors.expiry;
-
-      if (!values.cvc.trim()) next.cvc = t.errors.required;
-      else if (digits(values.cvc).length !== 3) next.cvc = t.errors.cvc;
-    }
-    return next;
-  };
-
   const update = (key) => (e) => {
     const values = { ...form, [key]: e.target.value };
     setForm(values);
     // Errors only re-evaluate after a first failed submit, so the form does not
     // scold someone while they are still typing their first character.
-    if (submitted) setErrors(validate(values));
+    if (submitted) setErrors(validateCheckout(values, payment));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
-    const found = validate(form);
+    const found = validateCheckout(form, payment);
     setErrors(found);
     if (Object.keys(found).length) {
       const firstKey = FIELD_ORDER.find((k) => found[k]);
@@ -119,7 +94,7 @@ export default function Checkout() {
       />
       {errors[key] && (
         <span className={styles.error} id={`err-${key}`} role="alert">
-          {errors[key]}
+          {t.errors[errors[key]]}
         </span>
       )}
     </label>
@@ -170,7 +145,7 @@ export default function Checkout() {
                     checked={payment === m.id}
                     onChange={() => {
                       setPayment(m.id);
-                      if (submitted) setErrors({});
+                      if (submitted) setErrors(validateCheckout(form, m.id));
                     }}
                     className={styles.paymentInput}
                   />

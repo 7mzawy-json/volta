@@ -158,7 +158,7 @@ export const copy = {
       required: 'هذي الخانة مطلوبة',
       phone: 'رقم الهاتف لازم يكون ٨ أرقام على الأقل',
       cardNumber: 'رقم البطاقة لازم يكون ١٦ رقم',
-      expiry: 'التاريخ لازم يكون بصيغة شهر/سنة',
+      expiry: 'استخدم تاريخ صالح وغير منتهي بصيغة شهر/سنة',
       cvc: 'الرمز لازم يكون ٣ أرقام'
     },
     notFound: {
@@ -323,7 +323,7 @@ export const copy = {
       required: 'This field is required',
       phone: 'Phone number needs at least 8 digits',
       cardNumber: 'Card number should be 16 digits',
-      expiry: 'Use MM/YY',
+      expiry: 'Use a valid, unexpired MM/YY',
       cvc: 'CVC should be 3 digits'
     },
     notFound: {
