@@ -29,6 +29,11 @@ const origin = (process.env.VITE_SITE_ORIGIN || env.VITE_SITE_ORIGIN || '')
   .trim()
   .replace(/\/+$/, '');
 
+// GitHub Pages serves a project repo under /<repo>/. Must match the base Vite
+// was built with, or the head advertises URLs the host does not serve.
+const rawBase = (process.env.VITE_BASE || env.VITE_BASE || '/').trim();
+const base = rawBase.startsWith('/') ? rawBase : `/${rawBase}`;
+
 if (!origin) {
   console.warn(
     '\n  prerender-meta: VITE_SITE_ORIGIN is not set, so link previews will show a\n' +
@@ -36,6 +41,13 @@ if (!origin) {
       '    VITE_SITE_ORIGIN=https://your-site.netlify.app npm run build\n'
   );
   process.exit(0);
+}
+
+if (!/^\/([A-Za-z0-9._~-]+\/)*$/.test(base)) {
+  console.error(
+    `\n  prerender-meta: VITE_BASE must look like "/" or "/volta/" — got "${base}".\n`
+  );
+  process.exit(1);
 }
 
 if (!/^https?:\/\/[^/]+$/.test(origin)) {
@@ -61,7 +73,7 @@ const template = await readFile(join(dist, 'index.html'), 'utf8');
 
 let written = 0;
 for (const route of routes) {
-  const metadata = resolveDocumentMetadata({ pathname: route, lang: 'ar', origin });
+  const metadata = resolveDocumentMetadata({ pathname: route, lang: 'ar', origin, base });
   const html = renderHead(template, metadata);
   assertAbsolute(html, route);
 
@@ -71,4 +83,17 @@ for (const route of routes) {
   written += 1;
 }
 
-console.log(`  prerender-meta: ${written} routes given their own head at ${origin}`);
+// GitHub Pages has no rewrite rules — it serves 404.html for anything it cannot
+// match to a file. Making that a copy of the site's own entry page turns Pages'
+// 404 into the SPA fallback that public/_redirects provides on Netlify, so a
+// deep link that is not one of the prerendered routes still boots the app and
+// lets React Router render the storefront's own 404.
+const fallback = renderHead(
+  template,
+  resolveDocumentMetadata({ pathname: '/', lang: 'ar', origin, base })
+);
+await writeFile(join(dist, '404.html'), fallback, 'utf8');
+
+console.log(
+  `  prerender-meta: ${written} routes + 404.html given their own head at ${origin}${base}`
+);

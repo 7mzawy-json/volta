@@ -69,3 +69,45 @@ test('social preview is a real 1200 by 630 PNG', async () => {
   assert.equal(png.readUInt32BE(16), 1200);
   assert.equal(png.readUInt32BE(20), 630);
 });
+
+// GitHub Pages serves a project repo from /<repo>/, Netlify from the root. The
+// same build code has to produce correct absolute URLs on both, so the base is
+// a parameter rather than an assumption.
+
+test('the default base keeps URLs at the origin root', () => {
+  const m = resolveDocumentMetadata({ pathname: '/products', lang: 'ar', origin: ORIGIN });
+
+  assert.equal(m.canonicalUrl, `${ORIGIN}/products`);
+  assert.equal(m.imageUrl, `${ORIGIN}/volta-social-preview.png`);
+});
+
+test('a subpath base is applied to every absolute URL', () => {
+  const m = resolveDocumentMetadata({
+    pathname: '/products/iphone-17-pro-max',
+    lang: 'ar',
+    origin: ORIGIN,
+    base: '/volta/'
+  });
+
+  assert.equal(m.canonicalUrl, `${ORIGIN}/volta/products/iphone-17-pro-max`);
+  assert.equal(m.imageUrl, `${ORIGIN}/volta/volta-social-preview.png`);
+
+  // Structured data is the easy one to forget: the breadcrumb items are built
+  // separately from the canonical URL and would 404 without the prefix.
+  const breadcrumbs = m.structuredData.find((node) => node['@type'] === 'BreadcrumbList');
+  assert.deepEqual(
+    breadcrumbs.itemListElement.map((i) => i.item),
+    [
+      `${ORIGIN}/volta/`,
+      `${ORIGIN}/volta/products`,
+      `${ORIGIN}/volta/products/iphone-17-pro-max`
+    ]
+  );
+  assert.equal(m.structuredData[0].offers[0].url, `${ORIGIN}/volta/products/iphone-17-pro-max`);
+});
+
+test('a base without its trailing slash still joins cleanly', () => {
+  const m = resolveDocumentMetadata({ pathname: '/compare', lang: 'en', origin: ORIGIN, base: '/volta' });
+
+  assert.equal(m.canonicalUrl, `${ORIGIN}/volta/compare`);
+});

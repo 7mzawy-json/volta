@@ -7,6 +7,15 @@ const LOCALES = {
   en: { current: 'en_KW', alternate: 'ar_KW' }
 };
 
+// Join the site's base path onto a route before resolving it against the
+// origin. Under Netlify base is '/' and this is a no-op; under GitHub Pages it
+// is '/volta/', and without it every canonical and og:url would advertise a URL
+// that 404s.
+function siteUrl(path, origin, base) {
+  const prefix = (base || '/').replace(/\/+$/, '');
+  return new URL(prefix + path, origin).toString();
+}
+
 function normalizePath(pathname) {
   if (!pathname || pathname === '/') return '/';
   return pathname.replace(/\/+$/, '') || '/';
@@ -40,7 +49,7 @@ function productFromPath(pathname) {
   }
 }
 
-function productStructuredData({ product, lang, t, canonicalUrl, origin }) {
+function productStructuredData({ product, lang, t, canonicalUrl, origin, base }) {
   const productName = product.name[lang];
   const productNode = {
     '@context': 'https://schema.org',
@@ -71,8 +80,8 @@ function productStructuredData({ product, lang, t, canonicalUrl, origin }) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: t.nav.home, item: new URL('/', origin).toString() },
-      { '@type': 'ListItem', position: 2, name: t.nav.products, item: new URL('/products', origin).toString() },
+      { '@type': 'ListItem', position: 1, name: t.nav.home, item: siteUrl('/', origin, base) },
+      { '@type': 'ListItem', position: 2, name: t.nav.products, item: siteUrl('/products', origin, base) },
       { '@type': 'ListItem', position: 3, name: productName, item: canonicalUrl }
     ]
   };
@@ -80,7 +89,7 @@ function productStructuredData({ product, lang, t, canonicalUrl, origin }) {
   return [productNode, breadcrumbs];
 }
 
-export function resolveDocumentMetadata({ pathname, lang = 'ar', origin }) {
+export function resolveDocumentMetadata({ pathname, lang = 'ar', origin, base = '/' }) {
   const activeLang = lang === 'en' ? 'en' : 'ar';
   const t = copy[activeLang];
   const path = normalizePath(pathname);
@@ -89,8 +98,8 @@ export function resolveDocumentMetadata({ pathname, lang = 'ar', origin }) {
   const page = product
     ? { title: `${product.name[activeLang]} | ${t.brand}`, description: product.description[activeLang] }
     : pageText(fallbackPath, t);
-  const canonicalUrl = new URL(product ? path : fallbackPath, origin).toString();
-  const imageUrl = new URL('/volta-social-preview.png', origin).toString();
+  const canonicalUrl = siteUrl(product ? path : fallbackPath, origin, base);
+  const imageUrl = siteUrl('/volta-social-preview.png', origin, base);
   const locale = LOCALES[activeLang];
 
   return {
@@ -103,7 +112,7 @@ export function resolveDocumentMetadata({ pathname, lang = 'ar', origin }) {
     imageUrl,
     imageAlt: t.meta.socialImageAlt,
     structuredData: product
-      ? productStructuredData({ product, lang: activeLang, t, canonicalUrl, origin })
+      ? productStructuredData({ product, lang: activeLang, t, canonicalUrl, origin, base })
       : []
   };
 }

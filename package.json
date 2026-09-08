@@ -9,6 +9,8 @@
     "test": "node --test",
     "test:a11y": "playwright test",
     "test:all": "node --test && playwright test",
+    "serve:dist": "node scripts/serve-dist.js",
+    "serve:pages": "node scripts/serve-dist.js --base /volta --port 4176",
     "preview": "vite preview"
   },
   "dependencies": {

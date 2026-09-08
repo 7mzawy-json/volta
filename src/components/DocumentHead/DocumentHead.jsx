@@ -31,7 +31,10 @@ export default function DocumentHead() {
     const metadata = resolveDocumentMetadata({
       pathname,
       lang,
-      origin: window.location.origin
+      origin: window.location.origin,
+      // useLocation() strips the router's basename, so the base has to be added
+      // back before a URL is advertised to a crawler.
+      base: import.meta.env.BASE_URL
     });
 
     document.title = metadata.title;

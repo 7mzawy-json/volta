@@ -1,6 +1,6 @@
 # VOLTA
 
-**Live: <https://volta-demo-v1.netlify.app>**
+**Live: <https://volta-demo-v1.netlify.app>** · also on [GitHub Pages](https://7mzawy-json.github.io/volta/)
 
 An Arabic-first electronics storefront for the Kuwaiti market — smartphones and accessories,
 built as a working front end rather than a set of screens.
@@ -92,13 +92,42 @@ else's site.
 To check a build the way Netlify will serve it:
 
 ```bash
-node scripts/serve-dist.js
+npm run serve:dist
 ```
 
 `vite preview` is not a substitute here — it answers every path with the root
 `index.html`, so the per-route heads never appear and a broken deploy looks fine. The
 script above resolves static files first, exactly as Netlify does, and reports which of the
 two happened in an `x-volta-served` header.
+
+### GitHub Pages
+
+Also deployed to <https://7mzawy-json.github.io/volta/>, automatically, by
+[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) on every push to
+`main`. Nothing to run by hand.
+
+Pages serves a project repo from a **subpath**, which is the whole difficulty: with Vite's
+default `base` of `/`, every asset URL points at the domain root and the page renders blank.
+So the base is an environment variable rather than a constant —
+
+```bash
+VITE_BASE=/volta/ VITE_SITE_ORIGIN=https://7mzawy-json.github.io npm run build
+```
+
+— and it defaults to `/`, so the Netlify build needs no change. Three things follow from it,
+all handled: React Router gets a `basename` (or every route 404s), `resolveDocumentMetadata`
+prefixes the base onto canonical, `og:` and JSON-LD URLs (or they advertise addresses the
+host does not serve), and the build writes a `404.html` — Pages has no rewrite rules and
+serves that file for anything it cannot match, which is how the SPA fallback works there.
+
+To check a build the way *Pages* will serve it:
+
+```bash
+npm run serve:pages
+```
+
+That mounts `dist/` under `/volta/` and imitates Pages' resolution — static file first, then
+`404.html` with a real 404 status, rather than Netlify's 200 rewrite.
 
 ## Documentation
 

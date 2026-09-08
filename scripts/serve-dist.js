@@ -22,7 +22,17 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..', 'dist');
-const port = Number(process.env.PORT || 4175);
+// Flags as well as env vars: `BASE=/volta node ...` is not portable to
+// PowerShell or cmd, and one npm script does not justify a cross-env dependency.
+function flag(name, fallback) {
+  const i = process.argv.indexOf(`--${name}`);
+  return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+}
+
+const port = Number(flag('port', process.env.PORT || 4175));
+// Serve under a prefix to reproduce GitHub Pages, which puts a project repo at
+// /<repo>/. Netlify serves from the root, so this defaults to empty.
+const base = String(flag('base', process.env.BASE || '')).replace(/\/+$/, '');
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -43,8 +53,15 @@ async function fileAt(path) {
 }
 
 async function resolveTarget(pathname) {
+  // Strip the prefix before looking on disk; anything outside it is off-site.
+  let requested = pathname;
+  if (base) {
+    if (requested === base) requested = '/';
+    else if (requested.startsWith(base + '/')) requested = requested.slice(base.length);
+    else return { path: join(root, '404.html'), status: 404, offBase: true };
+  }
   // normalize() collapses any ".." before it can escape dist.
-  const safe = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, '');
+  const safe = normalize(decodeURIComponent(requested)).replace(/^(\.\.[/\\])+/, '');
   const candidate = join(root, safe);
   if (!candidate.startsWith(root)) return { path: join(root, 'index.html'), status: 200 };
 
@@ -54,6 +71,10 @@ async function resolveTarget(pathname) {
   const index = await fileAt(join(candidate, 'index.html'));
   if (index) return { path: index, status: 200 };
 
+  // GitHub Pages answers an unmatched path with 404.html and a 404 status;
+  // Netlify rewrites to index.html with a 200. Mirror whichever host is being
+  // imitated, so the difference shows up in testing rather than in production.
+  if (base) return { path: join(root, '404.html'), status: 404, fallback: true };
   return { path: join(root, 'index.html'), status: 200, fallback: true };
 }
 
@@ -63,9 +84,16 @@ createServer(async (req, res) => {
 
   res.writeHead(target.status, {
     'content-type': TYPES[extname(target.path)] || 'application/octet-stream',
-    'x-volta-served': target.fallback ? 'spa-fallback' : 'static-file'
+    'x-volta-served': target.offBase
+      ? 'off-base'
+      : target.fallback
+        ? 'spa-fallback'
+        : 'static-file'
   });
   createReadStream(target.path).pipe(res);
 }).listen(port, () => {
-  console.log(`  serving dist/ with Netlify-like resolution on http://localhost:${port}`);
+  console.log(
+    `  serving dist/ on http://localhost:${port}${base || ''}` +
+      (base ? ' — GitHub Pages resolution (static file, then 404.html)' : ' — Netlify resolution (static file, then SPA rewrite)')
+  );
 });
