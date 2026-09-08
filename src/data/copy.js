@@ -10,6 +10,7 @@ export const copy = {
       wishlist: 'المفضلة',
       menu: 'القائمة',
       seeAllResults: 'عرض كل النتائج',
+      currency: 'العملة',
       langSwitch: 'English'
     },
     hero: {
@@ -167,6 +168,14 @@ export const copy = {
       themeToDark: 'الوضع الداكن',
       themeToLight: 'الوضع الفاتح'
     },
+    currency: {
+      title: 'العملة',
+      // Said plainly on purpose: converted prices are a reading convenience and
+      // the shop settles in dinar. A storefront that shows a dollar price
+      // without saying that is making a promise it does not keep.
+      note: 'أسعار تقريبية للاطلاع فقط — الدفع والفوترة بالدينار الكويتي.',
+      asOf: 'أسعار الصرف بتاريخ {date}'
+    },
     compare: {
       title: 'مقارنة الهواتف',
       add: 'قارن',
@@ -237,6 +246,7 @@ export const copy = {
       wishlist: 'Wishlist',
       menu: 'Menu',
       seeAllResults: 'See all results',
+      currency: 'Currency',
       langSwitch: 'العربية'
     },
     hero: {
@@ -381,6 +391,11 @@ export const copy = {
       priceMax: 'Maximum price',
       themeToDark: 'Switch to dark mode',
       themeToLight: 'Switch to light mode'
+    },
+    currency: {
+      title: 'Currency',
+      note: 'Indicative conversion only — you are charged and invoiced in Kuwaiti dinar.',
+      asOf: 'Rates as of {date}'
     },
     compare: {
       title: 'Compare phones',

@@ -1,14 +1,15 @@
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import ProductVisual from '../../components/ProductVisual/ProductVisual.jsx';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Cart.module.css';
 import { variantLabel } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
-import { formatPrice } from '../../utils/currency.js';
 
 export default function Cart() {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const { lineItems, subtotal, updateQty, removeItem } = useCart();
 
   if (lineItems.length === 0) {
@@ -41,14 +42,14 @@ export default function Cart() {
                     {variantLabel(variant, variant.color && getColor(variant.color).name[lang])}
                   </p>
                 )}
-                <p className={styles.unitPrice}>{formatPrice(variant.price, lang)}</p>
+                <p className={styles.unitPrice}>{money(variant.price)}</p>
               </div>
               <div className={styles.qtyPicker}>
                 <button type="button" onClick={() => updateQty(variantId, qty - 1)}>−</button>
                 <span>{qty}</span>
                 <button type="button" onClick={() => updateQty(variantId, qty + 1)}>+</button>
               </div>
-              <p className={styles.lineTotal}>{formatPrice(variant.price * qty, lang)}</p>
+              <p className={styles.lineTotal}>{money(variant.price * qty)}</p>
               <button type="button" className={styles.removeBtn} onClick={() => removeItem(variantId)}>
                 {t.cart.remove}
               </button>
@@ -60,7 +61,7 @@ export default function Cart() {
           <h2>{t.checkout.orderSummary}</h2>
           <div className={styles.row}>
             <span>{t.cart.subtotal}</span>
-            <span>{formatPrice(subtotal, lang)}</span>
+            <span>{money(subtotal)}</span>
           </div>
           <div className={styles.row}>
             <span>{t.cart.shipping}</span>
@@ -68,7 +69,7 @@ export default function Cart() {
           </div>
           <div className={`${styles.row} ${styles.totalRow}`}>
             <span>{t.cart.total}</span>
-            <span>{formatPrice(subtotal, lang)}</span>
+            <span>{money(subtotal)}</span>
           </div>
           <Button variant="primary" to="/checkout" fullWidth>
             {t.cart.checkout}

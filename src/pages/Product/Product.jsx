@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import {
@@ -17,13 +18,13 @@ import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
 import StickyBuyBar from '../../components/StickyBuyBar/StickyBuyBar.jsx';
 import styles from './Product.module.css';
-import { formatPrice } from '../../utils/currency.js';
 
 const LOW_STOCK_AT = 5;
 
 export default function Product() {
   const { id } = useParams();
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const { addItem } = useCart();
   const { toggle, isFavorited } = useWishlist();
 
@@ -139,7 +140,7 @@ export default function Product() {
         <div className={styles.details}>
           <p className={styles.category}>{t.categories[product.category]}</p>
           <h1 className={styles.name}>{product.name[lang]}</h1>
-          <p className={styles.price}>{formatPrice(variant.price, lang)}</p>
+          <p className={styles.price}>{money(variant.price)}</p>
           <p className={styles.description}>{product.description[lang]}</p>
 
           {inStock ? (
@@ -255,7 +256,7 @@ export default function Product() {
       <StickyBuyBar show={showStickyBar}>
         <div className={styles.stickyInfo}>
           <span className={styles.stickyName}>{product.name[lang]}</span>
-          <span className={styles.stickyPrice}>{formatPrice(variant.price, lang)}</span>
+          <span className={styles.stickyPrice}>{money(variant.price)}</span>
         </div>
         <Button variant="primary" onClick={() => addItem(variant.id, qty)} disabled={!inStock}>
           {inStock ? t.product.addToCart : t.product.outOfStock}

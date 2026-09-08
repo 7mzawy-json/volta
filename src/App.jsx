@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import { LanguageProvider } from './context/LanguageContext.jsx';
+import { CurrencyProvider } from './context/CurrencyContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
@@ -61,6 +62,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
+      {/* Inside LanguageProvider: a formatted price needs the language for its
+          currency label as much as it needs the currency for its decimals. */}
+      <CurrencyProvider>
       <ToastProvider>
         <CartProvider>
           <WishlistProvider>
@@ -70,6 +74,7 @@ export default function App() {
           </WishlistProvider>
         </CartProvider>
       </ToastProvider>
+      </CurrencyProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { getPriceRange, getProductColors, categories } from '../../data/products.js';
 import { pickHomepage } from './homepageProducts.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
@@ -10,7 +11,6 @@ import BoltMark from '../../components/BoltMark/BoltMark.jsx';
 import Reveal from '../../components/Reveal/Reveal.jsx';
 import ScrollShowcase from '../../components/ScrollShowcase/ScrollShowcase.jsx';
 import { getColor } from '../../data/colors.js';
-import { formatPrice } from '../../utils/currency.js';
 import styles from './Home.module.css';
 
 const categoryIcons = {
@@ -23,6 +23,7 @@ const categoryIcons = {
 
 function Spotlight({ product, flipped }) {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   if (!product) return null;
 
   const { min } = getPriceRange(product);
@@ -37,7 +38,7 @@ function Spotlight({ product, flipped }) {
           <p className={styles.spotlightBody}>{product.description[lang]}</p>
           <p className={styles.spotlightPrice}>
             <span className={styles.fromLabel}>{t.product.from} </span>
-            {formatPrice(min, lang)}
+            {money(min)}
           </p>
           <div className={styles.spotlightActions}>
             <Button variant="primary" to={`/products/${product.id}`}>

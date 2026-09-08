@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useCompare } from '../../context/CompareContext.jsx';
@@ -8,10 +9,10 @@ import { getDefaultVariant, getPriceRange, getTotalStock, hasVariantChoice, getP
 import { getColor } from '../../data/colors.js';
 import ProductVisual from '../ProductVisual/ProductVisual.jsx';
 import styles from './ProductCard.module.css';
-import { formatPrice } from '../../utils/currency.js';
 
 export default function ProductCard({ product }) {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const { addItem } = useCart();
   const { toggle, isFavorited } = useWishlist();
   const { toggle: toggleCompare, isComparing, isFull, canCompare } = useCompare();
@@ -99,7 +100,7 @@ export default function ProductCard({ product }) {
         <div className={styles.bottomRow}>
           <span className={styles.price}>
             {showFrom && <span className={styles.fromLabel}>{t.product.from} </span>}
-            {formatPrice(min, lang)}
+            {money(min)}
           </span>
           {inStock && (
             <button

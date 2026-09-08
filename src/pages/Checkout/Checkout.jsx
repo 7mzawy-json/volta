@@ -1,13 +1,13 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { variantLabel } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
 import { governorates } from '../../data/kuwait.js';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
-import { formatPrice } from '../../utils/currency.js';
 import { validateCheckout } from './checkoutValidation.js';
 
 const paymentMethods = [
@@ -18,6 +18,7 @@ const paymentMethods = [
 
 export default function Checkout() {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const { lineItems, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
 
@@ -235,13 +236,13 @@ export default function Checkout() {
                     : ''}{' '}
                   × {qty}
                 </span>
-                <span>{formatPrice(variant.price * qty, lang)}</span>
+                <span>{money(variant.price * qty)}</span>
               </li>
             ))}
           </ul>
           <div className={styles.totalRow}>
             <span>{t.cart.total}</span>
-            <span>{formatPrice(subtotal, lang)}</span>
+            <span>{money(subtotal)}</span>
           </div>
           <Button type="submit" variant="primary" fullWidth>
             {t.checkout.placeOrder}

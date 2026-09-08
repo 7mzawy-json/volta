@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCompare } from '../../context/CompareContext.jsx';
 import { getPriceRange, getProductColors, getStorageOptions, brandLabels } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
 import DeviceRender from '../../components/DeviceRender/DeviceRender.jsx';
 import Button from '../../components/Button/Button.jsx';
-import { formatPrice } from '../../utils/currency.js';
 import styles from './Compare.module.css';
 
 // The comparison table.
@@ -41,6 +41,7 @@ const ROWS = [
 
 export default function Compare() {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const { products, remove, clear } = useCompare();
 
   const scrollerRef = useRef(null);
@@ -128,7 +129,7 @@ export default function Compare() {
   const valueFor = (product, row) => {
     switch (row.id) {
       case 'price':
-        return { raw: getPriceRange(product).min, text: formatPrice(getPriceRange(product).min, lang) };
+        return { raw: getPriceRange(product).min, text: money(getPriceRange(product).min) };
       case 'brand':
         return { raw: product.brand, text: brandLabels[product.brand] || product.brand };
       case 'storage': {

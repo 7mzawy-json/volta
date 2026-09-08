@@ -1,0 +1,62 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compact {
+  flex: none;
+}
+
+.full {
+  width: 100%;
+}
+
+.label {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+}
+
+.select {
+  font-family: inherit;
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  color: var(--color-foreground);
+  background: var(--input-bg);
+  /* 3:1 against the field fill — a control boundary, not decoration. */
+  border: 1px solid var(--input-border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  /* The arrow the browser draws sits on the physical right; a logical padding
+     keeps the text clear of it in both directions. */
+  padding-inline-end: 26px;
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.select:hover {
+  border-color: var(--color-primary);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.full .select {
+  width: 100%;
+  border-radius: var(--input-radius, 0.875rem);
+  padding: 10px 12px;
+  padding-inline-end: 28px;
+}
+
+.compact .select {
+  max-width: 8.5rem;
+}
+
+.note {
+  font-size: var(--primitive-fontSize-xs);
+  line-height: 1.5;
+  color: var(--color-muted-foreground);
+}

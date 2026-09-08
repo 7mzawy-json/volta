@@ -1,10 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { searchProducts } from '../../data/search.js';
 import { getPriceRange, getProductColors } from '../../data/products.js';
 import ProductVisual from '../ProductVisual/ProductVisual.jsx';
-import { formatPrice } from '../../utils/currency.js';
 import styles from './SearchBox.module.css';
 
 // Search with live suggestions.
@@ -17,6 +17,7 @@ import styles from './SearchBox.module.css';
 
 export default function SearchBox({ className = '', onNavigate }) {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -143,7 +144,7 @@ export default function SearchBox({ className = '', onNavigate }) {
                       </span>
                       <span className={styles.itemName}>{p.name[lang]}</span>
                       <span className={styles.itemPrice}>
-                        {formatPrice(getPriceRange(p).min, lang)}
+                        {money(getPriceRange(p).min)}
                       </span>
                     </li>
                   );

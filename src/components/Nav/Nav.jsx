@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useDialog } from '../../hooks/useDialog.js';
+import CurrencySwitcher from '../CurrencySwitcher/CurrencySwitcher.jsx';
 import BoltMark from '../BoltMark/BoltMark.jsx';
 import SearchBox from '../SearchBox/SearchBox.jsx';
 import styles from './Nav.module.css';
@@ -96,6 +97,14 @@ export default function Nav() {
             )}
           </button>
 
+          {/* desktopAction, like the theme and wishlist controls: the phone
+              header holds menu, logo, search and cart only. Widening it is what
+              caused the 375px overflow that is now guarded by a test, so the
+              phone gets this control in the drawer instead. */}
+          <span className={styles.desktopAction}>
+            <CurrencySwitcher compact />
+          </span>
+
           <button type="button" className={styles.langBtn} onClick={toggleLang}>
             {t.nav.langSwitch}
           </button>
@@ -154,6 +163,8 @@ export default function Nav() {
         </nav>
 
         <div className={styles.drawerActions}>
+          <CurrencySwitcher />
+
           <button
             type="button"
             className={styles.drawerThemeBtn}

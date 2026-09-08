@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { getPriceRange, getProductColors } from '../../data/products.js';
 import DeviceRender from '../DeviceRender/DeviceRender.jsx';
 import Button from '../Button/Button.jsx';
-import { formatPrice } from '../../utils/currency.js';
 import styles from './ScrollShowcase.module.css';
 
 // A pinned product sequence: the phone holds the middle of the screen and turns
@@ -32,6 +32,7 @@ const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
 export default function ScrollShowcase({ product }) {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const sectionRef = useRef(null);
   const [progress, setProgress] = useState(0);
   // Read on the first render rather than in an effect. An effect runs AFTER the
@@ -141,7 +142,7 @@ export default function ScrollShowcase({ product }) {
 
             <p className={styles.price}>
               <span className={styles.from}>{t.product.from} </span>
-              {formatPrice(min, lang)}
+              {money(min)}
             </p>
 
             <Button variant="primary" to={`/products/${product.id}`}>

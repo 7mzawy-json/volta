@@ -1,13 +1,14 @@
 import { useLocation, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { getColor } from '../../data/colors.js';
 import BoltMark from '../../components/BoltMark/BoltMark.jsx';
 import Button from '../../components/Button/Button.jsx';
-import { formatPrice } from '../../utils/currency.js';
 import styles from './Confirmation.module.css';
 
 export default function Confirmation() {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const location = useLocation();
   const order = location.state?.order;
 
@@ -49,13 +50,13 @@ export default function Confirmation() {
                 )}
               </span>
               <span className={styles.lineQty}>× {line.qty}</span>
-              <span className={styles.lineTotal}>{formatPrice(line.price * line.qty, lang)}</span>
+              <span className={styles.lineTotal}>{money(line.price * line.qty)}</span>
             </li>
           ))}
         </ul>
         <div className={styles.totalRow}>
           <span>{t.cart.total}</span>
-          <span>{formatPrice(order.total, lang)}</span>
+          <span>{money(order.total)}</span>
         </div>
       </section>
 

@@ -1,16 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { useDialog } from '../../hooks/useDialog.js';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import ProductVisual from '../ProductVisual/ProductVisual.jsx';
 import Button from '../Button/Button.jsx';
 import styles from './CartDrawer.module.css';
 import { variantLabel } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
-import { formatPrice } from '../../utils/currency.js';
 
 export default function CartDrawer() {
   const { lang, t } = useLanguage();
+  const money = useMoney();
   const { lineItems, subtotal, count, updateQty, removeItem, isDrawerOpen, closeDrawer } = useCart();
   const navigate = useNavigate();
   // Escape, initial focus, focus containment, focus restore, scroll lock.
@@ -71,7 +72,7 @@ export default function CartDrawer() {
                     </div>
                   </div>
                   <div className={styles.itemEnd}>
-                    <span className={styles.itemPrice}>{formatPrice(variant.price * qty, lang)}</span>
+                    <span className={styles.itemPrice}>{money(variant.price * qty)}</span>
                     <button type="button" className={styles.removeBtn} onClick={() => removeItem(variantId)}>
                       {t.cart.remove}
                     </button>
@@ -83,7 +84,7 @@ export default function CartDrawer() {
             <div className={styles.footer}>
               <div className={styles.subtotalRow}>
                 <span>{t.cart.subtotal}</span>
-                <span>{formatPrice(subtotal, lang)}</span>
+                <span>{money(subtotal)}</span>
               </div>
               <Button variant="primary" fullWidth onClick={goToCheckout}>
                 {t.cart.checkout}

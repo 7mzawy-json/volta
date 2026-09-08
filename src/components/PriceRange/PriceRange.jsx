@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { formatPrice } from '../../utils/currency.js';
+import { useMoney } from '../../context/CurrencyContext.jsx';
 import styles from './PriceRange.module.css';
 
 // Dual-handle price filter.
@@ -13,7 +13,10 @@ import styles from './PriceRange.module.css';
 // continuously while dragging); the label follows the drag live so the shopper
 // still sees the number move under their finger.
 
-export default function PriceRange({ bounds, value, onChange, lang, labels }) {
+// `lang` used to be a prop, passed in only so this could format a price. The
+// formatter now carries language and currency itself, so the prop is gone.
+export default function PriceRange({ bounds, value, onChange, labels }) {
+  const money = useMoney();
   const [min, max] = bounds;
   const [draft, setDraft] = useState(value);
 
@@ -35,8 +38,8 @@ export default function PriceRange({ bounds, value, onChange, lang, labels }) {
   return (
     <div className={styles.wrap}>
       <div className={styles.readout}>
-        <span>{formatPrice(lo, lang)}</span>
-        <span>{formatPrice(hi, lang)}</span>
+        <span>{money(lo)}</span>
+        <span>{money(hi)}</span>
       </div>
 
       <div className={styles.track}>
