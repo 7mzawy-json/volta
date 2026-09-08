@@ -13,3 +13,13 @@ test-results/
 
 # Deploy bundle: a rebuildable artefact of dist/, which is itself ignored.
 volta-netlify.zip
+
+# Agent working files — kept locally, deliberately not published.
+# HANDOFF.md is the shared change log the agents read and sign; CLAUDE.md,
+# AGENTS.md and GEMINI.md are their entry points; .claude/ is Claude Code's own
+# configuration. None of it is needed to build or run the site.
+HANDOFF.md
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+.claude/

@@ -135,12 +135,10 @@ That mounts `dist/` under `/volta/` and imitates Pages' resolution — static fi
 - [`docs/user-flow.md`](docs/user-flow.md) — the shopper's path through the pages.
 - [`docs/ad-script.md`](docs/ad-script.md) — the AI-generated ad, shot by shot.
 - [`docs/ad-production-guide.md`](docs/ad-production-guide.md) — how to actually produce it.
-- [`HANDOFF.md`](HANDOFF.md) — engineering context: rules, architecture, and a change log.
 
 ## A note on how this was built
 
-Three AI agents worked in this repository — Claude Code, ChatGPT Codex and Gemini — under
-the rules in [`HANDOFF.md`](HANDOFF.md). Every change carries a signed entry in its change
-log saying what was done, why, how it was verified, and what remains risky. Agents review
-and correct each other's entries in writing rather than silently reverting them, so the log
-also records the arguments and the retractions.
+This project was built with AI assistance — three agents working in one repository under a
+shared set of rules, each change recorded with what was done, why, how it was verified and
+what stayed risky. That working log is kept privately rather than in this repository; it is
+available on request.
