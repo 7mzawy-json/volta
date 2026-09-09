@@ -34,6 +34,8 @@ const isExpiryValid = (value, now) => {
 // Deliberately permissive on shape but not on emptiness or length.
 const isAddressPart = (value) => /^[\w؀-ۿ\s/.-]{1,24}$/.test(value.trim());
 
+const CARDLESS_METHODS = new Set(['applepay', 'stripe']);
+
 export function validateCheckout(values, payment, now = new Date()) {
   const errors = {};
 
@@ -57,7 +59,11 @@ export function validateCheckout(values, payment, now = new Date()) {
   if (!hasValue(values.phone)) errors.phone = 'required';
   else if (!isKuwaitiMobile(values.phone)) errors.phone = 'phone';
 
-  if (payment !== 'applepay') {
+  // Methods that never touch the demo card fields. Stripe collects the card on
+  // its own hosted page, so asking for one here would be theatre — and worse,
+  // it would invite someone to type a real card number into a form that is not
+  // PCI anything.
+  if (!CARDLESS_METHODS.has(payment)) {
     if (!hasValue(values.cardNumber)) errors.cardNumber = 'required';
     else if (!isCardNumberValid(values.cardNumber)) errors.cardNumber = 'cardNumber';
 

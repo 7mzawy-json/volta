@@ -29,7 +29,10 @@ function pageText(pathname, t) {
     '/checkout': { title: `${t.checkout.title} | ${t.brand}`, description: t.meta.checkout },
     '/confirmation': { title: `${t.confirmation.title} | ${t.brand}`, description: t.meta.confirmation },
     '/wishlist': { title: `${t.nav.wishlist} | ${t.brand}`, description: t.meta.wishlist },
-    '/compare': { title: `${t.compare.title} | ${t.brand}`, description: t.meta.compare }
+    '/compare': { title: `${t.compare.title} | ${t.brand}`, description: t.meta.compare },
+    '/login': { title: `${t.account.signIn} | ${t.brand}`, description: t.meta.login },
+    '/signup': { title: `${t.account.signUp} | ${t.brand}`, description: t.meta.signup },
+    '/orders': { title: `${t.orders.title} | ${t.brand}`, description: t.meta.orders }
   };
 
   return pages[pathname] || {

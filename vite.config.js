@@ -11,6 +11,15 @@ export default defineConfig({
   base,
   plugins: [react()],
   server: {
-    host: true
+    host: true,
+    // In production Vercel rewrites /api to the Render service (vercel.json).
+    // This is the same shape locally, so the browser always talks to ONE origin
+    // and the session cookie is first-party in both places.
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_TARGET || 'http://localhost:4000',
+        changeOrigin: false
+      }
+    }
   }
 });

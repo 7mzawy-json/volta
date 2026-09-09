@@ -203,3 +203,22 @@
   outline: 2px solid var(--input-focus-ring);
   outline-offset: 1px;
 }
+
+/* --- stripe payment --------------------------------------------------------- */
+
+.payNote {
+  margin-top: 10px;
+  font-size: var(--primitive-fontSize-xs);
+  line-height: 1.6;
+  color: var(--color-muted-foreground);
+}
+
+.payError {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 0.625rem;
+  font-size: var(--primitive-fontSize-sm);
+  line-height: 1.5;
+  color: var(--color-error);
+  background: var(--color-error-light);
+}

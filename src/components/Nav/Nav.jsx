@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useDialog } from '../../hooks/useDialog.js';
 import CurrencySwitcher from '../CurrencySwitcher/CurrencySwitcher.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import BoltMark from '../BoltMark/BoltMark.jsx';
 import SearchBox from '../SearchBox/SearchBox.jsx';
 import styles from './Nav.module.css';
@@ -22,6 +23,7 @@ export default function Nav() {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const drawerRef = useDialog(menuOpen, closeMenu);
+  const { user, isReady, logOut } = useAuth();
 
   useEffect(() => {
     setMenuOpen(false);
@@ -105,6 +107,17 @@ export default function Nav() {
             <CurrencySwitcher compact />
           </span>
 
+          {/* isReady gates this so a signed-in visitor never sees "log in"
+              flash before the session check comes back. */}
+          {isReady && (
+            <NavLink
+              to={user ? '/orders' : '/login'}
+              className={`${styles.langBtn} ${styles.desktopAction}`}
+            >
+              {user ? t.account.myOrders : t.account.signIn}
+            </NavLink>
+          )}
+
           <button type="button" className={styles.langBtn} onClick={toggleLang}>
             {t.nav.langSwitch}
           </button>
@@ -163,6 +176,40 @@ export default function Nav() {
         </nav>
 
         <div className={styles.drawerActions}>
+          {isReady && (
+            <div className={styles.drawerAccount}>
+              {user ? (
+                <>
+                  <span className={styles.drawerGreeting}>
+                    {t.account.greeting.replace('{name}', user.name)}
+                  </span>
+                  <NavLink to="/orders" className={styles.drawerAccountLink} onClick={closeMenu}>
+                    {t.account.myOrders}
+                  </NavLink>
+                  <button
+                    type="button"
+                    className={styles.drawerAccountLink}
+                    onClick={() => {
+                      closeMenu();
+                      logOut();
+                    }}
+                  >
+                    {t.account.signOut}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/login" className={styles.drawerAccountLink} onClick={closeMenu}>
+                    {t.account.signIn}
+                  </NavLink>
+                  <NavLink to="/signup" className={styles.drawerAccountLink} onClick={closeMenu}>
+                    {t.account.signUp}
+                  </NavLink>
+                </>
+              )}
+            </div>
+          )}
+
           <CurrencySwitcher />
 
           <button

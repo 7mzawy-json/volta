@@ -1,0 +1,218 @@
+.section {
+  padding-block: clamp(40px, 7vw, 72px);
+  border-top: 1px solid var(--color-border);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: var(--display-sm, 1.6rem);
+  letter-spacing: var(--display-tracking);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.average {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.count,
+.empty {
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+}
+
+/* --- stars ------------------------------------------------------------------ */
+
+.stars,
+.starPicker {
+  display: inline-flex;
+  gap: 2px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  /* Stars read left-to-right as a scale in both languages: one star is always
+     the low end. Flipping them in RTL would invert the meaning of the row. */
+  direction: ltr;
+}
+
+.starOn {
+  color: var(--color-primary);
+}
+
+.starOff {
+  color: var(--color-border);
+}
+
+.starLabel {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  /* 44px hit target even though the glyph is smaller. */
+  padding: 6px 2px;
+}
+
+.starInput {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  cursor: pointer;
+}
+
+.starInput:focus-visible + span {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* --- list ------------------------------------------------------------------- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+}
+
+.item {
+  padding: 16px;
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* The author's own review is marked with a border, not colour alone. */
+.itemMine {
+  border-color: var(--color-primary);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.youTag {
+  font-size: var(--primitive-fontSize-xs);
+  font-weight: 700;
+  color: var(--color-neon-foreground);
+  background: var(--color-neon);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.body {
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.actions,
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.action {
+  font-family: inherit;
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* --- form ------------------------------------------------------------------- */
+
+.form {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.formTitle {
+  font-size: var(--primitive-fontSize-lg);
+}
+
+.field {
+  width: 100%;
+}
+
+.textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-foreground);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius, 0.875rem);
+  padding: 12px;
+  resize: vertical;
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 1px;
+}
+
+.error {
+  width: 100%;
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-error);
+  background: var(--color-error-light);
+  border-radius: 0.625rem;
+  padding: 10px 12px;
+}
+
+.signInPrompt {
+  margin-top: 20px;
+}
+
+.signInLink {
+  color: var(--color-primary);
+  font-weight: 600;
+}

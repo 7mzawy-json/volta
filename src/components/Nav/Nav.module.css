@@ -369,3 +369,35 @@
     max-width: 360px;
   }
 }
+
+/* --- account block in the phone drawer ------------------------------------ */
+
+.drawerAccount {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.drawerGreeting {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 700;
+  color: var(--color-muted-foreground);
+  padding-block: 4px;
+}
+
+.drawerAccountLink {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: start;
+  color: var(--color-foreground);
+  background: none;
+  border: none;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.drawerAccountLink:hover {
+  color: var(--color-primary);
+}

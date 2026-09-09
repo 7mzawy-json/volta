@@ -17,6 +17,7 @@ import ProductVisual from '../../components/ProductVisual/ProductVisual.jsx';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import Button from '../../components/Button/Button.jsx';
 import StickyBuyBar from '../../components/StickyBuyBar/StickyBuyBar.jsx';
+import Reviews from '../../components/Reviews/Reviews.jsx';
 import styles from './Product.module.css';
 
 const LOW_STOCK_AT = 5;
@@ -252,6 +253,10 @@ export default function Product() {
           </div>
         </section>
       )}
+
+      {/* Below the cross-sell: a shopper still deciding reads specs and
+          alternatives first, and reviews once they are nearly convinced. */}
+      <Reviews productId={id} />
 
       <StickyBuyBar show={showStickyBar}>
         <div className={styles.stickyInfo}>

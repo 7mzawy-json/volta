@@ -1,0 +1,89 @@
+.page {
+  padding-block: clamp(40px, 8vw, 88px);
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 26rem;
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius);
+  box-shadow: var(--card-shadow);
+  padding: clamp(24px, 5vw, 36px);
+}
+
+.title {
+  font-size: var(--display-sm, 1.75rem);
+  letter-spacing: var(--display-tracking);
+  margin-bottom: 6px;
+}
+
+.lead {
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+}
+
+.input {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--color-foreground);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius, 0.875rem);
+  padding: var(--input-padding-y, 0.5rem) var(--input-padding-x, 0.75rem);
+  /* 16px minimum, or iOS Safari zooms the page on focus. */
+  min-height: 44px;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 1px;
+}
+
+.hint {
+  font-size: var(--primitive-fontSize-xs);
+  color: var(--color-muted-foreground);
+}
+
+.error {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-error);
+  background: var(--color-error-light);
+  border-radius: 0.625rem;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+.switch {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--box-border);
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+}
+
+.switchLink {
+  color: var(--color-primary);
+  font-weight: 700;
+}

@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { api, ApiError } from '../../api/client.js';
 import { useMoney } from '../../context/CurrencyContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { variantLabel } from '../../data/products.js';
@@ -11,6 +13,9 @@ import styles from './Checkout.module.css';
 import { validateCheckout } from './checkoutValidation.js';
 
 const paymentMethods = [
+  // First and default: the only one that actually takes money. The others are
+  // demo affordances kept from before there was a payment provider.
+  { id: 'stripe', label: 'Stripe' },
   { id: 'visa', label: 'Visa' },
   { id: 'mastercard', label: 'Mastercard' },
   { id: 'applepay', label: 'Apple Pay' }
@@ -35,7 +40,10 @@ export default function Checkout() {
     expiry: '',
     cvc: ''
   });
-  const [payment, setPayment] = useState('visa');
+  const [payment, setPayment] = useState('stripe');
+  const { user, isReady } = useAuth();
+  const [payError, setPayError] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
   const [errors, setErrors] = useState({});
   // Focusing by DOM query right after setErrors read the PREVIOUS render, where
   // aria-invalid was not set yet, so focus never moved. Refs point at the real
@@ -46,7 +54,7 @@ export default function Checkout() {
 
   if (lineItems.length === 0) return <Navigate to="/cart" replace />;
 
-  const needsCard = payment !== 'applepay';
+  const needsCard = payment !== 'applepay' && payment !== 'stripe';
 
   const update = (key) => (e) => {
     const values = { ...form, [key]: e.target.value };
@@ -56,6 +64,24 @@ export default function Checkout() {
     if (submitted) setErrors(validateCheckout(values, payment));
   };
 
+  // Stripe path: hand the cart to the API, which prices it from the catalogue
+  // and returns a hosted Checkout URL. The browser never sees or sends a price.
+  async function payWithStripe() {
+    setPayError(null);
+    setRedirecting(true);
+    try {
+      const { url } = await api.post('/checkout/session', {
+        items: lineItems.map((l) => ({ variantId: l.variant.id, qty: l.qty }))
+      });
+      // A full navigation, not a router push: Stripe's page is not ours.
+      window.location.assign(url);
+    } catch (err) {
+      const code = err instanceof ApiError ? err.code : 'serverError';
+      setPayError(t.apiErrors[code] || t.apiErrors.serverError);
+      setRedirecting(false);
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
@@ -64,6 +90,14 @@ export default function Checkout() {
     if (Object.keys(found).length) {
       const firstKey = FIELD_ORDER.find((k) => found[k]);
       inputs.current[firstKey]?.focus();
+      return;
+    }
+
+    // Address is valid. Stripe now takes over — the cart is NOT cleared here,
+    // because the shopper has not paid yet and may back out of Stripe's page.
+    // OrderDetail clears it once the webhook confirms payment.
+    if (payment === 'stripe') {
+      payWithStripe();
       return;
     }
 
@@ -244,9 +278,37 @@ export default function Checkout() {
             <span>{t.cart.total}</span>
             <span>{money(subtotal)}</span>
           </div>
-          <Button type="submit" variant="primary" fullWidth>
-            {t.checkout.placeOrder}
-          </Button>
+          {payment === 'stripe' && payError && (
+            <p className={styles.payError} role="alert">
+              {payError}
+            </p>
+          )}
+
+          {/* Payment needs an account, because an order has to belong to
+              somebody. Said before the button rather than after a failed press. */}
+          {payment === 'stripe' && isReady && !user ? (
+            <>
+              <p className={styles.payNote}>{t.pay.signInFirst}</p>
+              <Button
+                variant="primary"
+                fullWidth
+                to="/login"
+                state={{ next: '/checkout' }}
+              >
+                {t.account.signIn}
+              </Button>
+            </>
+          ) : (
+            <Button type="submit" variant="primary" fullWidth disabled={redirecting}>
+              {payment === 'stripe'
+                ? redirecting
+                  ? t.pay.redirecting
+                  : t.pay.cta
+                : t.checkout.placeOrder}
+            </Button>
+          )}
+
+          {payment === 'stripe' && <p className={styles.payNote}>{t.pay.testMode}</p>}
         </aside>
       </form>
     </main>

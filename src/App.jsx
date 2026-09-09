@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import { LanguageProvider } from './context/LanguageContext.jsx';
 import { CurrencyProvider } from './context/CurrencyContext.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
@@ -20,6 +21,9 @@ import Confirmation from './pages/Confirmation/Confirmation.jsx';
 import Wishlist from './pages/Wishlist/Wishlist.jsx';
 import NotFound from './pages/NotFound/NotFound.jsx';
 import Compare from './pages/Compare/Compare.jsx';
+import Account from './pages/Account/Account.jsx';
+import Orders from './pages/Orders/Orders.jsx';
+import OrderDetail from './pages/Orders/OrderDetail.jsx';
 import CompareTray from './components/CompareTray/CompareTray.jsx';
 import DocumentHead from './components/DocumentHead/DocumentHead.jsx';
 
@@ -40,6 +44,11 @@ function AppShell() {
       <PageTransition>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Account mode="login" />} />
+          <Route path="/signup" element={<Account mode="signup" />} />
+          <Route path="/orders" element={<Orders />} />
+          {/* Stripe returns the shopper here after checkout. */}
+          <Route path="/orders/:id" element={<OrderDetail />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
@@ -64,6 +73,7 @@ export default function App() {
       <LanguageProvider>
       {/* Inside LanguageProvider: a formatted price needs the language for its
           currency label as much as it needs the currency for its decimals. */}
+      <AuthProvider>
       <CurrencyProvider>
       <ToastProvider>
         <CartProvider>
@@ -75,6 +85,7 @@ export default function App() {
         </CartProvider>
       </ToastProvider>
       </CurrencyProvider>
+      </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>
   );
