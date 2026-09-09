@@ -7,7 +7,7 @@
     {
       "//": "The API runs on Render, but the browser only ever talks to THIS origin. That is deliberate: a same-origin proxy keeps the session cookie first-party, so it needs neither SameSite=None nor CORS — and browsers are actively phasing third-party cookies out. Replace the host below with your own Render service URL.",
       "source": "/api/:path*",
-      "destination": "https://volta-api.onrender.com/api/:path*"
+      "destination": "https://volta-api-6hbb.onrender.com/api/:path*"
     },
     {
       "//": "SPA fallback. Vercel checks the filesystem BEFORE rewrites, so the 46 prerendered route files still serve themselves and their own Open Graph tags; this only catches paths that match no file, and lets React Router render the storefront's own 404.",

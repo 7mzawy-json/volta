@@ -27,10 +27,15 @@ Both are broken by *choosing the names up front* so the URLs are predictable:
 
 | Service | Name to claim | Resulting URL |
 |---|---|---|
-| Render | `volta-api` | `https://volta-api.onrender.com` |
+| Render | `volta-api` | `https://volta-api-6hbb.onrender.com` |
+
+> Render appends a random suffix when the name you ask for is taken, which is
+> what happened here — the service is `volta-api-6hbb`, not `volta-api`. Check
+> the URL it actually gives you and make sure `vercel.json` matches it, because
+> nothing warns you: the proxy simply returns 404 for every API call.
 | Vercel | `volta` | `https://volta.vercel.app` |
 
-`vercel.json` already points at `volta-api.onrender.com`. If either name is taken, pick
+`vercel.json` already points at `volta-api-6hbb.onrender.com`. If either name is taken, pick
 another and **change it in the two places noted in steps 4 and 5** — nothing else depends on
 them.
 
@@ -128,7 +133,7 @@ Both Render and Vercel deploy from GitHub, so anything not pushed will not be de
 4. Deploy. When it finishes, check the health endpoint:
 
    ```bash
-   curl https://volta-api.onrender.com/api/health
+   curl https://volta-api-6hbb.onrender.com/api/health
    ```
 
    Expect `{"ok":true,"service":"volta-api","payments":true}`. `payments:false` means the
@@ -182,7 +187,7 @@ Both Render and Vercel deploy from GitHub, so anything not pushed will not be de
 Now that the API has a URL, close the second loop.
 
 1. **Developers → Webhooks → Add endpoint**.
-2. **Endpoint URL**: `https://volta-api.onrender.com/api/webhooks/stripe`
+2. **Endpoint URL**: `https://volta-api-6hbb.onrender.com/api/webhooks/stripe`
 
    > Point it at **Render directly**, not at the Vercel domain. Stripe talks server to
    > server; there is no reason to send it through the front end's proxy.
