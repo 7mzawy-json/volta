@@ -135,6 +135,7 @@ That mounts `dist/` under `/volta/` and imitates Pages' resolution — static fi
 - [`docs/user-flow.md`](docs/user-flow.md) — the shopper's path through the pages.
 - [`docs/ad-script.md`](docs/ad-script.md) — the AI-generated ad, shot by shot.
 - [`docs/ad-production-guide.md`](docs/ad-production-guide.md) — how to actually produce it.
+- [`docs/deployment.md`](docs/deployment.md) — Atlas, Stripe, Render and Vercel, in an order that works.
 
 ## A note on how this was built
 
