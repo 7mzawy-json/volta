@@ -235,6 +235,7 @@ export const copy = {
     pay: {
       cta: 'ادفع عبر Stripe',
       testMode: 'وضع تجريبي: استخدم البطاقة 4242 4242 4242 4242، أي تاريخ مستقبلي وأي رمز CVC.',
+      chargedIn: 'الخصم يتم بعملة {currency} — الدينار الكويتي غير مدعوم لدى مزوّد الدفع.',
       redirecting: 'نحوّلك للدفع…',
       signInFirst: 'سجّل دخولك عشان تكمل الدفع.'
     },
@@ -545,6 +546,7 @@ export const copy = {
     pay: {
       cta: 'Pay with Stripe',
       testMode: 'Test mode: use card 4242 4242 4242 4242, any future date and any CVC.',
+      chargedIn: 'Your card is charged in {currency} — our payment provider cannot settle Kuwaiti dinar.',
       redirecting: 'Taking you to payment…',
       signInFirst: 'Log in to complete your payment.'
     },

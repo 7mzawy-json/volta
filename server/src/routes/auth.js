@@ -15,7 +15,8 @@ const MAX_PASSWORD = 200; // bcrypt truncates past 72 bytes; refuse long input r
 // per-IP and coarse, but it turns an unlimited guessing loop into a slow one.
 const credentialLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 20,
+  // Same reasoning as the checkout limiter: raised for tests, not removed.
+  limit: Number(process.env.CREDENTIAL_RATE_LIMIT || 20),
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: { error: 'tooManyAttempts' }

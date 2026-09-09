@@ -8,6 +8,7 @@ process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_dummy';
 
 let baseUrl;
 let created = [];
+let defaultStub = null;
 
 before(async () => {
   baseUrl = await startTestServer();
@@ -16,17 +17,20 @@ before(async () => {
   // library does that part. Only the network call is stubbed.
   const real = new Stripe(process.env.STRIPE_SECRET_KEY);
   const { setStripeForTests } = await import('../src/stripe.js');
-  setStripeForTests({
+  defaultStub = {
     webhooks: real.webhooks,
     checkout: {
       sessions: {
         create: async (params) => {
           created.push(params);
-          return { id: `cs_test_${created.length}`, url: 'https://checkout.stripe.test/session' };
+          // A unique id per call: stripeSessionId is uniquely indexed, so a
+          // constant one makes the second order in any test collide.
+          return { id: `cs_test_${Date.now()}_${created.length}`, url: 'https://checkout.stripe.test/session' };
         }
       }
     }
-  });
+  };
+  setStripeForTests(defaultStub);
 });
 after(stopTestServer);
 beforeEach(async () => {
@@ -51,24 +55,105 @@ test('checkout prices the cart from the catalogue, not from the request', async 
   });
 
   assert.equal(res.status, 201);
-  const [params] = created;
-  // 389.900 KD is 389900 fils, whatever the client claimed.
-  assert.equal(params.line_items[0].price_data.unit_amount, 389900);
-  assert.equal(params.line_items[0].price_data.currency, 'kwd');
 
+  // The ORDER is in dinar, whatever the client claimed. 389.900 KD = 389900 fils.
   const orders = await c.get('/api/orders');
   assert.equal(orders.body.orders[0].totalFils, 389900);
+  assert.equal(orders.body.orders[0].currency, 'KWD');
 });
 
-test('the dinar amount Stripe receives is a whole multiple of ten fils', async () => {
+// Stripe cannot settle in dinar — a default account has no KWD bank account, and
+// the API refuses the currency outright. This was found by calling the real test
+// API; a stubbed client accepted `kwd` happily and told us nothing.
+test('the charge is converted into a currency Stripe will accept', async () => {
   const c = await signedIn();
-  await c.post('/api/checkout/session', { items: [{ variantId: VARIANT, qty: 3 }] });
+  const res = await c.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 1 }],
+    displayCurrency: 'KWD'
+  });
 
-  const amount = created[0].line_items[0].price_data.unit_amount;
-  // Stripe charges three-decimal currencies to two significant decimals and
-  // rejects anything else, so this is a hard requirement rather than a nicety.
-  assert.equal(amount % 10, 0);
-  assert.equal(Number.isInteger(amount), true);
+  const [params] = created;
+  assert.notEqual(params.line_items[0].price_data.currency, 'kwd', 'Stripe would refuse this');
+  assert.equal(params.line_items[0].price_data.currency, 'usd', 'the dinar falls back to dollars');
+  assert.equal(res.body.chargeCurrency, 'USD');
+
+  // 389.900 KD at 3.261 per dinar is $1271.46, i.e. 127146 cents.
+  assert.equal(params.line_items[0].price_data.unit_amount, 127146);
+  assert.equal(Number.isInteger(params.line_items[0].price_data.unit_amount), true);
+});
+
+test('a shopper reading in a supported currency is charged in it', async () => {
+  const c = await signedIn();
+  const res = await c.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 1 }],
+    displayCurrency: 'SAR'
+  });
+
+  assert.equal(created[0].line_items[0].price_data.currency, 'sar');
+  assert.equal(res.body.chargeCurrency, 'SAR');
+  // 389.900 x 12.227 = 4767.30 riyals
+  assert.equal(created[0].line_items[0].price_data.unit_amount, 476731);
+});
+
+test('the other two three-decimal currencies fall back as well', async () => {
+  for (const code of ['BHD', 'OMR']) {
+    const c = await signedIn();
+    const res = await c.post('/api/checkout/session', {
+      items: [{ variantId: VARIANT, qty: 1 }],
+      displayCurrency: code
+    });
+    assert.equal(res.body.chargeCurrency, 'USD', `${code} should fall back to USD`);
+    await reset();
+    created.length = 0;
+  }
+});
+
+test('the order keeps its dinar total even when charged in something else', async () => {
+  const c = await signedIn();
+  const res = await c.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 2 }],
+    displayCurrency: 'EUR'
+  });
+
+  const order = await c.get(`/api/orders/${res.body.orderId}`);
+  // Dinar is the record; the charge is what the card saw.
+  assert.equal(order.body.order.totalFils, 779800);
+  assert.equal(order.body.order.currency, 'KWD');
+  assert.equal(order.body.order.chargeCurrency, 'EUR');
+  assert.equal(order.body.order.chargeAmountMinor, 235422);
+});
+
+// A previous attempt that created the row and then failed at Stripe must be
+// retryable. It was not: the insert lost to the unique index and every retry
+// became a 500 — which is exactly what happened when Stripe first refused KWD.
+test('a retry after a failed Stripe call reuses the order rather than 500ing', async () => {
+  const c = await signedIn();
+  const key = 'retry-' + Date.now();
+  const { setStripeForTests } = await import('../src/stripe.js');
+
+  // First attempt: Stripe throws, leaving an order row with the key and no URL.
+  setStripeForTests({
+    webhooks: defaultStub.webhooks,
+    checkout: { sessions: { create: async () => { throw new Error('Invalid currency'); } } }
+  });
+  const failed = await c.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 1 }],
+    idempotencyKey: key
+  });
+  assert.equal(failed.status, 500);
+
+  // Second attempt with the same key must succeed, not collide. Restoring the
+  // shared stub here matters: leaving a local one installed would break every
+  // test that runs after this file position.
+  setStripeForTests(defaultStub);
+  const retried = await c.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 1 }],
+    idempotencyKey: key
+  });
+  assert.equal(retried.status, 201, 'the retry must not lose to the unique index');
+
+  const orders = await c.get('/api/orders');
+  assert.equal(orders.body.orders.length, 1, 'and must not have created a second order');
 });
 
 test('an unknown variant or a silly quantity is refused', async () => {

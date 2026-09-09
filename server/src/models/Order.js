@@ -36,6 +36,12 @@ const orderSchema = new mongoose.Schema(
     totalFils: { type: Number, required: true, min: 0 },
     currency: { type: String, required: true, default: 'KWD' },
 
+    // What the card was actually debited, which is NOT the dinar total: Stripe
+    // cannot settle in KWD, so the charge is converted. Kept so a receipt can
+    // show both, and so a Stripe refund can be reconciled against the order.
+    chargeCurrency: { type: String },
+    chargeAmountMinor: { type: Number, min: 0 },
+
     // pending  — created, shopper sent to Stripe
     // paid     — Stripe's webhook confirmed it
     // failed   — Stripe told us the session expired or the payment failed
@@ -91,6 +97,8 @@ orderSchema.methods.toPublic = function toPublic() {
     })),
     totalFils: this.totalFils,
     currency: this.currency,
+    chargeCurrency: this.chargeCurrency,
+    chargeAmountMinor: this.chargeAmountMinor,
     status: this.status,
     paidAt: this.paidAt,
     createdAt: this.createdAt

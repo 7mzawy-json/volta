@@ -3,7 +3,8 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { api, ApiError } from '../../api/client.js';
-import { useMoney } from '../../context/CurrencyContext.jsx';
+import { useMoney, useCurrency } from '../../context/CurrencyContext.jsx';
+import { chargeCurrencyFor } from '../../data/currencies.js';
 import { useCart } from '../../context/CartContext.jsx';
 import { variantLabel } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
@@ -45,6 +46,8 @@ export default function Checkout() {
   const [payError, setPayError] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
   const attemptKey = useRef(null);
+  const { code: currencyCode } = useCurrency();
+  const chargeCurrency = chargeCurrencyFor(currencyCode).code;
   const [errors, setErrors] = useState({});
   // Focusing by DOM query right after setErrors read the PREVIOUS render, where
   // aria-invalid was not set yet, so focus never moved. Refs point at the real
@@ -78,7 +81,10 @@ export default function Checkout() {
 
       const { url } = await api.post('/checkout/session', {
         items: lineItems.map((l) => ({ variantId: l.variant.id, qty: l.qty })),
-        idempotencyKey: attemptKey.current
+        idempotencyKey: attemptKey.current,
+        // Stripe charges in this when the account supports it, and in dollars
+        // when it does not — which is the case for the dinar.
+        displayCurrency: currencyCode
       });
       // A full navigation, not a router push: Stripe's page is not ours.
       window.location.assign(url);
@@ -315,7 +321,19 @@ export default function Checkout() {
             </Button>
           )}
 
-          {payment === 'stripe' && <p className={styles.payNote}>{t.pay.testMode}</p>}
+          {payment === 'stripe' && (
+            <>
+              {/* Said BEFORE the button, not discovered on Stripe's page. A
+                  shopper reading dinar prices whose card is debited in dollars
+                  should be told by us, not surprised by the provider. */}
+              {chargeCurrency !== currencyCode && (
+                <p className={styles.payNote}>
+                  {t.pay.chargedIn.replace('{currency}', chargeCurrency)}
+                </p>
+              )}
+              <p className={styles.payNote}>{t.pay.testMode}</p>
+            </>
+          )}
         </aside>
       </form>
     </main>

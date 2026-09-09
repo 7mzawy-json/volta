@@ -5,6 +5,7 @@ import { requireUser } from '../middleware/auth.js';
 import { config } from '../env.js';
 import { getStripe } from '../stripe.js';
 import { findVariant } from '../../../src/data/products.js';
+import { chargeCurrencyFor, toStripeAmount } from '../../../src/data/currencies.js';
 
 export const ordersRouter = Router();
 
@@ -13,7 +14,10 @@ export const ordersRouter = Router();
 // limited and this was not.
 const checkoutLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  limit: 20,
+  // Configurable so the test suite does not trip over it: every test shares one
+  // IP, so a few dozen checkouts in one run look exactly like abuse. The
+  // middleware still runs — only the threshold moves.
+  limit: Number(process.env.CHECKOUT_RATE_LIMIT || 20),
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: { error: 'tooManyAttempts' }
@@ -106,6 +110,8 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
     // the same key returns the SAME Stripe page instead of opening a second
     // one — which is what a double-clicked pay button would otherwise do.
     const idempotencyKey = String(req.body?.idempotencyKey || '').slice(0, 100) || undefined;
+
+    let order = null;
     if (idempotencyKey) {
       const existing = await Order.findOne({ idempotencyKey, user: req.user._id });
       if (existing?.stripeCheckoutUrl) {
@@ -115,16 +121,34 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
           reused: true
         });
       }
+      // An order with this key but NO Stripe URL means the previous attempt
+      // created the row and then failed at Stripe. Reuse the row rather than
+      // inserting a second one — a plain insert loses to the unique index and
+      // turns every retry into a 500, which is what happened the first time
+      // Stripe refused the currency.
+      order = existing;
     }
 
     const { lines, totalFils } = priceCart(req.body?.items);
-    const order = await Order.create({
-      user: req.user._id,
-      lines,
-      totalFils,
-      currency: 'KWD',
-      idempotencyKey
-    });
+
+    if (order) {
+      order.set({ lines, totalFils, currency: 'KWD' });
+      await order.save();
+    } else {
+      order = await Order.create({
+        user: req.user._id,
+        lines,
+        totalFils,
+        currency: 'KWD',
+        idempotencyKey
+      });
+    }
+
+    // Stripe cannot settle in dinar, so the charge is made in the shopper's own
+    // currency when the account supports it and in dollars otherwise. The order
+    // keeps its dinar total; this is only what the card is actually debited.
+    const charge = chargeCurrencyFor(req.body?.displayCurrency);
+    const totalDinar = totalFils / FILS_PER_DINAR;
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -133,8 +157,8 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
       line_items: lines.map((l) => ({
         quantity: l.qty,
         price_data: {
-          currency: 'kwd',
-          unit_amount: l.unitFils,
+          currency: charge.code.toLowerCase(),
+          unit_amount: toStripeAmount(l.unitFils / FILS_PER_DINAR, charge.code),
           product_data: { name: l.name }
         }
       })),
@@ -154,9 +178,16 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
 
     order.stripeSessionId = session.id;
     order.stripeCheckoutUrl = session.url;
+    order.chargeCurrency = charge.code;
+    order.chargeAmountMinor = toStripeAmount(totalDinar, charge.code);
     await order.save();
 
-    return res.status(201).json({ orderId: order._id.toString(), url: session.url });
+    return res.status(201).json({
+      orderId: order._id.toString(),
+      url: session.url,
+      chargeCurrency: charge.code,
+      chargeAmountMinor: order.chargeAmountMinor
+    });
   } catch (err) {
     if (err?.status) return res.status(err.status).json({ error: err.message });
     return next(err);

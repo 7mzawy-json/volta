@@ -6,6 +6,10 @@ import mongoose from 'mongoose';
 process.env.JWT_SECRET = 'test-secret-not-used-anywhere-real';
 process.env.NODE_ENV = 'test';
 process.env.SITE_ORIGIN = 'http://localhost:5173';
+// The whole suite comes from one IP, so the production thresholds would refuse
+// the later tests. Raised rather than disabled, so the middleware still runs.
+process.env.CHECKOUT_RATE_LIMIT = '10000';
+process.env.CREDENTIAL_RATE_LIMIT = '10000';
 
 let mongod;
 let server;
