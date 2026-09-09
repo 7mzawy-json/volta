@@ -5,6 +5,21 @@
 // request, because a server that starts and then fails every login looks healthy
 // to a platform's health check.
 
+// Load server/.env for local work.
+//
+// This was missing, and it was a real bug: .env.example told people to copy it
+// to .env, the deployment guide said the same, and nothing ever read the file —
+// the server only ever saw process.env, so a correct .env did nothing at all.
+//
+// process.loadEnvFile is built into Node (20.12+), so this needs no dependency.
+// It throws when the file is absent, which is the normal case in production
+// where Render supplies the real environment — hence the empty catch.
+try {
+  process.loadEnvFile?.(new URL('../.env', import.meta.url));
+} catch {
+  /* no .env — the host provides the environment */
+}
+
 const required = (name) => {
   const value = process.env[name];
   if (!value) {
