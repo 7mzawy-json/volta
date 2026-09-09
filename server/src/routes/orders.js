@@ -63,7 +63,12 @@ export function priceCart(items) {
     return {
       variantId: found.variant.id,
       productId: found.product.id,
-      name: `${found.product.name.en} — ${found.variant.storage || found.variant.label?.en || ''}`.trim(),
+      // Only append a separator when there is something to separate. An
+      // accessory has no storage tier, and the naive template left "Aero Buds —"
+      // with a dangling em-dash on Stripe's own checkout page.
+      name: [found.product.name.en, found.variant.storage || found.variant.label?.en]
+        .filter(Boolean)
+        .join(' — '),
       unitFils: toFils(found.variant.price),
       qty
     };
