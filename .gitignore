@@ -23,3 +23,8 @@ CLAUDE.md
 AGENTS.md
 GEMINI.md
 .claude/
+
+# Server dependencies and its local secrets (server/.gitignore covers these too;
+# repeated here so a clone from any depth is safe).
+server/node_modules/
+server/.env

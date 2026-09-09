@@ -1,0 +1,44 @@
+# Render blueprint for the VOLTA API.
+#
+# Point Render at this repository and it reads this file. Every secret below is
+# `sync: false`, which means Render prompts for it in the dashboard and it is
+# never stored in git — the whole reason the file can be committed at all.
+#
+# rootDir is `server`, but Render checks out the WHOLE repository, which matters:
+# the API imports the product catalogue from ../src/data/products.js so that
+# prices come from one place rather than being duplicated and drifting.
+
+services:
+  - type: web
+    name: volta-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Atlas connection string. Render's free tier has no managed MongoDB, so
+      # this points at a free Atlas M0 cluster.
+      - key: MONGODB_URI
+        sync: false
+
+      - key: JWT_SECRET
+        generateValue: true
+
+      # The Vercel URL of the front end. Used for CORS and for the addresses
+      # Stripe returns the shopper to after checkout.
+      - key: SITE_ORIGIN
+        sync: false
+
+      - key: EXTRA_ORIGINS
+        sync: false
+
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
