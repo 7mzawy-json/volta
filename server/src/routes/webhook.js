@@ -45,7 +45,7 @@ webhookRouter.post('/', async (req, res) => {
         // session can still be unpaid for asynchronous payment methods.
         if (session.payment_status !== 'paid') break;
 
-        await Order.findOneAndUpdate(
+        const updated = await Order.findOneAndUpdate(
           // Match on "not yet paid" so a redelivery is a no-op rather than a
           // second write with a later paidAt.
           { _id: session.metadata?.orderId, status: { $ne: 'paid' } },
@@ -55,6 +55,42 @@ webhookRouter.post('/', async (req, res) => {
             stripeSessionId: session.id,
             stripePaymentIntentId: session.payment_intent || undefined
           }
+        );
+
+        // No match means either a redelivery (fine) or an orderId that does not
+        // exist (not fine). Silence made those identical; a paid customer with
+        // no paid order would have looked exactly like a healthy webhook.
+        if (!updated) {
+          const already = await Order.exists({ _id: session.metadata?.orderId, status: 'paid' });
+          if (!already) {
+            console.error('webhook: paid session matched no order', {
+              sessionId: session.id,
+              orderId: session.metadata?.orderId
+            });
+          }
+        }
+        break;
+      }
+
+      // Delayed payment methods complete the session first and settle later.
+      // Unreachable with cards alone, but the day another method is enabled in
+      // the Stripe dashboard this becomes the event that matters — and without
+      // it those orders would sit pending forever.
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object;
+        const result = await Order.findOneAndUpdate(
+          { _id: session.metadata?.orderId, status: { $ne: 'paid' } },
+          { status: 'paid', paidAt: new Date(), stripePaymentIntentId: session.payment_intent || undefined }
+        );
+        if (!result) console.warn('async_payment_succeeded matched no pending order', session.metadata?.orderId);
+        break;
+      }
+
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object;
+        await Order.findOneAndUpdate(
+          { _id: session.metadata?.orderId, status: 'pending' },
+          { status: 'failed' }
         );
         break;
       }

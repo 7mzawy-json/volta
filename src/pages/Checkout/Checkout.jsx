@@ -44,6 +44,7 @@ export default function Checkout() {
   const { user, isReady } = useAuth();
   const [payError, setPayError] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
+  const attemptKey = useRef(null);
   const [errors, setErrors] = useState({});
   // Focusing by DOM query right after setErrors read the PREVIOUS render, where
   // aria-invalid was not set yet, so focus never moved. Refs point at the real
@@ -70,8 +71,14 @@ export default function Checkout() {
     setPayError(null);
     setRedirecting(true);
     try {
+      // One key per attempt, minted here and reused if this runs again. Without
+      // it a double-clicked pay button opens two Stripe pages against two
+      // orders; with it the second request gets the first page back.
+      if (!attemptKey.current) attemptKey.current = crypto.randomUUID();
+
       const { url } = await api.post('/checkout/session', {
-        items: lineItems.map((l) => ({ variantId: l.variant.id, qty: l.qty }))
+        items: lineItems.map((l) => ({ variantId: l.variant.id, qty: l.qty })),
+        idempotencyKey: attemptKey.current
       });
       // A full navigation, not a router push: Stripe's page is not ours.
       window.location.assign(url);

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { Order } from '../models/Order.js';
 import { requireUser } from '../middleware/auth.js';
 import { config } from '../env.js';
@@ -6,6 +7,17 @@ import { getStripe } from '../stripe.js';
 import { findVariant } from '../../../src/data/products.js';
 
 export const ordersRouter = Router();
+
+// Creating a checkout session costs a Stripe API call and an order row. Nothing
+// stopped a signed-in account from doing that in a loop; the auth routes were
+// limited and this was not.
+const checkoutLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'tooManyAttempts' }
+});
 
 // The dinar has 1000 fils. Stripe takes amounts in the smallest unit, and for
 // three-decimal currencies it additionally requires a multiple of 10 — it only
@@ -86,12 +98,33 @@ ordersRouter.get('/orders/:id', requireUser, async (req, res, next) => {
 // The order exists BEFORE the shopper leaves for Stripe, so the webhook has a
 // row to complete when it arrives — and so a payment can never be recorded
 // against nothing.
-ordersRouter.post('/checkout/session', requireUser, async (req, res, next) => {
+ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req, res, next) => {
   try {
     if (!config.stripeConfigured) return res.status(503).json({ error: 'paymentsNotConfigured' });
 
+    // One key per checkout attempt, from the browser. A repeated request with
+    // the same key returns the SAME Stripe page instead of opening a second
+    // one — which is what a double-clicked pay button would otherwise do.
+    const idempotencyKey = String(req.body?.idempotencyKey || '').slice(0, 100) || undefined;
+    if (idempotencyKey) {
+      const existing = await Order.findOne({ idempotencyKey, user: req.user._id });
+      if (existing?.stripeCheckoutUrl) {
+        return res.status(200).json({
+          orderId: existing._id.toString(),
+          url: existing.stripeCheckoutUrl,
+          reused: true
+        });
+      }
+    }
+
     const { lines, totalFils } = priceCart(req.body?.items);
-    const order = await Order.create({ user: req.user._id, lines, totalFils, currency: 'KWD' });
+    const order = await Order.create({
+      user: req.user._id,
+      lines,
+      totalFils,
+      currency: 'KWD',
+      idempotencyKey
+    });
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -109,11 +142,18 @@ ordersRouter.post('/checkout/session', requireUser, async (req, res, next) => {
       // complete without trusting anything the browser sends back.
       client_reference_id: String(order._id),
       metadata: { orderId: String(order._id), userId: String(req.user._id) },
+      // The same ids on the PaymentIntent, so a refund or dispute opened from
+      // the Stripe dashboard shows which order it belongs to. Session metadata
+      // alone does not appear there.
+      payment_intent_data: {
+        metadata: { orderId: String(order._id), userId: String(req.user._id) }
+      },
       success_url: `${config.siteOrigin}/orders/${order._id}?checkout=success`,
       cancel_url: `${config.siteOrigin}/checkout?checkout=cancelled`
     });
 
     order.stripeSessionId = session.id;
+    order.stripeCheckoutUrl = session.url;
     await order.save();
 
     return res.status(201).json({ orderId: order._id.toString(), url: session.url });

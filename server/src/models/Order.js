@@ -49,10 +49,33 @@ const orderSchema = new mongoose.Schema(
     // Stripe's ids. Unique and sparse so a webhook that arrives twice — which
     // Stripe explicitly says can happen — cannot create a second paid order.
     stripeSessionId: { type: String, index: true, unique: true, sparse: true },
+    // Stripe's hosted page for this order. Kept so a repeated checkout request
+    // can be answered with the SAME page rather than opening a second one.
+    stripeCheckoutUrl: { type: String },
+
+    // Supplied by the browser, one per checkout attempt. Uniqueness is scoped
+    // PER USER by the compound index below, not globally — see the note there.
+    idempotencyKey: { type: String },
     stripePaymentIntentId: { type: String, index: true, sparse: true },
     paidAt: { type: Date }
   },
   { timestamps: true }
+);
+
+// A double-clicked pay button must not become two orders and two charges, so
+// the key is unique — but only WITHIN one account.
+//
+// It was global at first, and that was wrong: two shoppers whose browsers
+// happened to mint the same key would collide, and the second one got a 500
+// instead of a checkout page. Stripe scopes its own idempotency keys per
+// account for exactly this reason.
+//
+// partialFilterExpression rather than sparse: a sparse COMPOUND index still
+// indexes documents that have a user but no key, so every keyless order would
+// collide on (user, null). A partial index skips them entirely.
+orderSchema.index(
+  { user: 1, idempotencyKey: 1 },
+  { unique: true, partialFilterExpression: { idempotencyKey: { $exists: true } } }
 );
 
 orderSchema.methods.toPublic = function toPublic() {

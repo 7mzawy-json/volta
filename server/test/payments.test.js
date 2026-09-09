@@ -210,3 +210,86 @@ test('an expired session marks the order failed', async () => {
   const order = await c.get(`/api/orders/${body.orderId}`);
   assert.equal(order.body.order.status, 'failed');
 });
+
+// --- hardening ---------------------------------------------------------------
+
+test('a repeated checkout with the same key reuses the session, not a second one', async () => {
+  const c = await signedIn();
+  const key = 'attempt-' + Date.now();
+  const body = { items: [{ variantId: VARIANT, qty: 1 }], idempotencyKey: key };
+
+  const first = await c.post('/api/checkout/session', body);
+  const second = await c.post('/api/checkout/session', body);
+
+  assert.equal(first.status, 201);
+  assert.equal(second.status, 200);
+  assert.equal(second.body.reused, true);
+  assert.equal(second.body.orderId, first.body.orderId, 'a double click must not make a second order');
+  assert.equal(second.body.url, first.body.url, 'and must send the shopper to the same Stripe page');
+  assert.equal(created.length, 1, 'Stripe should only have been called once');
+
+  const orders = await c.get('/api/orders');
+  assert.equal(orders.body.orders.length, 1);
+});
+
+test('without a key, each request is a new order — the old behaviour', async () => {
+  const c = await signedIn();
+  await c.post('/api/checkout/session', { items: [{ variantId: VARIANT, qty: 1 }] });
+  await c.post('/api/checkout/session', { items: [{ variantId: VARIANT, qty: 1 }] });
+
+  const orders = await c.get('/api/orders');
+  assert.equal(orders.body.orders.length, 2);
+});
+
+test('one person\'s idempotency key cannot reach another person\'s order', async () => {
+  const a = client();
+  const b = client();
+  await signUp(a, { email: 'a-key@example.com', name: 'Aisha' });
+  await signUp(b, { email: 'b-key@example.com', name: 'Bader' });
+
+  const key = 'shared-' + Date.now();
+  const mine = await a.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 1 }],
+    idempotencyKey: key
+  });
+  // Same key, different account: the lookup is scoped to the session's user, so
+  // this must NOT hand B a link to A's checkout.
+  const theirs = await b.post('/api/checkout/session', {
+    items: [{ variantId: VARIANT, qty: 1 }],
+    idempotencyKey: key
+  });
+
+  assert.equal(mine.status, 201);
+  // B must get their OWN working checkout, not an error. This assertion used to
+  // be only "different from A's", which passed while B was actually receiving a
+  // 500 from a global unique index — green for the wrong reason.
+  assert.equal(theirs.status, 201, 'the second shopper must still get a session');
+  assert.notEqual(theirs.body.orderId, mine.body.orderId);
+  assert.notEqual(theirs.body.reused, true);
+  assert.ok(theirs.body.url, 'and a URL to go to');
+});
+
+test('the PaymentIntent carries the order id, not just the session', async () => {
+  const c = await signedIn();
+  await c.post('/api/checkout/session', { items: [{ variantId: VARIANT, qty: 1 }] });
+
+  const [params] = created;
+  // Session metadata does not appear on a refund or dispute in the dashboard;
+  // PaymentIntent metadata does.
+  assert.ok(params.payment_intent_data?.metadata?.orderId);
+  assert.equal(params.payment_intent_data.metadata.orderId, params.metadata.orderId);
+});
+
+test('a delayed payment method settling later still marks the order paid', async () => {
+  const c = await signedIn();
+  const { body } = await c.post('/api/checkout/session', { items: [{ variantId: VARIANT, qty: 1 }] });
+
+  await signedWebhook({
+    id: 'evt_async_1',
+    type: 'checkout.session.async_payment_succeeded',
+    data: { object: { id: 'cs_test_1', payment_intent: 'pi_async', metadata: { orderId: body.orderId } } }
+  });
+
+  const order = await c.get(`/api/orders/${body.orderId}`);
+  assert.equal(order.body.order.status, 'paid');
+});
