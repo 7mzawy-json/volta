@@ -18,6 +18,13 @@ services:
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
+      # Pinned rather than left to the platform default. The server calls
+      # process.loadEnvFile, which needs Node 20.12+, and a host that quietly
+      # moves to an older or much newer default would break it in a way that
+      # only shows up in production.
+      - key: NODE_VERSION
+        value: '22'
+
       - key: NODE_ENV
         value: production
 
