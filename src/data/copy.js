@@ -64,19 +64,26 @@ export const copy = {
       title: 'تصفية',
       clear: 'مسح الكل',
       // Arabic distinguishes six plural categories; Intl.PluralRules picks one.
+      // Arabic's zero, one and two forms already carry the number, so they must
+      // NOT be printed after one — "٢ نتيجتان" reads as "2 two-results". Only
+      // few, many and other take {n}. Same shape as reviews.count.
       results: {
-        zero: 'نتائج',
+        zero: 'لا نتائج',
         one: 'نتيجة واحدة',
         two: 'نتيجتان',
-        few: 'نتائج',
-        many: 'نتيجة',
-        other: 'نتيجة'
+        few: '{n} نتائج',
+        many: '{n} نتيجة',
+        other: '{n} نتيجة'
       },
       brand: 'الماركة',
       storage: 'السعة',
       color: 'اللون',
       screen: 'حجم الشاشة',
       price: 'السعر',
+      category: 'الفئة',
+      query: 'كلمات البحث',
+      emptyNarrow: 'ما في شي يطابق كل هذي الفلاتر مع بعض. جرّب تشيل واحد منها:',
+      without: 'بدون {filter}',
       screens: {
         compact: 'أقل من 6.4 بوصة',
         standard: '6.4 – 6.8 بوصة',
@@ -412,12 +419,16 @@ export const copy = {
     facets: {
       title: 'Filter',
       clear: 'Clear all',
-      results: { one: 'result', other: 'results' },
+      results: { one: '{n} result', other: '{n} results' },
       brand: 'Brand',
       storage: 'Storage',
       color: 'Colour',
       screen: 'Screen size',
       price: 'Price',
+      category: 'the category',
+      query: 'the search words',
+      emptyNarrow: 'Nothing matches all of these filters at once. Try lifting one:',
+      without: 'Without {filter}',
       screens: {
         compact: 'Under 6.4 inch',
         standard: '6.4 – 6.8 inch',

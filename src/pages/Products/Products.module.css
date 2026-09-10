@@ -60,7 +60,64 @@
 .noResults {
   color: var(--color-muted-foreground);
   padding-block: 60px;
+  /* Centred when it is one sentence; the list below reads better aligned, so
+     the alignment lives on the children rather than here. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.noResultsLead {
   text-align: center;
+  max-width: 34rem;
+  line-height: 1.6;
+}
+
+/* One filter per row, each a real link with a counted promise on it. */
+.relaxList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.relax {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  /* 44px, so a thumb can take the way out. */
+  min-height: 44px;
+  padding: 11px 18px;
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius);
+  background: var(--box-bg);
+  color: var(--color-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.relax:hover {
+  border-color: var(--color-primary);
+}
+
+.relax:focus-visible {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 2px;
+}
+
+.relaxLabel {
+  font-weight: 600;
+}
+
+.relaxCount {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 @media (min-width: 768px) {

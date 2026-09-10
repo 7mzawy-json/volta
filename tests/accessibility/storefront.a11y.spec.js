@@ -150,6 +150,9 @@ for (const [language, labels] of Object.entries(languages)) {
       ['products', '/products'],
       ['wishlist', '/wishlist'],
       ['compare', '/compare'],
+      // The zero-result state, which is real markup a shopper reaches and had
+      // never been scanned: no black Samsung exists under 200 KD.
+      ['empty-filters', '/products?category=phones&price=3.9-200&brand=samsung&color=black'],
       ['not-found', '/definitely-missing']
     ]) {
       await test.step(label, async () => {

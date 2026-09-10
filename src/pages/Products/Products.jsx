@@ -134,6 +134,77 @@ export default function Products() {
     return list;
   }, [beforeFacets, toggleFacets, sort, searchParams, priceRange]);
 
+  // When nothing matches, work out WHICH filter is doing it.
+  //
+  // "0 results" is a dead end, and it is the state most likely to read as a
+  // broken feature when the filters were set by reading a sentence rather than
+  // by hand — "أبغى جوال سامسونج أسود بأقل من ٢٠٠ دينار" is understood exactly
+  // right and there is no black Samsung under 200 KD.
+  //
+  // So: drop each active filter in turn, count what comes back, and offer the
+  // ones that actually open something up. Counted against the real catalogue,
+  // never estimated, so an offer of "12 results without the colour" is a promise
+  // the next click keeps.
+  const relaxations = useMemo(() => {
+    if (filtered.length > 0) return [];
+
+    // Every filter currently narrowing the list, each with a way to lift it.
+    const active = [];
+
+    if (query.trim()) {
+      active.push({
+        id: 'query',
+        label: t.facets.query,
+        without: (params) => params.delete('q'),
+        matches: (p) => activeCategory === 'all' || p.category === activeCategory
+      });
+    }
+    if (activeCategory !== 'all') {
+      active.push({
+        id: 'category',
+        label: t.facets.category,
+        without: (params) => params.delete('category'),
+        matches: (p) => matchesQuery(p, query)
+      });
+    }
+    if (priceRange) {
+      active.push({
+        id: 'price',
+        label: t.facets.price,
+        without: (params) => params.delete('price'),
+        matches: null
+      });
+    }
+    for (const facet of toggleFacets) {
+      if (selectedFor(facet.id).length) {
+        active.push({ id: facet.id, label: t.facets[facet.id] || facet.id, without: (params) => params.delete(facet.id), matches: null });
+      }
+    }
+
+    // Lifting one filter is only worth offering if it changes the answer, so
+    // each count is taken with that one dropped and everything else kept.
+    return active
+      .map((entry) => {
+        const pool = entry.matches
+          ? products.filter(entry.matches)
+          : beforeFacets;
+        const count = pool.filter(
+          (p) =>
+            toggleFacets.every(
+              (facet) => facet.id === entry.id || productMatchesFacet(p, facet, selectedFor(facet.id))
+            ) && (entry.id === 'price' || productMatchesPrice(p, priceRange))
+        ).length;
+
+        const params = new URLSearchParams(searchParams);
+        entry.without(params);
+        return { ...entry, count, href: `/products?${params.toString()}` };
+      })
+      .filter((entry) => entry.count > 0)
+      // Most opened up first: one obvious next step, not a menu.
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  }, [filtered.length, beforeFacets, toggleFacets, priceRange, searchParams, query, activeCategory, t]);
+
   // Any change to what is being filtered returns the shopper to the first page,
   // otherwise page 3 of the old results silently becomes an empty screen.
   useEffect(() => {
@@ -334,11 +405,38 @@ export default function Products() {
 
         <div className={styles.results}>
           <p className={styles.resultCount}>
-            {filtered.length} {plural(t.facets.results, filtered.length, lang)}
+            {plural(t.facets.results, filtered.length, lang).replace('{n}', filtered.length)}
           </p>
 
           {filtered.length === 0 ? (
-            <p className={styles.noResults}>{t.misc.noResults}</p>
+            <div className={styles.noResults}>
+              <p className={styles.noResultsLead}>
+                {relaxations.length ? t.facets.emptyNarrow : t.misc.noResults}
+              </p>
+
+              {/* Links, not buttons: each one is a real URL with one filter
+                  lifted, so it can be opened in a new tab, shared, or gone back
+                  from — and the count on it was counted, not guessed. */}
+              {relaxations.length > 0 && (
+                <ul className={styles.relaxList}>
+                  {relaxations.map((entry) => (
+                    <li key={entry.id}>
+                      <Link to={entry.href} className={styles.relax}>
+                        <span className={styles.relaxLabel}>
+                          {t.facets.without.replace('{filter}', entry.label)}
+                        </span>{' '}
+                        {/* A real space, not just a flex gap: the layout puts
+                            these at opposite ends, but a screen reader reads the
+                            text, and "Without Brand7 results" is what it said. */}
+                        <span className={styles.relaxCount}>
+                          {plural(t.facets.results, entry.count, lang).replace('{n}', entry.count)}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ) : (
             <>
               <div className={styles.grid}>
