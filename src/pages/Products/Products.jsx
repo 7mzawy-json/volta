@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import {
   products,
@@ -28,6 +28,10 @@ const PAGE_SIZE = 12;
 export default function Products() {
   const { lang, t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  // Set only when the filters below came from reading a sentence. Absent on a
+  // shared link, which is correct: the link carries the filters themselves.
+  const readSentence = location.state?.readSentence;
 
   const query = searchParams.get('q') || '';
   const activeCategory = searchParams.get('category') || 'all';
@@ -159,6 +163,19 @@ export default function Products() {
   return (
     <main className={`container ${styles.page}`}>
       <h1 className={styles.srOnly}>{t.nav.products}</h1>
+
+      {/* Say what was understood, and offer the way out.
+          A filter applied on a shopper's behalf that they cannot see is a
+          storefront arguing with them; the chips below show the same thing, and
+          this names the sentence they came from. */}
+      {readSentence && (
+        <p className={styles.readNote}>
+          <span>{t.search.understoodAs.replace('{q}', readSentence)}</span>{' '}
+          <Link to={`/products?q=${encodeURIComponent(readSentence)}`} className={styles.readUndo}>
+            {t.search.searchInstead}
+          </Link>
+        </p>
+      )}
       <div className={styles.toolbar}>
         <div className={styles.tabs}>
           <button

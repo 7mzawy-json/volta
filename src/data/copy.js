@@ -109,6 +109,12 @@ export const copy = {
       companions: 'كمّل عدّتك',
       backToProducts: 'رجوع للمنتجات'
     },
+    search: {
+      reading: 'نقرأ سؤالك…',
+      readThis: 'افهم هذي الجملة كفلاتر',
+      understoodAs: 'فهمنا «{q}» كالفلاتر التالية.',
+      searchInstead: 'ابحث بالكلمات بدل ذلك'
+    },
     filters: {
       all: 'الكل',
       sortLabel: 'ترتيب حسب',
@@ -262,6 +268,8 @@ export const copy = {
       passwordTooLong: 'كلمة المرور طويلة زيادة.',
       missingFields: 'عبّي كل الخانات.',
       tooManyAttempts: 'محاولات كثيرة. جرّب بعد شوي.',
+      aiUnavailable: 'ما قدرنا نقرأ سؤالك الحين — بحثنا بالكلمات.',
+      aiNotConfigured: 'قراءة الأسئلة غير مفعّلة — بحثنا بالكلمات.',
       notAuthenticated: 'لازم تسجّل دخول أول.',
       notYours: 'هذي مو بياناتك.',
       currentPasswordWrong: 'كلمة المرور الحالية غير صحيحة.',
@@ -442,6 +450,12 @@ export const copy = {
       companions: 'Complete your setup',
       backToProducts: 'Back to Products'
     },
+    search: {
+      reading: 'Reading your question…',
+      readThis: 'Read this sentence as filters',
+      understoodAs: 'Read “{q}” as the filters below.',
+      searchInstead: 'Search the words instead'
+    },
     filters: {
       all: 'All',
       sortLabel: 'Sort by',
@@ -589,6 +603,8 @@ export const copy = {
       passwordTooLong: 'That password is too long.',
       missingFields: 'Please fill in every field.',
       tooManyAttempts: 'Too many attempts. Try again shortly.',
+      aiUnavailable: 'We could not read your question just now — we searched the words instead.',
+      aiNotConfigured: 'Reading questions is switched off — we searched the words instead.',
       notAuthenticated: 'Please log in first.',
       notYours: 'That is not yours to change.',
       currentPasswordWrong: 'That password is not right.',

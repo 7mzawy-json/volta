@@ -278,6 +278,33 @@ Other things worth trying, since they are the parts the coursework asks about:
 
 ---
 
+## Optional: natural-language search
+
+The search box can read a sentence — *"a cheap Apple phone under 300"*, *"أبغى جوال
+بأقل من ٢٠٠ دينار"* — and turn it into the filters the storefront already has.
+
+**It is off unless one variable is set.** Add `ANTHROPIC_API_KEY` in Render →
+Environment and it switches on; leave it out and the search box behaves exactly as
+it did before, because every failure path — no key, slow model, rate limited,
+offline — lands on the same keyword search.
+
+What is worth knowing before switching it on:
+
+- **The model never chooses products.** It is asked to name filters from a closed
+  list built out of the catalogue itself, and its answer goes through
+  `validateIntent` before it means anything. Anything outside that vocabulary is
+  dropped. The worst a wrong or hostile answer can do is filter badly.
+- **Answers are cached** in MongoDB for thirty days, keyed on the normalised
+  sentence and the language. The second person to ask the same question costs
+  nothing, and cached questions keep working when the model does not.
+- **It is rate limited** per address (`AI_RATE_LIMIT`, 30 per ten minutes by
+  default) and hard-timed-out (`AI_TIMEOUT_MS`, 2.5 seconds). A shopper never
+  waits on a model longer than that.
+- Cost at demo volume is negligible — a few hundred tokens per uncached sentence
+  against a small model.
+
+---
+
 ## Why there is only one deployment
 
 This repository used to deploy three times over: Vercel, **Netlify** (by hand, from a zip)

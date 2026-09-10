@@ -7,6 +7,7 @@ import { authRouter } from './routes/auth.js';
 import { reviewsRouter } from './routes/reviews.js';
 import { ordersRouter } from './routes/orders.js';
 import { profileRouter } from './routes/profile.js';
+import { searchRouter } from './routes/search.js';
 import { webhookRouter } from './routes/webhook.js';
 
 export function createApp() {
@@ -52,6 +53,7 @@ export function createApp() {
   app.use('/api', reviewsRouter);
   app.use('/api', ordersRouter);
   app.use('/api', profileRouter);
+  app.use('/api', searchRouter);
 
   app.use((_req, res) => res.status(404).json({ error: 'noSuchRoute' }));
 

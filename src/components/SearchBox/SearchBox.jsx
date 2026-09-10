@@ -3,6 +3,8 @@ import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useMoney } from '../../context/CurrencyContext.jsx';
 import { searchProducts } from '../../data/search.js';
+import { intentToSearchParams, validateIntent } from '../../data/searchIntent.js';
+import { api } from '../../api/client.js';
 import { getPriceRange, getProductColors } from '../../data/products.js';
 import ProductVisual from '../ProductVisual/ProductVisual.jsx';
 import styles from './SearchBox.module.css';
@@ -14,6 +16,12 @@ import styles from './SearchBox.module.css';
 // announce "3 of 6" as you arrow through, and they are the difference between a
 // dropdown that works and one that merely looks like it does. Focus deliberately
 // stays in the input the whole time — arrow keys move a highlight, not focus.
+
+// Remembered for the tab, not for ever: if the API says the reader is switched
+// off, stop OFFERING to read sentences. Without this the button promises
+// something the deployment cannot do and then quietly does a keyword search —
+// which works, but is a small lie. A reload asks again.
+let readerOffline = false;
 
 export default function SearchBox({ className = '', onNavigate }) {
   const { lang, t } = useLanguage();
@@ -28,6 +36,9 @@ export default function SearchBox({ className = '', onNavigate }) {
   );
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  // Only while a sentence is being read. Two or three words never sets it, so
+  // the ordinary search never grows a spinner.
+  const [reading, setReading] = useState(false);
   const wrapRef = useRef(null);
 
   const results = open ? searchProducts(query) : [];
@@ -57,10 +68,54 @@ export default function SearchBox({ className = '', onNavigate }) {
     navigate(`/products/${product.id}`);
   };
 
-  const goToResults = () => {
+  const plainResults = (term) => `/products?q=${encodeURIComponent(term)}`;
+
+  // A sentence gets read; a word gets searched.
+  //
+  // Three words is the line. Below it the keyword search is already better than
+  // anything a model would add, and asking one would only make search slower.
+  // Above it, the model is asked to name FILTERS — never products — and whatever
+  // it says goes through validateIntent before it means anything. See
+  // src/data/searchIntent.js.
+  //
+  // Every failure path lands in the same place: the keyword search that was
+  // there before. Not configured, rate limited, slow, offline, or an answer
+  // that narrows nothing — all of them just search.
+  const goToResults = async () => {
+    const term = query.trim();
     setOpen(false);
     onNavigate?.();
-    navigate(`/products?q=${encodeURIComponent(query)}`);
+
+    if (term.split(/\s+/).length < 3) {
+      navigate(plainResults(term));
+      return;
+    }
+
+    setReading(true);
+    try {
+      const { intent: raw } = await api.post('/search/intent', { q: term, lang });
+      readerOffline = false;
+      // Validated on this side too. The server already did it, but a client that
+      // trusts a response because it came from its own API is a client that
+      // trusts whatever answers on that port.
+      const { intent } = validateIntent(raw);
+      const params = intentToSearchParams(intent);
+      if ([...params.keys()].some((k) => k !== 'q')) {
+        // The sentence travels in router state, not in the URL: the URL stays a
+        // plain set of filters, so it is shareable and the facet chips show
+        // exactly what was applied.
+        navigate(`/products?${params.toString()}`, { state: { readSentence: term } });
+        return;
+      }
+    } catch (err) {
+      // Not configured is permanent for this deployment; everything else —
+      // slow, rate limited, offline — might work next time.
+      if (err?.code === 'aiNotConfigured') readerOffline = true;
+    } finally {
+      setReading(false);
+    }
+
+    navigate(plainResults(term));
   };
 
   const onChange = (e) => {
@@ -81,6 +136,7 @@ export default function SearchBox({ className = '', onNavigate }) {
       else if (query.trim()) goToResults();
       return;
     }
+    if (reading) return;
     if (!results.length) return;
     // Arrow keys move the highlight only; focus never leaves the input, which is
     // what the combobox pattern requires.
@@ -94,6 +150,9 @@ export default function SearchBox({ className = '', onNavigate }) {
   };
 
   const showPanel = open && query.trim().length >= 2;
+  // Three words is where a keyword search stops being the better tool.
+  const isSentence =
+    !readerOffline && query.trim().split(/\s+/).filter(Boolean).length >= 3;
 
   return (
     <div ref={wrapRef} className={`${styles.wrap} ${className}`}>
@@ -121,7 +180,23 @@ export default function SearchBox({ className = '', onNavigate }) {
       {showPanel && (
         <div className={styles.panel}>
           {results.length === 0 ? (
-            <p className={styles.empty}>{t.misc.noResults}</p>
+            /* A SENTENCE almost never matches keywords — that is the whole
+               reason it gets read instead. Saying "no results" and hiding the
+               only control would strand the shopper at exactly the moment this
+               feature exists for. */
+            isSentence ? (
+              <button
+                type="button"
+                className={styles.seeAll}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={goToResults}
+                disabled={reading}
+              >
+                {reading ? t.search.reading : t.search.readThis}
+              </button>
+            ) : (
+              <p className={styles.empty}>{t.misc.noResults}</p>
+            )
           ) : (
             <>
               <ul className={styles.list} id={listId} role="listbox" aria-label={t.nav.searchPlaceholder}>
@@ -162,8 +237,9 @@ export default function SearchBox({ className = '', onNavigate }) {
                 className={styles.seeAll}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={goToResults}
+                disabled={reading}
               >
-                {t.nav.seeAllResults}
+                {reading ? t.search.reading : t.nav.seeAllResults}
               </button>
             </>
           )}

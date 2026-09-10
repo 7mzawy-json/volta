@@ -215,6 +215,27 @@
   outline-offset: 2px;
 }
 
+/* Shown only when the filters came from reading a sentence. Quiet on purpose:
+   it explains, it does not celebrate. */
+.readNote {
+  margin-bottom: 14px;
+  padding-inline-start: 12px;
+  border-inline-start: 3px solid var(--color-primary);
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  line-height: 1.6;
+}
+
+.readUndo {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  /* A 44px row to tap, without a 44px gap in a line of prose. */
+  display: inline-block;
+  padding-block: 11px;
+}
+
 /* Colour facet: swatches rather than a list, because a colour names itself
    faster than its label does. */
 .swatchRow {
