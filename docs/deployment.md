@@ -283,7 +283,7 @@ Other things worth trying, since they are the parts the coursework asks about:
 The search box can read a sentence — *"a cheap Apple phone under 300"*, *"أبغى جوال
 بأقل من ٢٠٠ دينار"* — and turn it into the filters the storefront already has.
 
-**It is off unless one variable is set.** Add `ANTHROPIC_API_KEY` in Render →
+**It is off unless one variable is set.** Add `GEMINI_API_KEY` in Render →
 Environment and it switches on; leave it out and the search box behaves exactly as
 it did before, because every failure path — no key, slow model, rate limited,
 offline — lands on the same keyword search.
@@ -301,7 +301,11 @@ What is worth knowing before switching it on:
   default) and hard-timed-out (`AI_TIMEOUT_MS`, 2.5 seconds). A shopper never
   waits on a model longer than that.
 - Cost at demo volume is negligible — a few hundred tokens per uncached sentence
-  against a small model.
+  against a small model. The key comes from Google AI Studio; `GEMINI_MODEL`
+  overrides the default (`gemini-2.5-flash`) without a code change.
+- **Thinking is switched off** in the request. The 2.5 models reason before
+  answering by default, which costs seconds this route does not have — and this
+  is a lookup against a list, not a reasoning problem.
 
 ---
 

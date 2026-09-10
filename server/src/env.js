@@ -68,12 +68,12 @@ export const config = {
     return Boolean(process.env.STRIPE_SECRET_KEY);
   },
 
-  anthropicApiKey: () => required('ANTHROPIC_API_KEY'),
+  geminiApiKey: () => required('GEMINI_API_KEY'),
 
   // So is the language model. Without it the search box keeps working exactly as
   // it did before — the natural-language route answers 503 and the browser falls
   // back to the keyword search it already had.
   get aiConfigured() {
-    return Boolean(process.env.ANTHROPIC_API_KEY);
+    return Boolean(process.env.GEMINI_API_KEY);
   }
 };

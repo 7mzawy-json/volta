@@ -20,7 +20,7 @@ after(stopTestServer);
 beforeEach(async () => {
   await reset();
   lastSentence = null;
-  process.env.ANTHROPIC_API_KEY = 'sk-ant-test-never-used-for-network';
+  process.env.GEMINI_API_KEY = 'test-key-never-used-for-network';
 });
 
 // A stub that answers with whatever the test wants the model to have said.
@@ -115,7 +115,7 @@ test('a model that fails is a 503, so the browser can fall back', async () => {
 });
 
 test('no API key is the same answer as no model', async () => {
-  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.GEMINI_API_KEY;
   const res = await ask('a phone with a big battery please');
 
   assert.equal(res.status, 503);
@@ -155,7 +155,7 @@ test('a cached sentence still works when the model is gone', async () => {
   await ask('an honor phone with lots of storage');
 
   // The key is pulled and the client is broken: a cache hit needs neither.
-  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.GEMINI_API_KEY;
   modelSays(new Error('should not be called'));
 
   const res = await ask('an honor phone with lots of storage');

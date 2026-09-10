@@ -14,12 +14,20 @@ import { brands, categories } from '../../src/data/products.js';
 // prices or claims. Whatever it answers goes through validateIntent before it
 // touches anything, so this file is a convenience, not a trust boundary. See
 // src/data/searchIntent.js for the wall and its tests.
+//
+// Gemini, because that is the key this project has. Swapping provider means
+// rewriting `readIntent` and nothing else: the prompt, the vocabulary and the
+// wall are all provider-agnostic, and every test stubs at this seam.
 
 // Small and fast on purpose. This sits between a keystroke and a page of
 // results; a slower, cleverer model would be the wrong trade for choosing
 // between eight brands and three screen sizes.
-const MODEL = 'claude-haiku-4-5-20251001';
-const MAX_OUTPUT_TOKENS = 200;
+//
+// Configurable because model names age faster than code does — switching to
+// -lite, or to whatever replaces this, should not need a commit.
+const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+const MAX_OUTPUT_TOKENS = 300;
 
 // Hard ceiling on how long a shopper waits before the ordinary keyword search
 // takes over. Search must never feel broken because a model was slow.
@@ -36,10 +44,11 @@ function systemPrompt() {
     'You turn a shopper\'s sentence into search filters for VOLTA, a Kuwaiti electronics shop.',
     'Shoppers write in Arabic (often Kuwaiti dialect) or English. Prices are in Kuwaiti dinar.',
     '',
-    'Reply with ONE JSON object and nothing else. Every field is optional; omit what the sentence does not say.',
+    'Reply with ONE JSON object. Every field is optional — OMIT any field the sentence does not ask for.',
+    'An empty object {} is a correct answer for a sentence that asks for nothing you can filter on.',
     '',
     '{',
-    '  "q": string   — words worth keeping for keyword search, e.g. a model name. "" if none.',
+    '  "q": string   — words worth keeping for keyword search, e.g. a model name. Omit if none.',
     `  "category": one of ${JSON.stringify(categories)}`,
     `  "brand": array of ${JSON.stringify(brands)}`,
     `  "storage": array of ${JSON.stringify(STORAGE_VALUES)}`,
@@ -52,6 +61,7 @@ function systemPrompt() {
     'Rules:',
     '- Use ONLY the values listed above. If the sentence asks for something not on the lists, leave that field out.',
     '- Never name a product, invent a price, or answer in prose.',
+    '- Never guess. A brand the shopper did not mention is worse than no brand at all.',
     '- "cheap" or "رخيص" means sort by price-low, not a made-up price range.',
     '- "big battery", "بطارية كبيرة" and similar specs are not filters here — put those words in "q".',
     '- If the sentence is not about shopping, reply {}.'
@@ -62,37 +72,57 @@ let client = null;
 
 // Plain fetch rather than an SDK: one request shape, one response shape, and no
 // dependency to keep current on a student project.
-function anthropicClient() {
+function geminiClient() {
   return {
     async readIntent(sentence) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
       try {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          signal: controller.signal,
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': config.anthropicApiKey(),
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: MODEL,
-            max_tokens: MAX_OUTPUT_TOKENS,
-            system: systemPrompt(),
-            messages: [{ role: 'user', content: sentence }]
-          })
-        });
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+          {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+              'content-type': 'application/json',
+              // The header form, not `?key=`. A key in a query string is a key in
+              // every proxy log between here and Google.
+              'x-goog-api-key': config.geminiApiKey()
+            },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemPrompt() }] },
+              contents: [{ role: 'user', parts: [{ text: sentence }] }],
+              generationConfig: {
+                // Gemini can be told to return JSON rather than asked nicely.
+                // Worth having even though parseJson below still runs: one less
+                // way for a code fence to arrive.
+                responseMimeType: 'application/json',
+                maxOutputTokens: MAX_OUTPUT_TOKENS,
+                // Deterministic-ish. This is a parsing job, not a writing one,
+                // and the same sentence should give the same filters — which
+                // also makes the cache worth more.
+                temperature: 0,
+                // 2.5 models think before answering by default, which costs
+                // seconds this route does not have. The task is a lookup against
+                // a list, not a reasoning problem.
+                thinkingConfig: { thinkingBudget: 0 }
+              }
+            })
+          }
+        );
 
         if (!res.ok) {
-          // The body can carry the key back in an error echo, so only the status
-          // is recorded. Nothing here is shown to the shopper either way.
-          throw new Error(`anthropic ${res.status}`);
+          // The body can echo the request back, so only the status is recorded.
+          // Nothing here is shown to the shopper either way.
+          throw new Error(`gemini ${res.status}`);
         }
 
         const payload = await res.json();
-        const text = payload?.content?.find((part) => part.type === 'text')?.text ?? '';
+        // Missing parts is a normal outcome — a blocked or empty candidate looks
+        // exactly like this — and parseJson turns it into null, which the route
+        // treats as "nothing to filter on".
+        const text = payload?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? '';
         return parseJson(text);
       } finally {
         clearTimeout(timer);
@@ -119,7 +149,7 @@ export function parseJson(text) {
 }
 
 export function getAi() {
-  if (!client) client = anthropicClient();
+  if (!client) client = geminiClient();
   return client;
 }
 
