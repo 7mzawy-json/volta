@@ -20,6 +20,22 @@ const lineSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// The address as the checkout form collects it. `_id: false` because this is
+// one address on one order, not a collection.
+const shippingSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, required: true, trim: true },
+    governorate: { type: String, required: true, trim: true },
+    city: { type: String, required: true, trim: true },
+    block: { type: String, required: true, trim: true },
+    street: { type: String, required: true, trim: true },
+    building: { type: String, required: true, trim: true },
+    details: { type: String, trim: true },
+    phone: { type: String, required: true, trim: true }
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -35,6 +51,17 @@ const orderSchema = new mongoose.Schema(
     },
     totalFils: { type: Number, required: true, min: 0 },
     currency: { type: String, required: true, default: 'KWD' },
+
+    // Where this order goes. A SNAPSHOT, like the line prices above: copied at
+    // checkout, never referenced.
+    //
+    // It was missing entirely. Checkout collected a full Kuwaiti address,
+    // validated it, refused to submit without it — and then sent only variant
+    // ids to the API, so a paid order had no destination at all. Pointing at
+    // the user's saved address instead would be wrong twice over: checkout
+    // deliberately lets you deliver somewhere else, and a profile edit
+    // afterwards would rewrite where a past order went.
+    shipping: { type: shippingSchema, required: true },
 
     // What the card was actually debited, which is NOT the dinar total: Stripe
     // cannot settle in KWD, so the charge is converted. Kept so a receipt can
@@ -97,6 +124,18 @@ orderSchema.methods.toPublic = function toPublic() {
     })),
     totalFils: this.totalFils,
     currency: this.currency,
+    shipping: this.shipping
+      ? {
+          fullName: this.shipping.fullName,
+          governorate: this.shipping.governorate,
+          city: this.shipping.city,
+          block: this.shipping.block,
+          street: this.shipping.street,
+          building: this.shipping.building,
+          details: this.shipping.details || '',
+          phone: this.shipping.phone
+        }
+      : null,
     chargeCurrency: this.chargeCurrency,
     chargeAmountMinor: this.chargeAmountMinor,
     status: this.status,

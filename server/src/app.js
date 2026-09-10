@@ -58,12 +58,35 @@ export function createApp() {
   // Last resort. Mongoose validation failures are the client's problem (400);
   // anything else is ours (500), and the detail stays in the log rather than
   // going to the client, where it would leak schema and stack information.
-  app.use((err, _req, res, _next) => {
+  app.use((err, req, res, _next) => {
     if (err?.name === 'ValidationError') {
       return res.status(400).json({ error: 'validationFailed', fields: Object.keys(err.errors || {}) });
     }
     if (err?.name === 'CastError') return res.status(400).json({ error: 'malformedId' });
-    console.error(err);
+
+    // A malformed or oversized body is the CLIENT's mistake, and body-parser
+    // attaches the raw request body to the error it throws. Logging that error
+    // whole copied submitted passwords into the log — a request of
+    // `{"password":"hunter2",` printed the password verbatim, outside the
+    // hashing boundary that exists precisely so plaintext never lands anywhere.
+    // An audit demonstrated it. These are answered as client errors, and
+    // nothing derived from the body is logged.
+    if (err?.type === 'entity.parse.failed') {
+      return res.status(400).json({ error: 'malformedBody' });
+    }
+    if (err?.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'bodyTooLarge' });
+    }
+
+    // An allow-list, never the error object: an error thrown while handling a
+    // request can carry the request with it.
+    console.error('[api] unhandled error', {
+      method: req.method,
+      path: req.path,
+      name: err?.name,
+      message: err?.message,
+      stack: err?.stack
+    });
     return res.status(500).json({ error: 'serverError' });
   });
 

@@ -184,6 +184,47 @@ test('a short new password is refused', async () => {
   assert.equal(res.body.error, 'passwordTooShort');
 });
 
+// Verifying the current password is password GUESSING, exactly as /login is.
+// Only /login and /signup were limited, so somebody holding a borrowed session
+// could exhaust the login limiter and then keep guessing here: an audit ran 21
+// wrong-password attempts through this route and got 21 clean 401s.
+//
+// The threshold is lowered for this test rather than assumed: mounting
+// middleware is not the same as enforcing it, and the whole point of the
+// finding was that nobody had checked. The limiter is keyed per ACCOUNT, so
+// this cannot leak into another test.
+test('guessing the current password is throttled, not unlimited', async () => {
+  // Signed in BEFORE the threshold drops: signup goes through the credential
+  // limiter, and throttling that too would break the setup rather than the
+  // thing under test.
+  const c = await signedIn('throttle@example.com');
+  const previous = process.env.PASSWORD_RATE_LIMIT;
+  process.env.PASSWORD_RATE_LIMIT = '3';
+
+  try {
+    const codes = [];
+    for (let i = 0; i < 5; i += 1) {
+      const res = await c.post('/api/me/password', {
+        currentPassword: 'wrong every time',
+        newPassword: 'a brand new password'
+      });
+      codes.push(res.status);
+    }
+
+    assert.deepEqual(codes, [401, 401, 401, 429, 429], 'the fourth guess must be refused outright');
+
+    // And the account is untouched: the real password still works.
+    const stillMine = await client().post('/api/login', {
+      email: 'throttle@example.com',
+      password: PASSWORD
+    });
+    assert.equal(stillMine.status, 200);
+  } finally {
+    if (previous === undefined) delete process.env.PASSWORD_RATE_LIMIT;
+    else process.env.PASSWORD_RATE_LIMIT = previous;
+  }
+});
+
 // --- deleting the account -----------------------------------------------------
 
 test('deleting an account needs the password', async () => {
@@ -205,6 +246,7 @@ test('deleting removes the account, its reviews and its orders', async () => {
   const me = await User.findOne({ email: 'goodbye@example.com' });
   await Order.create({
     user: me._id,
+    shipping: ADDRESS,
     lines: [{ variantId: 'v', productId: 'p', name: 'n', unitFils: 1000, qty: 1 }],
     totalFils: 1000
   });

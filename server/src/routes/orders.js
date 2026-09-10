@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { Order } from '../models/Order.js';
@@ -6,6 +7,7 @@ import { config } from '../env.js';
 import { getStripe } from '../stripe.js';
 import { findVariant } from '../../../src/data/products.js';
 import { chargeCurrencyFor, toStripeAmount } from '../../../src/data/currencies.js';
+import { addressErrors, readAddress } from '../address.js';
 
 export const ordersRouter = Router();
 
@@ -17,7 +19,11 @@ const checkoutLimiter = rateLimit({
   // Configurable so the test suite does not trip over it: every test shares one
   // IP, so a few dozen checkouts in one run look exactly like abuse. The
   // middleware still runs — only the threshold moves.
-  limit: Number(process.env.CHECKOUT_RATE_LIMIT || 20),
+  // A function, not a constant: read per request so a test can lower it and
+  // watch the 429 actually happen, instead of trusting that the middleware is
+  // mounted. It was mounted on /login and not on the profile routes, and only
+  // an audit noticed.
+  limit: () => Number(process.env.CHECKOUT_RATE_LIMIT || 20),
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: { error: 'tooManyAttempts' }
@@ -48,12 +54,27 @@ export function priceCart(items) {
     throw Object.assign(new Error('emptyCart'), { status: 400 });
   }
 
-  const lines = items.map((item) => {
-    const found = findVariant(String(item?.variantId || ''));
+  // Merged by variant BEFORE anything is checked.
+  //
+  // Stock and the per-line quantity cap used to be tested one line at a time,
+  // so fourteen separate lines of one unit each passed a thirteen-unit stock
+  // check fourteen times over. An audit did exactly that. The same trick beat
+  // the quantity cap. Merging first means both limits see the real total.
+  const merged = new Map();
+  for (const item of items) {
+    const id = String(item?.variantId || '');
+    const qty = Number(item?.qty);
+    if (!Number.isInteger(qty) || qty < 1) {
+      throw Object.assign(new Error('invalidQuantity'), { status: 400 });
+    }
+    merged.set(id, (merged.get(id) || 0) + qty);
+  }
+
+  const lines = [...merged].map(([variantId, qty]) => {
+    const found = findVariant(variantId);
     if (!found) throw Object.assign(new Error('unknownVariant'), { status: 400 });
 
-    const qty = Number(item?.qty);
-    if (!Number.isInteger(qty) || qty < 1 || qty > 20) {
+    if (qty > 20) {
       throw Object.assign(new Error('invalidQuantity'), { status: 400 });
     }
     if (found.variant.stock < qty) {
@@ -136,16 +157,38 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
 
     const { lines, totalFils } = priceCart(req.body?.items);
 
+    // Where it is going. Required: an order without a destination is not an
+    // order. Validated with the SAME rules as the browser form and the saved
+    // profile address, so a request made outside the form cannot smuggle in an
+    // address the form would have refused.
+    const shipping = readAddress(req.body?.shipping);
+    const shippingProblems = addressErrors(shipping);
+    if (Object.keys(shippingProblems).length) {
+      return res.status(400).json({ error: 'invalidAddress', fields: shippingProblems });
+    }
+
     if (order) {
-      order.set({ lines, totalFils, currency: 'KWD' });
+      order.set({ lines, totalFils, currency: 'KWD', shipping });
       await order.save();
+    } else if (idempotencyKey) {
+      // Claimed atomically rather than inserted.
+      //
+      // Two simultaneous first attempts with one key used to race: one inserted
+      // and the other lost to the unique index, turning a double-click into a
+      // 500. An upsert makes the second one find the first's row instead. The
+      // 11000 catch below covers the narrow window where both reach the insert.
+      order = await Order.findOneAndUpdate(
+        { user: req.user._id, idempotencyKey },
+        { $set: { lines, totalFils, currency: 'KWD', shipping } },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+      );
     } else {
       order = await Order.create({
         user: req.user._id,
         lines,
         totalFils,
         currency: 'KWD',
-        idempotencyKey
+        shipping
       });
     }
 
@@ -153,20 +196,49 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
     // currency when the account supports it and in dollars otherwise. The order
     // keeps its dinar total; this is only what the card is actually debited.
     const charge = chargeCurrencyFor(req.body?.displayCurrency);
-    const totalDinar = totalFils / FILS_PER_DINAR;
+
+    // Built once, then both SENT to Stripe and summed for the record.
+    //
+    // The stored charge used to be a separate calculation — the whole dinar
+    // total converted and rounded once — while Stripe was billed a rounded
+    // amount per unit, multiplied by quantity. Those are not the same number.
+    // An audit found a two-unit order recorded as USD 2,542.93 while the card
+    // was asked for USD 2,542.92. Whatever is charged is now what is recorded,
+    // by construction rather than by agreement.
+    const lineItems = lines.map((l) => ({
+      quantity: l.qty,
+      price_data: {
+        currency: charge.code.toLowerCase(),
+        unit_amount: toStripeAmount(l.unitFils / FILS_PER_DINAR, charge.code),
+        product_data: { name: l.name }
+      }
+    }));
+    const chargeAmountMinor = lineItems.reduce(
+      (sum, item) => sum + item.price_data.unit_amount * item.quantity,
+      0
+    );
+
+    // Stripe's own idempotency, on top of ours.
+    //
+    // Ours stops a second ORDER being created; it did nothing about a second
+    // SESSION, because two requests arriving before either had saved a URL both
+    // sailed past the reuse check and both called Stripe. An audit produced two
+    // payable sessions for one order that way. This key makes Stripe return the
+    // first session to the second caller instead of creating another.
+    //
+    // Derived from the order and from what is being bought, so an honest retry
+    // collapses while a genuinely different cart — same browser key, edited
+    // basket — still gets its own session rather than the stale one.
+    const stripeIdempotencyKey = `order:${order._id}:${createHash('sha256')
+      .update(JSON.stringify({ lineItems, email: req.user.email }))
+      .digest('hex')
+      .slice(0, 32)}`;
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       customer_email: req.user.email,
-      line_items: lines.map((l) => ({
-        quantity: l.qty,
-        price_data: {
-          currency: charge.code.toLowerCase(),
-          unit_amount: toStripeAmount(l.unitFils / FILS_PER_DINAR, charge.code),
-          product_data: { name: l.name }
-        }
-      })),
+      line_items: lineItems,
       // The id travels with the session so the webhook knows which row to
       // complete without trusting anything the browser sends back.
       client_reference_id: String(order._id),
@@ -179,12 +251,12 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
       },
       success_url: `${config.siteOrigin}/orders/${order._id}?checkout=success`,
       cancel_url: `${config.siteOrigin}/checkout?checkout=cancelled`
-    });
+    }, { idempotencyKey: stripeIdempotencyKey });
 
     order.stripeSessionId = session.id;
     order.stripeCheckoutUrl = session.url;
     order.chargeCurrency = charge.code;
-    order.chargeAmountMinor = toStripeAmount(totalDinar, charge.code);
+    order.chargeAmountMinor = chargeAmountMinor;
     await order.save();
 
     return res.status(201).json({
@@ -195,6 +267,21 @@ ordersRouter.post('/checkout/session', requireUser, checkoutLimiter, async (req,
     });
   } catch (err) {
     if (err?.status) return res.status(err.status).json({ error: err.message });
+    // Both attempts reached the insert at once. The row the other one wrote is
+    // the answer, not a 500.
+    if (err?.code === 11000) {
+      const existing = await Order.findOne({
+        user: req.user._id,
+        idempotencyKey: String(req.body?.idempotencyKey || '')
+      });
+      if (existing?.stripeCheckoutUrl) {
+        return res.status(200).json({
+          orderId: existing._id.toString(),
+          url: existing.stripeCheckoutUrl,
+          reused: true
+        });
+      }
+    }
     return next(err);
   }
 });

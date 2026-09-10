@@ -103,6 +103,22 @@ export default function Checkout() {
 
       const { url } = await api.post('/checkout/session', {
         items: lineItems.map((l) => ({ variantId: l.variant.id, qty: l.qty })),
+        // Where it goes. This form collected a full Kuwaiti address, refused to
+        // submit without one — and then sent only variant ids, so every paid
+        // order arrived with no destination. The API validates it again with
+        // the same rules and stores a snapshot on the order, which is why this
+        // is sent per order rather than read from the profile: a gift can go
+        // somewhere else, and editing the profile later must not move it.
+        shipping: {
+          fullName: form.fullName,
+          governorate: form.governorate,
+          city: form.city,
+          block: form.block,
+          street: form.street,
+          building: form.building,
+          details: form.details,
+          phone: form.phone
+        },
         idempotencyKey: attemptKey.current,
         // Stripe charges in this when the account supports it, and in dollars
         // when it does not — which is the case for the dinar.

@@ -2,6 +2,17 @@ import test, { before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { client, reset, signUp, startTestServer, stopTestServer } from './helpers.js';
 
+// An order needs a destination, so a directly-created fixture needs one too.
+const SHIPPING = {
+  fullName: 'Noura Al-Sabah',
+  governorate: 'capital',
+  city: 'Salmiya',
+  block: '3',
+  street: '40',
+  building: '12A',
+  phone: '55551234'
+};
+
 before(startTestServer);
 after(stopTestServer);
 beforeEach(reset);
@@ -141,6 +152,7 @@ test('an order belonging to someone else is 404, not 403', async () => {
   const { User } = await import('../src/models/User.js');
   const her = await User.findOne({ email: 'noura@example.com' });
   const order = await Order.create({
+    shipping: SHIPPING,
     user: her._id,
     lines: [{ variantId: 'v', productId: 'p', name: 'n', unitFils: 1000, qty: 1 }],
     totalFils: 1000

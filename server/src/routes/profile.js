@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { User } from '../models/User.js';
 import { Review } from '../models/Review.js';
 import { Order } from '../models/Order.js';
 import { SESSION_COOKIE, requireUser, sessionCookieOptions } from '../middleware/auth.js';
-import { validateCheckout } from '../../../src/pages/Checkout/checkoutValidation.js';
+import { addressErrors, readAddress } from '../address.js';
+import { passwordProblem } from '../passwords.js';
 
 export const profileRouter = Router();
 
@@ -11,41 +13,34 @@ export const profileRouter = Router();
 // takes a user id, so there is no id to tamper with: you cannot ask to edit
 // somebody else because there is nowhere to say whose account you mean.
 
-const MIN_PASSWORD = 8;
-const MAX_PASSWORD = 200;
-
-const ADDRESS_FIELDS = [
-  'fullName',
-  'governorate',
-  'city',
-  'block',
-  'street',
-  'building',
-  // Optional. validateCheckout ignores it, which is the point: it is a free-text
-  // floor or flat number, not part of a Kuwaiti address's structure.
-  'details',
-  'phone'
-];
-
-// Coerced to strings first. The validator is shared with the browser form, where
-// every value is already a string; over HTTP a field can arrive as a number, an
-// object or an array, and `.trim()` on one of those is a 500 rather than a 400.
-function readAddress(input) {
-  const address = {};
-  for (const field of ADDRESS_FIELDS) {
-    const value = input?.[field];
-    address[field] = typeof value === 'string' ? value.trim() : value == null ? '' : String(value).trim();
-  }
-  return address;
-}
-
-// Validated by the checkout's OWN function rather than a second copy of the
-// rules, so the form, this page and the API cannot drift apart. Passing 'stripe'
-// selects its card-less branch, so what comes back is exactly the address and
-// recipient errors.
-function addressErrors(address) {
-  return validateCheckout(address, 'stripe');
-}
+// Both routes below verify the current password, which makes them password
+// GUESSING routes as surely as /login is. Only /login and /signup were limited,
+// so somebody holding a borrowed session could exhaust the login limiter and
+// then keep guessing here, unthrottled, at the password that authorises
+// deleting the account. An audit ran 21 consecutive wrong-password attempts and
+// got 21 clean 401s.
+//
+// Keyed per ACCOUNT as well as per address: one attacker on many addresses is
+// the shape of the attack this route actually faces, and the session already
+// names the account being attacked.
+const passwordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  // Configurable for the same reason as the other two: the whole suite shares
+  // one IP. The middleware still runs — only the threshold moves.
+  // A function, not a constant: read per request so a test can lower it and
+  // watch the 429 actually happen, instead of trusting that the middleware is
+  // mounted. It was mounted on /login and not on the profile routes, and only
+  // an audit noticed.
+  // Its own variable, falling back to the shared credential one. Separate so a
+  // test can throttle THIS route without also throttling the signup it needs to
+  // set the test up — the credential limiter is keyed per address, this one per
+  // account, and lowering both at once made the suite fight itself.
+  limit: () => Number(process.env.PASSWORD_RATE_LIMIT || process.env.CREDENTIAL_RATE_LIMIT || 20),
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => `pw:${req.user?._id ?? 'anonymous'}`,
+  message: { error: 'tooManyAttempts' }
+});
 
 // Update name, email and/or address. Every field is optional; only what is sent
 // is touched, so the address form cannot blank the name by omitting it.
@@ -95,13 +90,13 @@ profileRouter.patch('/me', requireUser, async (req, res, next) => {
 // Changing a password requires the CURRENT one, even though the session already
 // proves who you are. A stolen session should not be enough to lock the real
 // owner out of their own account.
-profileRouter.post('/me/password', requireUser, async (req, res, next) => {
+profileRouter.post('/me/password', requireUser, passwordLimiter, async (req, res, next) => {
   try {
     const current = String(req.body?.currentPassword || '');
     const next_ = String(req.body?.newPassword || '');
 
-    if (next_.length < MIN_PASSWORD) return res.status(400).json({ error: 'passwordTooShort' });
-    if (next_.length > MAX_PASSWORD) return res.status(400).json({ error: 'passwordTooLong' });
+    const problem = passwordProblem(next_);
+    if (problem) return res.status(400).json({ error: problem });
 
     const withHash = await User.findById(req.user._id).select('+passwordHash');
     if (!(await withHash.verifyPassword(current))) {
@@ -126,7 +121,7 @@ profileRouter.post('/me/password', requireUser, async (req, res, next) => {
 // tax, with the customer detached instead. This is a coursework storefront with
 // no real money in it, and "delete my account" meaning "delete my data" is the
 // more honest behaviour here; the divergence is deliberate, not overlooked.
-profileRouter.delete('/me', requireUser, async (req, res, next) => {
+profileRouter.delete('/me', requireUser, passwordLimiter, async (req, res, next) => {
   try {
     const password = String(req.body?.password || '');
     const withHash = await User.findById(req.user._id).select('+passwordHash');

@@ -2,21 +2,20 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { User } from '../models/User.js';
 import { SESSION_COOKIE, requireUser, sessionCookieOptions, signSession } from '../middleware/auth.js';
+import { passwordProblem } from '../passwords.js';
 
 export const authRouter = Router();
-
-// Password rules, kept deliberately short: a length floor and nothing else.
-// Composition rules ("one symbol, one capital") push people toward Passw0rd!
-// and are no longer recommended by NIST. Length is what actually helps.
-const MIN_PASSWORD = 8;
-const MAX_PASSWORD = 200; // bcrypt truncates past 72 bytes; refuse long input rather than silently ignore it
 
 // Credential stuffing is the realistic attack on a storefront login. This is
 // per-IP and coarse, but it turns an unlimited guessing loop into a slow one.
 const credentialLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   // Same reasoning as the checkout limiter: raised for tests, not removed.
-  limit: Number(process.env.CREDENTIAL_RATE_LIMIT || 20),
+  // A function, not a constant: read per request so a test can lower it and
+  // watch the 429 actually happen, instead of trusting that the middleware is
+  // mounted. It was mounted on /login and not on the profile routes, and only
+  // an audit noticed.
+  limit: () => Number(process.env.CREDENTIAL_RATE_LIMIT || 20),
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: { error: 'tooManyAttempts' }
@@ -29,8 +28,8 @@ authRouter.post('/signup', credentialLimiter, async (req, res, next) => {
     const password = String(req.body?.password || '');
 
     if (!email || !name) return res.status(400).json({ error: 'missingFields' });
-    if (password.length < MIN_PASSWORD) return res.status(400).json({ error: 'passwordTooShort' });
-    if (password.length > MAX_PASSWORD) return res.status(400).json({ error: 'passwordTooLong' });
+    const problem = passwordProblem(password);
+    if (problem) return res.status(400).json({ error: problem });
 
     // Telling someone their email is already registered is a disclosure, but
     // refusing to say so makes signup unusable — they cannot tell a taken
