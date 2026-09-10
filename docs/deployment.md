@@ -153,6 +153,24 @@ Both Render and Vercel deploy from GitHub, so anything not pushed will not be de
    - **Root Directory**: leave at the repository root — *not* `server`
    - **Framework Preset**: Vite. Build command and output directory come from
      [`vercel.json`](../vercel.json); leave them alone.
+### What the two rewrites in `vercel.json` are for
+
+`vercel.json` carries no comments. Vercel validates it strictly and rejects any
+property it does not recognise — including the `"//"` key that some tooling accepts
+as a comment — so the reasoning lives here instead.
+
+**`/api/:path*` → the Render service.** The browser only ever talks to the Vercel
+origin, never to Render directly. That is deliberate: a same-origin proxy keeps the
+session cookie **first-party**, so it needs neither `SameSite=None` nor CORS, and
+browsers are actively phasing third-party cookies out. It is also why the API sets
+the cookie `SameSite=Lax`. The destination host must match the service Render
+actually created — see the suffix warning above.
+
+**`/(.*)` → `/index.html`.** The SPA fallback. Vercel checks the filesystem *before*
+applying rewrites, so the 46 prerendered route files still serve themselves and their
+own Open Graph tags; this only catches paths that match no file, and lets React
+Router render the storefront's own 404 page.
+
 3. **Environment Variables** → add one:
 
    | Variable | Value |
