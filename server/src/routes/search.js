@@ -53,10 +53,19 @@ searchRouter.post('/search/intent', intentLimiter, async (req, res, next) => {
     let raw = null;
     try {
       raw = await getAi().readIntent(sentence);
-    } catch {
-      // Timeout, rate limit, outage — all the same answer. The detail is not
-      // the shopper's problem and the fallback is already good.
-      return res.status(503).json({ error: 'aiUnavailable' });
+    } catch (err) {
+      // Timeout, rate limit, outage — all the same answer to the SHOPPER, whose
+      // fallback is already good and who cannot act on the reason.
+      //
+      // The upstream status and Google's own machine code do travel, because
+      // whoever configured the key is the only person who can fix a 403, and
+      // "aiUnavailable" alone told them nothing. Neither is a secret: no key, no
+      // request body, no prose. The browser ignores both.
+      return res.status(503).json({
+        error: 'aiUnavailable',
+        upstream: err?.upstreamStatus ?? null,
+        reason: err?.upstreamReason ?? (err?.name === 'AbortError' ? 'timeout' : null)
+      });
     }
 
     // THE WALL. Everything the model said passes through here before it means

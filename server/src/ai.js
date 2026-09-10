@@ -113,9 +113,26 @@ function geminiClient() {
         );
 
         if (!res.ok) {
-          // The body can echo the request back, so only the status is recorded.
-          // Nothing here is shown to the shopper either way.
-          throw new Error(`gemini ${res.status}`);
+          // The STATUS travels, the body does not.
+          //
+          // A number is enough to tell a wrong key (400) from a disabled API or
+          // a restricted key (403) from an unavailable model (404) from an
+          // exhausted quota (429) — and the first live attempt failed in 0.7s
+          // with no way to tell which, because this used to throw a bare error
+          // and the route swallowed it. Google's error BODY can echo the request
+          // back, so it stays here.
+          //
+          // `reason` is Google's own machine code (API_KEY_INVALID,
+          // SERVICE_DISABLED…), which is a diagnosis rather than a secret. If
+          // reading it fails for any reason, the status alone still travels.
+          let reason = null;
+          try {
+            const problem = await res.json();
+            reason = problem?.error?.details?.find((d) => d.reason)?.reason || problem?.error?.status || null;
+          } catch {
+            /* a non-JSON error page; the status is the whole story */
+          }
+          throw Object.assign(new Error(`gemini ${res.status}`), { upstreamStatus: res.status, upstreamReason: reason });
         }
 
         const payload = await res.json();
