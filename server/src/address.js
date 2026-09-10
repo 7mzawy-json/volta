@@ -5,8 +5,8 @@ import { validateCheckout } from '../../src/pages/Checkout/checkoutValidation.js
 //
 // Validated by the CHECKOUT's own function rather than a second copy of the
 // rules, so the browser form, the saved address and the order snapshot cannot
-// drift apart. Passing 'stripe' selects its card-less branch, so what comes back
-// is exactly the address and recipient errors.
+// drift apart. That function is address-only now — the card fields it used to
+// validate belonged to demo payment methods that no longer exist.
 
 export const ADDRESS_FIELDS = [
   'fullName',
@@ -34,5 +34,5 @@ export function readAddress(input) {
 }
 
 export function addressErrors(address) {
-  return validateCheckout(address, 'stripe');
+  return validateCheckout(address);
 }

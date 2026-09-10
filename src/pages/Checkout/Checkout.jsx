@@ -13,6 +13,36 @@ import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
 import { validateCheckout } from './checkoutValidation.js';
 
+// One payment path: Stripe, in test mode.
+//
+// There used to be four tiles — Stripe, Visa, Mastercard, Apple Pay. Only the
+// first took money; the other three were left over from before there was a
+// payment provider. They collected a made-up card number, showed a confirmation
+// page with a random order number, and recorded nothing at all, so an order
+// placed that way could never appear in My Orders. That is exactly how it was
+// reported: "I made a dummy order… there is no place to see my past orders."
+//
+// A choice between one real method and three that quietly do nothing is not a
+// choice worth offering. Stripe's own test mode is the safe demo — a real
+// checkout against a real provider, with a test card and no real money.
+
+// Where the half-filled form waits while its owner signs in.
+//
+// Checkout unmounts when the router goes to /login, taking its state with it, so
+// somebody who typed a full Kuwaiti address and then discovered they needed an
+// account came back to an empty form. sessionStorage rather than local: this is
+// one interrupted purchase, not a preference, and it should not outlive the tab.
+const DRAFT_KEY = 'volta-checkout-draft';
+
+function readDraft() {
+  try {
+    const saved = sessionStorage.getItem(DRAFT_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
 const emptyForm = {
   fullName: '',
   governorate: '',
@@ -21,31 +51,40 @@ const emptyForm = {
   street: '',
   building: '',
   details: '',
-  phone: '',
-  cardNumber: '',
-  expiry: '',
-  cvc: ''
+  phone: ''
 };
 
-const paymentMethods = [
-  // First and default: the only one that actually takes money. The others are
-  // demo affordances kept from before there was a payment provider.
-  { id: 'stripe', label: 'Stripe' },
-  { id: 'visa', label: 'Visa' },
-  { id: 'mastercard', label: 'Mastercard' },
-  { id: 'applepay', label: 'Apple Pay' }
-];
+// Focus lands on the first problem in READING order, not in object-key order.
+const FIELD_ORDER = ['fullName', 'governorate', 'city', 'block', 'street', 'building', 'phone'];
 
 export default function Checkout() {
   const { lang, t } = useLanguage();
   const money = useMoney();
-  const { lineItems, subtotal, clearCart } = useCart();
+  const { lineItems, subtotal } = useCart();
   const navigate = useNavigate();
 
   const { user, isReady } = useAuth();
 
-  const [form, setForm] = useState(emptyForm);
-  const [payment, setPayment] = useState('stripe');
+  const [form, setForm] = useState(() => ({ ...emptyForm, ...(readDraft() || {}) }));
+
+  // Read once, then cleared: a draft is for the trip through the login page, not
+  // for every future visit to checkout.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* private mode; the form simply starts empty */
+    }
+  }, []);
+
+  const navigateToLogin = () => {
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+    } catch {
+      /* the address is lost rather than the purchase — nothing to do here */
+    }
+    navigate('/login', { state: { next: '/checkout' } });
+  };
 
   // Fill the address in from the account once the session check comes back.
   //
@@ -76,23 +115,20 @@ export default function Checkout() {
   // aria-invalid was not set yet, so focus never moved. Refs point at the real
   // inputs and are valid immediately.
   const inputs = useRef({});
-  const FIELD_ORDER = ['fullName', 'governorate', 'city', 'block', 'street', 'building', 'phone', 'cardNumber', 'expiry', 'cvc'];
   const [submitted, setSubmitted] = useState(false);
 
   if (lineItems.length === 0) return <Navigate to="/cart" replace />;
-
-  const needsCard = payment !== 'applepay' && payment !== 'stripe';
 
   const update = (key) => (e) => {
     const values = { ...form, [key]: e.target.value };
     setForm(values);
     // Errors only re-evaluate after a first failed submit, so the form does not
     // scold someone while they are still typing their first character.
-    if (submitted) setErrors(validateCheckout(values, payment));
+    if (submitted) setErrors(validateCheckout(values));
   };
 
-  // Stripe path: hand the cart to the API, which prices it from the catalogue
-  // and returns a hosted Checkout URL. The browser never sees or sends a price.
+  // Hand the cart to the API, which prices it from the catalogue and returns a
+  // hosted Checkout URL. The browser never sees or sends a price.
   async function payWithStripe() {
     setPayErrorCode(null);
     setRedirecting(true);
@@ -110,16 +146,7 @@ export default function Checkout() {
         // the same rules and stores a snapshot on the order, which is why this
         // is sent per order rather than read from the profile: a gift can go
         // somewhere else, and editing the profile later must not move it.
-        shipping: {
-          fullName: form.fullName,
-          governorate: form.governorate,
-          city: form.city,
-          block: form.block,
-          street: form.street,
-          building: form.building,
-          details: form.details,
-          phone: form.phone
-        },
+        shipping: { ...form },
         idempotencyKey: attemptKey.current,
         // Stripe charges in this when the account supports it, and in dollars
         // when it does not — which is the case for the dinar.
@@ -136,7 +163,7 @@ export default function Checkout() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
-    const found = validateCheckout(form, payment);
+    const found = validateCheckout(form);
     setErrors(found);
     if (Object.keys(found).length) {
       const firstKey = FIELD_ORDER.find((k) => found[k]);
@@ -144,31 +171,21 @@ export default function Checkout() {
       return;
     }
 
-    // Address is valid. Stripe now takes over — the cart is NOT cleared here,
-    // because the shopper has not paid yet and may back out of Stripe's page.
-    // OrderDetail clears it once the webhook confirms payment.
-    if (payment === 'stripe') {
-      payWithStripe();
+    // An order has to belong to somebody, so this is the point where an account
+    // is needed. The button used to VANISH when signed out, replaced by a login
+    // link — so the form could be filled in and then not submitted at all, and
+    // pressing the only available control threw the typed address away. Now the
+    // button submits, the address is validated first, and the draft travels
+    // through the login page and back.
+    if (!user) {
+      navigateToLogin();
       return;
     }
 
-    // Snapshot the order BEFORE clearing the cart. The confirmation page has to
-    // show what was bought, and by the time it renders the cart is empty.
-    const order = {
-      id: Math.floor(1000 + Math.random() * 9000),
-      total: subtotal,
-      lines: lineItems.map(({ variantId, qty, product, variant }) => ({
-        variantId,
-        qty,
-        name: product.name,
-        storage: variant.storage || null,
-        color: variant.color || null,
-        price: variant.price
-      }))
-    };
-
-    clearCart();
-    navigate('/confirmation', { state: { order } });
+    // The cart is NOT cleared here: the shopper has not paid yet and may back
+    // out of Stripe's page. OrderDetail removes the paid lines once the webhook
+    // confirms payment.
+    payWithStripe();
   };
 
   const field = (key, label, extra = {}) => (
@@ -248,65 +265,6 @@ export default function Checkout() {
               })}
             </div>
           </section>
-
-          <section className={styles.block}>
-            <h2>{t.checkout.payment}</h2>
-
-            {/* A real radiogroup: these were styled buttons, which gave no group
-                semantics, no arrow-key navigation and no announced selection. */}
-            <div
-              className={styles.paymentOptions}
-              role="radiogroup"
-              aria-label={t.checkout.payment}
-            >
-              {paymentMethods.map((m) => (
-                <label
-                  key={m.id}
-                  className={`${styles.paymentOption} ${payment === m.id ? styles.paymentActive : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={m.id}
-                    checked={payment === m.id}
-                    onChange={() => {
-                      setPayment(m.id);
-                      if (submitted) setErrors(validateCheckout(form, m.id));
-                    }}
-                    className={styles.paymentInput}
-                  />
-                  {m.label}
-                </label>
-              ))}
-            </div>
-
-            {needsCard && (
-              <div className={styles.fieldRow}>
-                {/* autoComplete is deliberately OFF on the card fields. This demo
-                    never processes a payment, so inviting the browser to autofill
-                    someone's real card into it would be careless. Shipping fields
-                    keep autocomplete, where it only helps. */}
-                {field('cardNumber', t.checkout.cardNumber, {
-                  placeholder: '4242 4242 4242 4242',
-                  inputMode: 'numeric',
-                  autoComplete: 'off',
-                  maxLength: 19
-                })}
-                {field('expiry', t.checkout.expiry, {
-                  placeholder: 'MM/YY',
-                  inputMode: 'numeric',
-                  autoComplete: 'off',
-                  maxLength: 5
-                })}
-                {field('cvc', t.checkout.cvc, {
-                  placeholder: '123',
-                  inputMode: 'numeric',
-                  autoComplete: 'off',
-                  maxLength: 3
-                })}
-              </div>
-            )}
-          </section>
         </div>
 
         <aside className={styles.summary}>
@@ -329,49 +287,34 @@ export default function Checkout() {
             <span>{t.cart.total}</span>
             <span>{money(subtotal)}</span>
           </div>
-          {payment === 'stripe' && payErrorCode && (
+          {payErrorCode && (
             <p className={styles.payError} role="alert">
               {t.apiErrors[payErrorCode] || t.apiErrors.serverError}
             </p>
           )}
 
           {/* Payment needs an account, because an order has to belong to
-              somebody. Said before the button rather than after a failed press. */}
-          {payment === 'stripe' && isReady && !user ? (
-            <>
-              <p className={styles.payNote}>{t.pay.signInFirst}</p>
-              <Button
-                variant="primary"
-                fullWidth
-                to="/login"
-                state={{ next: '/checkout' }}
-              >
-                {t.account.signIn}
-              </Button>
-            </>
-          ) : (
-            <Button type="submit" variant="primary" fullWidth disabled={redirecting}>
-              {payment === 'stripe'
-                ? redirecting
-                  ? t.pay.redirecting
-                  : t.pay.cta
-                : t.checkout.placeOrder}
-            </Button>
-          )}
+              somebody. Said before the button rather than after a failed press —
+              but the button is still THE button. Replacing it with a login link
+              left the address form with nothing to submit it. */}
+          {isReady && !user && <p className={styles.payNote}>{t.pay.signInFirst}</p>}
+          <Button type="submit" variant="primary" fullWidth disabled={redirecting}>
+            {isReady && !user
+              ? t.pay.signInAndPay
+              : redirecting
+                ? t.pay.redirecting
+                : t.pay.cta}
+          </Button>
 
-          {payment === 'stripe' && (
-            <>
-              {/* Said BEFORE the button, not discovered on Stripe's page. A
-                  shopper reading dinar prices whose card is debited in dollars
-                  should be told by us, not surprised by the provider. */}
-              {chargeCurrency !== currencyCode && (
-                <p className={styles.payNote}>
-                  {t.pay.chargedIn.replace('{currency}', chargeCurrency)}
-                </p>
-              )}
-              <p className={styles.payNote}>{t.pay.testMode}</p>
-            </>
+          {/* Said BEFORE the button, not discovered on Stripe's page. A shopper
+              reading dinar prices whose card is debited in dollars should be
+              told by us, not surprised by the provider. */}
+          {chargeCurrency !== currencyCode && (
+            <p className={styles.payNote}>
+              {t.pay.chargedIn.replace('{currency}', chargeCurrency)}
+            </p>
           )}
+          <p className={styles.payNote}>{t.pay.testMode}</p>
         </aside>
       </form>
     </main>

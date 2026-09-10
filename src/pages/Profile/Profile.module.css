@@ -50,6 +50,55 @@
   font-size: var(--primitive-fontSize-lg);
 }
 
+/* The route into the orders list. A card like the others, so it reads as part
+   of the page rather than as a stray link. */
+.ordersLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius);
+  box-shadow: var(--card-shadow);
+  padding: clamp(16px, 3.5vw, 22px) clamp(18px, 4vw, 26px);
+  color: var(--color-foreground);
+  min-height: 44px;
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.ordersLink:hover {
+  border-color: var(--color-primary);
+}
+
+.ordersLink:focus-visible {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 2px;
+}
+
+.ordersLink > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ordersLink svg {
+  flex: none;
+  color: var(--color-primary);
+}
+
+/* The chevron points forward, which is left in Arabic. */
+[dir='rtl'] .ordersLink svg {
+  transform: scaleX(-1);
+}
+
+.ordersLead {
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
 /* --- forms ------------------------------------------------------------------ */
 
 .form {

@@ -27,7 +27,6 @@ function pageText(pathname, t) {
     '/products': { title: `${t.nav.products} | ${t.brand}`, description: t.meta.products },
     '/cart': { title: `${t.cart.title} | ${t.brand}`, description: t.meta.cart },
     '/checkout': { title: `${t.checkout.title} | ${t.brand}`, description: t.meta.checkout },
-    '/confirmation': { title: `${t.confirmation.title} | ${t.brand}`, description: t.meta.confirmation },
     '/wishlist': { title: `${t.nav.wishlist} | ${t.brand}`, description: t.meta.wishlist },
     '/compare': { title: `${t.compare.title} | ${t.brand}`, description: t.meta.compare },
     '/login': { title: `${t.account.signIn} | ${t.brand}`, description: t.meta.login },

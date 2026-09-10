@@ -141,19 +141,8 @@ export const copy = {
       building: 'منزل / مبنى',
       details: 'طابق أو شقة (اختياري)',
       phone: 'رقم الهاتف',
-      payment: 'طريقة الدفع',
-      cardNumber: 'رقم البطاقة',
-      expiry: 'تاريخ الانتهاء',
-      cvc: 'CVC',
-      placeOrder: 'تأكيد الطلب',
       orderSummary: 'ملخص الطلب',
       demoNotice: 'الدفع يمر فعلاً عبر Stripe في الوضع التجريبي — عملية حقيقية بدون أي مبلغ حقيقي.'
-    },
-    confirmation: {
-      title: 'تم الطلب بنجاح!',
-      message: 'شكرًا لك — طلبك رقم',
-      onTheWay: 'في الطريق إليك.',
-      continue: 'متابعة التسوق'
     },
     wishlist: {
       empty: 'قائمة المفضلة فارغة — خلّها ما تضل فاضية.'
@@ -263,7 +252,8 @@ export const copy = {
       testMode: 'وضع تجريبي: استخدم البطاقة 4242 4242 4242 4242، أي تاريخ مستقبلي وأي رمز CVC.',
       chargedIn: 'الخصم يتم بعملة {currency} — الدينار الكويتي غير مدعوم لدى مزوّد الدفع.',
       redirecting: 'نحوّلك للدفع…',
-      signInFirst: 'سجّل دخولك عشان تكمل الدفع.'
+      signInFirst: 'سجّل دخولك عشان تكمل الدفع — عنوانك محفوظ وترجع له.',
+      signInAndPay: 'سجّل دخولك وأكمل الدفع'
     },
     apiErrors: {
       invalidCredentials: 'البريد أو كلمة المرور غير صحيحة.',
@@ -329,9 +319,6 @@ export const copy = {
       governorate: 'اختر محافظة من القائمة',
       addressPart: 'أدخل رقم أو اسم قصير وصحيح',
       phone: 'رقم هاتف كويتي من ٨ أرقام يبدأ بـ ٥ أو ٦ أو ٩',
-      cardNumber: 'رقم البطاقة لازم يكون ١٦ رقم',
-      expiry: 'استخدم تاريخ صالح وغير منتهي بصيغة شهر/سنة',
-      cvc: 'الرمز لازم يكون ٣ أرقام'
     },
     notFound: {
       title: 'ما لقينا الصفحة',
@@ -343,7 +330,6 @@ export const copy = {
       products: 'تسوق هواتف وإكسسوارات مختارة للكويت، مع أسعار واضحة وخيارات اللون والسعة في صفحة واحدة.',
       cart: 'راجع الأجهزة والإكسسوارات والكميات التي اخترتها قبل الانتقال إلى الدفع التجريبي في فولتا.',
       checkout: 'أدخل عنوان التوصيل الكويتي واختر طريقة الدفع لإكمال تجربة شراء فولتا بدون أي عملية دفع حقيقية.',
-      confirmation: 'راجع تأكيد الطلب وملخص المنتجات بعد إكمال تجربة الشراء التجريبية من فولتا.',
       wishlist: 'احفظ الهواتف والإكسسوارات التي أعجبتك وارجع لها بسرعة عندما تكون مستعدًا للاختيار.',
       compare: 'قارن أسعار الهواتف وشاشاتها وكاميراتها وبطارياتها جنبًا إلى جنب لتختار الجهاز الأنسب لك.',
       login: 'سجّل دخولك إلى فولتا لمتابعة طلباتك وكتابة تقييماتك.',
@@ -488,19 +474,8 @@ export const copy = {
       building: 'House / building',
       details: 'Floor or apartment (optional)',
       phone: 'Phone Number',
-      payment: 'Payment Method',
-      cardNumber: 'Card Number',
-      expiry: 'Expiry',
-      cvc: 'CVC',
-      placeOrder: 'Place Order',
       orderSummary: 'Order Summary',
       demoNotice: 'Payment really does go through Stripe, in test mode — a real checkout with no real money.'
-    },
-    confirmation: {
-      title: 'Order Confirmed!',
-      message: 'Thank you — your order',
-      onTheWay: 'is on its way.',
-      continue: 'Continue Shopping'
     },
     wishlist: {
       empty: "Your wishlist's empty — let's fix that."
@@ -604,7 +579,8 @@ export const copy = {
       testMode: 'Test mode: use card 4242 4242 4242 4242, any future date and any CVC.',
       chargedIn: 'Your card is charged in {currency} — our payment provider cannot settle Kuwaiti dinar.',
       redirecting: 'Taking you to payment…',
-      signInFirst: 'Log in to complete your payment.'
+      signInFirst: 'Log in to complete your payment — your address is kept and you come straight back.',
+      signInAndPay: 'Log in and pay'
     },
     apiErrors: {
       invalidCredentials: 'That email or password is not right.',
@@ -667,9 +643,6 @@ export const copy = {
       governorate: 'Choose a governorate from the list',
       addressPart: 'Enter a short, valid number or name',
       phone: 'An 8-digit Kuwaiti mobile starting 5, 6 or 9',
-      cardNumber: 'Card number should be 16 digits',
-      expiry: 'Use a valid, unexpired MM/YY',
-      cvc: 'CVC should be 3 digits'
     },
     notFound: {
       title: 'We could not find that page',
@@ -681,7 +654,6 @@ export const copy = {
       products: 'Shop phones and accessories selected for Kuwait, with clear prices and every colour and storage option on one page.',
       cart: 'Review the devices, accessories and quantities you selected before continuing to VOLTA’s demo checkout.',
       checkout: 'Enter a Kuwaiti delivery address and choose a payment method to complete the VOLTA demo without a real charge.',
-      confirmation: 'Review the order confirmation and product summary after completing VOLTA’s demonstration purchase flow.',
       wishlist: 'Save the phones and accessories you like, then return to them quickly when you are ready to choose.',
       compare: 'Compare phone prices, screens, cameras and batteries side by side to find the device that fits you best.',
       login: 'Log in to VOLTA to follow your orders and write reviews.',

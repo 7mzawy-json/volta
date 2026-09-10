@@ -28,7 +28,7 @@ moment for VOLTA to feel pleasant rather than just functional.
 | 1 | **يدخل — Enter** | أول انطباع وثقة (first impression, trust) | The Home hero: fast load, zero layout shift, one unmistakable CTA, the neon accent used once (not everywhere) so it still reads as a signal |
 | 2 | **يستكشف — Explore** | سهولة الوصول (ease of access) | Products page: responsive grid, live search, category filters — always obvious how to narrow down or go back, nothing feels like a dead end |
 | 3 | **يتصرف — Act** | جهد واحتكاك (effort, friction — the stage named after the problem to *minimize*) | Product → Cart → Checkout: guest checkout, persistent cart, one-tap add-to-cart with instant visible feedback (badge bounce, mini-cart slide-in, neon pulse burst) — every action gets a response, nothing feels swallowed |
-| 4 | **ينجح — Succeed** | ارتياح وفرح (relief, joy) | The confirmation screen: a real payoff — success animation (neon bolt flash), clear order summary, one obvious next step. Not just a text dump of an order number |
+| 4 | **ينجح — Succeed** | ارتياح وفرح (relief, joy) | The order page the shopper lands on from Stripe: a real payoff — the neon bolt, the order summary, and the status turning from *awaiting payment* to *paid* in front of them without a refresh. Not just a text dump of an order number, and not a page that says "confirmed" for something that was never recorded |
 
 ---
 
@@ -43,8 +43,15 @@ moment for VOLTA to feel pleasant rather than just functional.
 | 2 | **المنتجات — Products** | `/products` | Grid (2/3/4-col responsive), live search, category + price filters, sort | Narrow down to something of interest, fast |
 | 3 | **المنتج — Product** | `/products/:id` | Large imagery, price, specs, variant picker, Add to Cart, related products | Build enough confidence to commit |
 | 4 | **السلة — Cart** | `/cart` | Line items, quantity controls, subtotal + shipping shown upfront, proceed CTA | Let them double-check with zero hidden surprises |
-| 5 | **الدفع — Payment** | `/checkout` | Single-page demo form (shipping + a visual payment-method picker) — no real processing | One page, not a multi-step wizard — this is the friction-minimization step |
-| 6 | **تم — Done** | `/confirmation` | Order summary, success animation, "continue shopping" CTA | The payoff — this is where Journey stage 4 (ينجح) actually lands |
+| 5 | **الدفع — Payment** | `/checkout` | Single page: the Kuwaiti address, the order summary, one pay button. Payment is handed to Stripe in test mode | One page, not a multi-step wizard — this is the friction-minimization step |
+| 6 | **تم — Done** | `/orders/:id` | Order summary, live payment status, and the same order kept in `/orders` | The payoff — this is where Journey stage 4 (ينجح) actually lands |
+
+> **Why `/orders/:id` and not a `/confirmation` page.** There was one, and it was a
+> mistake: it belonged to demo payment methods that took a made-up card, showed a
+> random order number and recorded nothing — so the "confirmation" confirmed an order
+> that did not exist and could never appear in *My Orders*. Stripe returns the shopper
+> to their real order instead, which is the same page they can open again a month
+> later.
 
 ### How the two frameworks line up
 
@@ -55,9 +62,9 @@ Enter      → Home (/)
    ↓
 Explore    → Products (/products) → Product (/products/:id)
    ↓
-Act        → Cart (/cart) → Payment (/checkout)
+Act        → Cart (/cart) → Payment (/checkout) → Stripe
    ↓
-Succeed    → Done (/confirmation)
+Succeed    → Done (/orders/:id, kept in /orders)
 ```
 
 Six pages, five feelings, one goal. Every step exists either to move the user toward

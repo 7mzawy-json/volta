@@ -20,7 +20,7 @@ const languages = {
     street: 'شارع',
     building: 'منزل / مبنى',
     phone: 'رقم الهاتف',
-    placeOrder: 'تأكيد الطلب',
+    signInAndPay: 'سجّل دخولك وأكمل الدفع',
     profileTitle: 'حسابي',
     deleteAccount: 'احذف حسابي'
   },
@@ -38,7 +38,7 @@ const languages = {
     street: 'Street',
     building: 'House / building',
     phone: 'Phone Number',
-    placeOrder: 'Place Order',
+    signInAndPay: 'Log in and pay',
     profileTitle: 'My account',
     deleteAccount: 'Delete my account'
   }
@@ -117,7 +117,14 @@ async function openInLanguage(page, language) {
   }
 }
 
-async function completeCheckout(page, labels) {
+// Fill the address and press the one button there is.
+//
+// This used to select Apple Pay and assert a /confirmation page. Both are gone:
+// the demo payment methods took a made-up card and recorded nothing, so an
+// order placed that way never appeared in My Orders. Signed out — which is what
+// this suite is — the button now carries the address to the login page and
+// keeps it there, so that is what this walks and scans.
+async function fillAddressAndSubmit(page, labels) {
   await page.getByRole('textbox', { name: labels.fullName, exact: true }).fill('Noura Al-Sabah');
   await page.getByRole('combobox', { name: labels.governorate, exact: true }).selectOption('capital');
   await page.getByRole('textbox', { name: labels.city, exact: true }).fill('Salmiya');
@@ -125,9 +132,13 @@ async function completeCheckout(page, labels) {
   await page.getByRole('textbox', { name: labels.street, exact: true }).fill('40');
   await page.getByRole('textbox', { name: labels.building, exact: true }).fill('12A');
   await page.getByRole('textbox', { name: labels.phone, exact: true }).fill('55551234');
-  await page.getByText('Apple Pay', { exact: true }).click();
-  await page.getByRole('button', { name: labels.placeOrder, exact: true }).click();
-  await expect(page).toHaveURL(/\/confirmation$/);
+  await page.getByRole('button', { name: labels.signInAndPay, exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+
+  // The address survived the detour. Without this the assertion above would
+  // pass while the shopper's typing was quietly thrown away.
+  const draft = await page.evaluate(() => JSON.parse(sessionStorage.getItem('volta-checkout-draft') || 'null'));
+  expect(draft?.city, 'the typed address must survive the trip to the login page').toBe('Salmiya');
 }
 
 for (const [language, labels] of Object.entries(languages)) {
@@ -158,8 +169,9 @@ for (const [language, labels] of Object.entries(languages)) {
     await scan(page, testInfo, 'cart', language);
     await page.goto('/checkout');
     await scan(page, testInfo, 'checkout', language);
-    await completeCheckout(page, labels);
-    await scan(page, testInfo, 'confirmation', language);
+    await fillAddressAndSubmit(page, labels);
+    // The login page had never been scanned; it is now on the purchase path.
+    await scan(page, testInfo, 'login', language);
   });
 }
 

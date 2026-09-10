@@ -58,7 +58,7 @@ if (!/^https?:\/\/[^/]+$/.test(origin)) {
   process.exit(1);
 }
 
-// Routes worth their own preview. Cart, checkout and confirmation are excluded
+// Routes worth their own preview. Cart and checkout are excluded
 // deliberately: they describe one person's session, they are not shareable, and
 // giving them polished previews would only invite sharing them.
 const routes = [

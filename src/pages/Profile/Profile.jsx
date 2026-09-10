@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -89,7 +89,7 @@ export default function Profile() {
     e.preventDefault();
     // Checked here with the SAME function the server and the checkout use, so a
     // mistake is caught before a round trip and the rules cannot drift apart.
-    const found = validateCheckout(address, 'stripe');
+    const found = validateCheckout(address);
     setAddressErrors(found);
     if (Object.keys(found).length) {
       const first = ADDRESS_ORDER.find((k) => found[k]);
@@ -127,7 +127,7 @@ export default function Profile() {
     setAddress(next);
     // Only re-check once something has already failed, so the form does not
     // scold anyone while they are still typing.
-    if (Object.keys(addressErrors).length) setAddressErrors(validateCheckout(next, 'stripe'));
+    if (Object.keys(addressErrors).length) setAddressErrors(validateCheckout(next));
   };
 
   // A function, not a component defined in the body: a component declared here
@@ -186,6 +186,23 @@ export default function Profile() {
           </bdi>
         </p>
       </header>
+
+      {/* The account page is where the header sends anyone looking for their
+          account, so it has to lead to the OTHER thing an account is for.
+          Nothing on a desktop screen linked to past orders at all: the header's
+          account link had replaced the orders link, and this page never
+          restored it, so the orders list existed with no way in. */}
+      <Link to="/orders" className={styles.ordersLink}>
+        <span>
+          <strong>{t.orders.title}</strong>
+          <span className={styles.ordersLead}>{t.meta.orders}</span>
+        </span>
+        {/* Points the way the reader reads: flipped by the RTL rule in the
+            stylesheet rather than by a second icon. */}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </Link>
 
       {/* --- details --- */}
       <section className={styles.card}>

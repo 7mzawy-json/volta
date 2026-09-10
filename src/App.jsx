@@ -17,7 +17,6 @@ import Products from './pages/Products/Products.jsx';
 import Product from './pages/Product/Product.jsx';
 import Cart from './pages/Cart/Cart.jsx';
 import Checkout from './pages/Checkout/Checkout.jsx';
-import Confirmation from './pages/Confirmation/Confirmation.jsx';
 import Wishlist from './pages/Wishlist/Wishlist.jsx';
 import NotFound from './pages/NotFound/NotFound.jsx';
 import Compare from './pages/Compare/Compare.jsx';
@@ -55,7 +54,6 @@ function AppShell() {
           <Route path="/products/:id" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
           {/* Catch-all: an unknown URL must land somewhere useful, in both languages. */}

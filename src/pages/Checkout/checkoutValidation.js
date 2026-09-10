@@ -1,6 +1,6 @@
 import { governorateIds, isKuwaitiMobile } from '../../data/kuwait.js';
 
-// Pure checkout validation.
+// Delivery-address validation.
 //
 // Returns stable error CODES, never translated strings: storing translated text
 // froze messages in whichever language was active when the error was raised, so
@@ -9,34 +9,26 @@ import { governorateIds, isKuwaitiMobile } from '../../data/kuwait.js';
 // Character classes are checked BEFORE digits are counted. Stripping non-digits
 // and then counting confuses sanitisation with validation, and let values like
 // "abc12345678" pass as an 8-digit phone number.
-
-const digits = (value) => value.replace(/\D/g, '');
+//
+// This used to also validate a card number, expiry and CVC, behind a `payment`
+// argument that switched them off for the methods that collect a card
+// elsewhere. Those methods were demo buttons from before there was a payment
+// provider: they took a made-up card, showed a confirmation page with a random
+// number, and recorded nothing — so an order made that way could never appear in
+// My Orders, which is exactly how it was reported. Stripe collects the card on
+// its own hosted page, so nothing here should ever ask for one. The card rules
+// are gone rather than disabled.
+//
+// One consequence worth stating: this is now purely an ADDRESS validator, which
+// is why the server and the profile page can share it as-is.
 
 const hasValue = (value) => Boolean(value?.trim());
-
-const isCardNumberValid = (value) => (
-  /^[\d\s-]+$/.test(value.trim()) && digits(value).length === 16
-);
-
-const isExpiryValid = (value, now) => {
-  const match = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value.trim());
-  if (!match) return false;
-
-  const month = Number(match[1]);
-  const year = 2000 + Number(match[2]);
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
-
-  return year > currentYear || (year === currentYear && month >= currentMonth);
-};
 
 // Block, street and building are short alphanumerics — "3", "12A", "Street 40".
 // Deliberately permissive on shape but not on emptiness or length.
 const isAddressPart = (value) => /^[\w؀-ۿ\s/.-]{1,24}$/.test(value.trim());
 
-const CARDLESS_METHODS = new Set(['applepay', 'stripe']);
-
-export function validateCheckout(values, payment, now = new Date()) {
+export function validateCheckout(values) {
   const errors = {};
 
   if (!hasValue(values.fullName)) errors.fullName = 'required';
@@ -58,21 +50,6 @@ export function validateCheckout(values, payment, now = new Date()) {
 
   if (!hasValue(values.phone)) errors.phone = 'required';
   else if (!isKuwaitiMobile(values.phone)) errors.phone = 'phone';
-
-  // Methods that never touch the demo card fields. Stripe collects the card on
-  // its own hosted page, so asking for one here would be theatre — and worse,
-  // it would invite someone to type a real card number into a form that is not
-  // PCI anything.
-  if (!CARDLESS_METHODS.has(payment)) {
-    if (!hasValue(values.cardNumber)) errors.cardNumber = 'required';
-    else if (!isCardNumberValid(values.cardNumber)) errors.cardNumber = 'cardNumber';
-
-    if (!hasValue(values.expiry)) errors.expiry = 'required';
-    else if (!isExpiryValid(values.expiry, now)) errors.expiry = 'expiry';
-
-    if (!hasValue(values.cvc)) errors.cvc = 'required';
-    else if (!/^\d{3}$/.test(values.cvc.trim())) errors.cvc = 'cvc';
-  }
 
   return errors;
 }

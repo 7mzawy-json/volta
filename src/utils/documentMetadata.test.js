@@ -23,7 +23,7 @@ test('home metadata is bilingual and localized for Kuwait', () => {
 });
 
 test('every storefront route receives a distinct title and description', () => {
-  const paths = ['/', '/products', '/cart', '/checkout', '/confirmation', '/wishlist', '/compare', '/missing'];
+  const paths = ['/', '/products', '/cart', '/checkout', '/wishlist', '/compare', '/missing'];
   const metadata = paths.map((pathname) => resolveDocumentMetadata({ pathname, lang: 'en', origin: ORIGIN }));
 
   assert.equal(new Set(metadata.map((entry) => entry.title)).size, paths.length);
