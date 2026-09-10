@@ -33,7 +33,7 @@ Both are broken by *choosing the names up front* so the URLs are predictable:
 > what happened here — the service is `volta-api-6hbb`, not `volta-api`. Check
 > the URL it actually gives you and make sure `vercel.json` matches it, because
 > nothing warns you: the proxy simply returns 404 for every API call.
-| Vercel | `volta` | `https://volta.vercel.app` |
+| Vercel | `volta-kw` | `https://volta-kw.vercel.app` |
 
 `vercel.json` already points at `volta-api-6hbb.onrender.com`. If either name is taken, pick
 another and **change it in the two places noted in steps 4 and 5** — nothing else depends on
@@ -121,7 +121,7 @@ Both Render and Vercel deploy from GitHub, so anything not pushed will not be de
    | Variable | Value |
    |---|---|
    | `MONGODB_URI` | the Atlas string from step 1 |
-   | `SITE_ORIGIN` | `https://volta.vercel.app` — the URL you will claim in step 5 |
+   | `SITE_ORIGIN` | `https://volta-kw.vercel.app` — the URL you will claim in step 5 |
    | `EXTRA_ORIGINS` | leave empty |
    | `STRIPE_SECRET_KEY` | the `sk_test_…` key from step 2 |
    | `STRIPE_WEBHOOK_SECRET` | leave empty for now; step 6 fills it |
@@ -175,7 +175,7 @@ Router render the storefront's own 404 page.
 
    | Variable | Value |
    |---|---|
-   | `VITE_SITE_ORIGIN` | `https://volta.vercel.app` |
+   | `VITE_SITE_ORIGIN` | `https://volta-kw.vercel.app` |
 
    This is what the build bakes into every page's `og:url` and canonical link. Without it the
    build still succeeds, prints a warning, and link previews fall back to a relative `/` —
@@ -187,8 +187,8 @@ Router render the storefront's own 404 page.
 4. Deploy, then check three things:
 
    ```bash
-   curl -s https://volta.vercel.app/api/health          # the proxy reaches Render
-   curl -s https://volta.vercel.app/products/iphone-17-pro-max | grep og:url
+   curl -s https://volta-kw.vercel.app/api/health          # the proxy reaches Render
+   curl -s https://volta-kw.vercel.app/products/iphone-17-pro-max | grep og:url
    ```
 
    The first proves `/api` is being rewritten to Render. The second should show an absolute
@@ -225,7 +225,7 @@ Now that the API has a URL, close the second loop.
 
 ## 7. Prove it works
 
-1. Open <https://volta.vercel.app>, create an account, add something to the basket, go to
+1. Open <https://volta-kw.vercel.app>, create an account, add something to the basket, go to
    checkout, fill in the address, choose **Stripe**, press **Pay with Stripe**.
 2. On Stripe's page use a test card:
 
