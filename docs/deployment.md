@@ -149,7 +149,7 @@ Both Render and Vercel deploy from GitHub, so anything not pushed will not be de
 
 1. Sign in at <https://vercel.com> with GitHub, **Add New → Project**, import `volta`.
 2. Settings that matter:
-   - **Project name**: `volta` (this is what makes the URL `volta.vercel.app`)
+   - **Project name**: `volta-kw` (this is what makes the URL `volta-kw.vercel.app`)
    - **Root Directory**: leave at the repository root — *not* `server`
    - **Framework Preset**: Vite. Build command and output directory come from
      [`vercel.json`](../vercel.json); leave them alone.
