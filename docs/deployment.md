@@ -210,9 +210,21 @@ Now that the API has a URL, close the second loop.
    > Point it at **Render directly**, not at the Vercel domain. Stripe talks server to
    > server; there is no reason to send it through the front end's proxy.
 
-3. **Select events** — exactly two:
+3. **Select events** — all four the API handles:
    - `checkout.session.completed`
    - `checkout.session.expired`
+   - `checkout.session.async_payment_succeeded`
+   - `checkout.session.async_payment_failed`
+
+   > This list used to name only the first two, and that was a real gap. Some payment
+   > methods do not settle at the moment the shopper finishes — the session completes
+   > with `payment_status: unpaid` and the money arrives later. The API is written for
+   > that: it deliberately ignores a completed-but-unpaid session and waits for
+   > `async_payment_succeeded`. Subscribe to two events and that later event never
+   > arrives, so such an order stays `pending` for ever.
+   >
+   > Card payments settle immediately, so nothing is broken today. This is what stops
+   > it breaking the day a delayed method is switched on.
 4. Create it, then reveal the **Signing secret**. It starts `whsec_`.
 5. Back in Render → your service → **Environment** → set `STRIPE_WEBHOOK_SECRET` to that
    value and save. Render redeploys automatically.

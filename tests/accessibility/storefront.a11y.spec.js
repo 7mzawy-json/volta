@@ -299,11 +299,24 @@ for (const language of Object.keys(languages)) {
 
     await seedBrowsingState(page, languages[language].theme);
     await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
+    // A cart, because /checkout REDIRECTS to /cart when the basket is empty.
+    // Without one the sweep measured the cart page twice and called one of them
+    // checkout — an audit caught it. The assertion below is what stops that
+    // happening again silently.
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        'volta-cart',
+        JSON.stringify([{ variantId: 'iphone-17-pro-max--256gb--cosmic-orange', qty: 2 }])
+      )
+    );
 
     const overflowing = [];
     for (const route of NARROW_ROUTES) {
       await page.goto(route);
       await page.locator('main').waitFor({ state: 'visible' });
+      // Measure the page that was asked for, not wherever it redirected to.
+      const landed = new URL(page.url());
+      expect(landed.pathname + landed.search, `${route} redirected`).toBe(route);
       const measured = await page.evaluate(() => ({
         doc: document.documentElement.scrollWidth,
         view: document.documentElement.clientWidth

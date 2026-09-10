@@ -292,7 +292,7 @@ export const copy = {
       // Said plainly on purpose: converted prices are a reading convenience and
       // the shop settles in dinar. A storefront that shows a dollar price
       // without saying that is making a promise it does not keep.
-      note: 'أسعار تقريبية للاطلاع فقط — الدفع والفوترة بالدينار الكويتي.',
+      note: 'أسعار تقريبية للاطلاع فقط — الطلب مسجّل بالدينار الكويتي، والخصم يتم بعملة مدعومة لدى مزوّد الدفع.',
       asOf: 'أسعار الصرف بتاريخ {date}'
     },
     compare: {
@@ -630,7 +630,7 @@ export const copy = {
     },
     currency: {
       title: 'Currency',
-      note: 'Indicative conversion only — you are charged and invoiced in Kuwaiti dinar.',
+      note: 'Indicative conversion only — your order is recorded in Kuwaiti dinar, and the card is charged in a currency the payment provider accepts.',
       asOf: 'Rates as of {date}'
     },
     compare: {

@@ -25,8 +25,9 @@ Then open <http://localhost:5173>. It starts in Arabic; the header has an Englis
 
 ```bash
 npm run build      # production build, must stay clean
-npm test           # 16 unit tests (node --test)
-npm run test:a11y  # 10 browser checks (Playwright + axe)
+npm test                  # front-end unit suite (node --test)
+npm --prefix server test  # API suite (node --test + an in-process MongoDB)
+npm run test:a11y         # browser checks (Playwright + axe), needs a real Chrome
 npm run test:all   # both
 ```
 
@@ -44,8 +45,8 @@ installed Chrome or `PLAYWRIGHT_CHANNEL` pointed at a Playwright-managed browser
   purchasable variants across a storage × colour matrix; the cart addresses a variant.
 - **No product photography.** Every phone and accessory is a colour-accurate vector drawn
   from its own palette, which is why the whole site is smaller than one photograph.
-- **Two themes.** Light (warm ivory) is the default; the original neon-on-black is dark
-  mode. The neon is confined to fills in light mode, where it cannot carry text contrast.
+- **Two themes.** Dark — the original neon-on-black — is what the shop opens in, applied
+  before the first paint by `public/boot.js`. Light (warm ivory) is the other. The neon is confined to fills in light mode, where it cannot carry text contrast.
 - **Filters are data.** Facets come from a per-category table, and their counts are computed
   against the *other* active filters, so a count never promises results it cannot deliver.
 
