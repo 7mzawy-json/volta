@@ -1,6 +1,11 @@
 # VOLTA
 
-**Live: <https://volta-demo-v1.netlify.app>** · also on [GitHub Pages](https://7mzawy-json.github.io/volta/)
+**Live: <https://volta-kw.vercel.app>**
+
+Front end on Vercel, API on Render, data in MongoDB Atlas, payments through Stripe
+(test mode). Also deployed — without an API, so accounts and payment do not work
+there — to [Netlify](https://volta-demo-v1.netlify.app) and
+[GitHub Pages](https://7mzawy-json.github.io/volta/).
 
 An Arabic-first electronics storefront for the Kuwaiti market — smartphones and accessories,
 built as a working front end rather than a set of screens.
