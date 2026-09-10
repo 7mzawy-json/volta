@@ -14,12 +14,17 @@
 //   2. the Stripe CLI forwarding webhooks     stripe listen --forward-to localhost:4000/api/webhooks/stripe
 //   3. that listener's whsec_ in server/.env
 //
-// Usage:  node scripts/verify-payment.mjs <output-dir-for-screenshots>
+// Usage:  node scripts/verify-payment.mjs <screenshot-dir> [api-base-url]
+//
+// Against production the webhook must be configured in the Stripe DASHBOARD —
+// the CLI listener only serves localhost.
 
 import { chromium } from '@playwright/test';
 
 const OUT = process.argv[2];
-const API = 'http://localhost:4000/api';
+// Defaults to the local API; pass a base URL to check a deployment instead:
+//   node scripts/verify-payment.mjs ./shots https://volta-kw.vercel.app/api
+const API = process.argv[3] || process.env.VOLTA_API || 'http://localhost:4000/api';
 
 // A tiny cookie-aware client for the API.
 let cookie = null;
@@ -59,7 +64,12 @@ console.log(`order ${orderId} created — status pending, charged ${session.body
 const browser = await chromium.launch({ channel: 'chrome' });
 const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
 await page.goto(session.body.url);
-await page.waitForLoadState('networkidle');
+// networkidle never settles on Stripe's page — hCaptcha and analytics keep
+// connections open — so wait for the control we actually need instead.
+await page.waitForLoadState('domcontentloaded');
+await page
+  .locator('#payment-method-accordion-item-title-card')
+  .waitFor({ state: 'attached', timeout: 45000 });
 
 // Stripe's hosted page. Field names are stable; labels are localised, so target
 // the names and fall back to a screenshot if the form has moved on.
