@@ -20,6 +20,32 @@ const intentLimiter = rateLimit({
 
 const MAX_SENTENCE = 120;
 
+// TEMPORARY, and removed in the commit after this one.
+//
+// The live key gets past authentication and then answers 404 NOT_FOUND for
+// gemini-2.5-flash, which means the model is not available to THIS key rather
+// than that anything is misconfigured. The only way to find out what it can use
+// is to ask, and only the server can ask, because only the server has the key.
+//
+// Model NAMES are public information; the key is not, and does not leave here.
+searchRouter.get('/search/models', async (_req, res) => {
+  if (!config.aiConfigured) return res.status(503).json({ error: 'aiNotConfigured' });
+  try {
+    const upstream = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+      headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY }
+    });
+    const body = await upstream.json();
+    return res.json({
+      status: upstream.status,
+      models: (body?.models || [])
+        .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+        .map((m) => m.name)
+    });
+  } catch (err) {
+    return res.status(502).json({ error: 'listFailed', message: err?.message });
+  }
+});
+
 // The cache key. Lower case and collapsed whitespace, so "Cheap  IPHONE" and
 // "cheap iphone" are one entry rather than two.
 function cacheKey(sentence, lang) {
