@@ -4,15 +4,19 @@ const ThemeContext = createContext(null);
 
 const STORAGE_KEY = 'volta-theme';
 
-// Light on first visit — a deliberate brand decision rather than a device one,
-// so prefers-color-scheme is NOT consulted. An explicit choice is remembered and
-// always wins from then on.
+// Dark on first visit — the original VOLTA identity, and a brand decision rather
+// than a device one, so prefers-color-scheme is NOT consulted. An explicit choice
+// is remembered and always wins from then on.
+//
+// public/boot.js applies the same rule before the first paint. This has to agree
+// with it: if the two defaults ever differ, the page paints one theme and then
+// flips to the other as React mounts.
 function readStoredTheme() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === 'dark' || stored === 'light' ? stored : 'light';
+    return stored === 'dark' || stored === 'light' ? stored : 'dark';
   } catch {
-    return 'light';
+    return 'dark';
   }
 }
 

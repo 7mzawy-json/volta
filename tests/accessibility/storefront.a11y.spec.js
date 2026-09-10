@@ -1,10 +1,15 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+// Each language also pins a THEME, so a single pass scans both palettes rather
+// than scanning whichever one happens to be the default twice. The pairing is
+// arbitrary — what matters is that neither palette goes unscanned. Dark is the
+// shop's default, so it goes with the default language.
 const languages = {
   ar: {
     switchLabel: null,
     direction: 'rtl',
+    theme: 'dark',
     addToCart: 'أضف إلى السلة',
     cartDialog: 'سلة التسوق',
     close: 'إغلاق',
@@ -22,6 +27,7 @@ const languages = {
   en: {
     switchLabel: 'English',
     direction: 'ltr',
+    theme: 'light',
     addToCart: 'Add to Cart',
     cartDialog: 'Your Cart',
     close: 'Close',
@@ -65,6 +71,11 @@ async function scan(page, testInfo, label, language) {
 
   await expect(page.locator('html')).toHaveAttribute('lang', language);
   await expect(page.locator('html')).toHaveAttribute('dir', languages[language].direction);
+  // Asserted, not assumed: a scan that silently fell back to the other theme
+  // would report a clean palette twice and cover neither.
+  const theme = await page.locator('html').getAttribute('data-theme');
+  expect(theme, `${label} should be in the ${languages[language].theme} palette`)
+    .toBe(languages[language].theme === 'dark' ? 'dark' : null);
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
 
   const results = await new AxeBuilder({ page })
@@ -85,18 +96,21 @@ async function scan(page, testInfo, label, language) {
 const SEEDED_COMPARE = ['iphone-17-pro-max', 'iphone-17-pro'];
 const SEEDED_WISHLIST = ['iphone-17-pro-max'];
 
-async function seedBrowsingState(page) {
+async function seedBrowsingState(page, theme) {
   await page.addInitScript(
-    ([compare, wishlist]) => {
+    ([compare, wishlist, chosenTheme]) => {
       localStorage.setItem('volta-compare', JSON.stringify(compare));
       localStorage.setItem('volta-wishlist', JSON.stringify(wishlist));
+      // Written before any page script runs, so public/boot.js reads it and the
+      // first paint is already in the theme under test.
+      if (chosenTheme) localStorage.setItem('volta-theme', chosenTheme);
     },
-    [SEEDED_COMPARE, SEEDED_WISHLIST]
+    [SEEDED_COMPARE, SEEDED_WISHLIST, theme]
   );
 }
 
 async function openInLanguage(page, language) {
-  await seedBrowsingState(page);
+  await seedBrowsingState(page, languages[language].theme);
   await page.goto('/');
   if (languages[language].switchLabel) {
     await page.getByRole('button', { name: languages[language].switchLabel, exact: true }).click();
@@ -241,6 +255,7 @@ for (const [language, labels] of Object.entries(languages)) {
       contentType: 'application/json',
       body: JSON.stringify({ user: STUB_USER })
     }));
+    await seedBrowsingState(page, labels.theme);
     await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
 
     await page.goto('/profile');
@@ -282,7 +297,7 @@ for (const language of Object.keys(languages)) {
   test(`${language} storefront never scrolls sideways at 375px`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'mobile-375', 'phone-width check');
 
-    await seedBrowsingState(page);
+    await seedBrowsingState(page, languages[language].theme);
     await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
 
     const overflowing = [];

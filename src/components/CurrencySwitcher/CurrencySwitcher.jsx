@@ -36,11 +36,22 @@ export default function CurrencySwitcher({ compact = false }) {
       >
         {currencies.map((c) => (
           <option key={c.code} value={c.code}>
-            {/* No flag emoji: Windows has no country-flag font, so 🇰🇼 renders as
-                the bare letters "kw". Compact keeps the header narrow; the
-                drawer has room for the name, which is what most people
-                actually recognise. */}
-            {compact ? `${c.symbol[lang]} ${c.code}` : `${c.code} — ${c.name[lang]}`}
+            {/* One token per row in the header, not two. It read "KD KWD" in
+                English — the symbol and the code saying the same thing twice.
+                English gets the ISO code, which is what a shopper reading
+                English expects to compare; Arabic gets the Arabic symbol, which
+                is what a price actually carries there.
+
+                No flag emoji: Windows has no country-flag font, so 🇰🇼 renders
+                as the bare letters "kw".
+
+                The drawer (non-compact) keeps the full name. Six of these eight
+                currencies are Gulf ones whose Arabic symbols differ by a single
+                letter — ر.س / ر.ق / ر.ع. — so the one place with room to spell
+                them out should. */}
+            {compact
+              ? (lang === 'en' ? c.code : c.symbol.ar)
+              : `${c.code} — ${c.name[lang]}`}
           </option>
         ))}
       </select>
