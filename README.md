@@ -69,6 +69,7 @@ docs/           # brand guidelines, user flow, ad script and its production guid
 scripts/        # build tooling: per-route head prerender, a static-host stand-in
 server/         # the API — Express, Mongoose, Stripe; its own package.json and tests
 tests/          # accessibility and layout checks that need a real browser
+.github/        # CI: the unit suites and the build, on every push and pull request
 ```
 
 ## Deploying

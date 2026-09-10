@@ -1,0 +1,68 @@
+name: Tests
+
+# What replaced the Pages workflow. That one built, tested and deployed; the
+# deploy is Vercel's and Render's job now, so this only tests.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Read-only. This workflow publishes nothing and needs no secrets, so it is given
+# no permission to write anything.
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          # Two lockfiles, two dependency trees. Without the second path the
+          # cache key ignores the server's dependencies entirely.
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install
+        run: |
+          npm ci
+          npm --prefix server ci
+
+      - name: Front end
+        run: npm test
+
+      # mongodb-memory-server downloads a real mongod on first use and runs it in
+      # this job — no service container and no Atlas credentials, so a fork's pull
+      # request can run the suite exactly as a push does. The binary is cached
+      # between runs; the first run on a new key spends about a minute fetching it.
+      - name: Cache the mongod binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}
+
+      - name: Server
+        run: npm --prefix server test
+
+      - name: Build
+        run: npm run build
+        env:
+          # The build warns and leaves og:url relative without this, which is the
+          # right behaviour locally but would let a broken head reach main here.
+          VITE_SITE_ORIGIN: https://volta-kw.vercel.app
+
+      # The accessibility suite drives a real Chrome and is left to run locally —
+      # see the README. Adding it here needs `npx playwright install --with-deps
+      # chromium` and PLAYWRIGHT_CHANNEL unset, because the runner has no `chrome`
+      # channel.
