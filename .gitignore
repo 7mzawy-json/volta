@@ -21,6 +21,8 @@ HANDOFF.md
 CLAUDE.md
 AGENTS.md
 GEMINI.md
+AUDIT-PROMPT.md
+AUDIT.md
 .claude/
 
 # Server dependencies and its local secrets (server/.gitignore covers these too;
