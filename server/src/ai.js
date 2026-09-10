@@ -23,9 +23,23 @@ import { brands, categories } from '../../src/data/products.js';
 // results; a slower, cleverer model would be the wrong trade for choosing
 // between eight brands and three screen sizes.
 //
-// Configurable because model names age faster than code does — switching to
-// -lite, or to whatever replaces this, should not need a commit.
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// Chosen by MEASUREMENT, against the live key, on the same sentence:
+//
+//   gemini-3.5-flash-lite       727ms   correct
+//   gemini-flash-lite-latest    694ms   correct
+//   gemini-3.5-flash           1062ms   correct
+//   gemini-flash-latest        2090ms   correct — too close to the 2.5s budget
+//   gemini-2.5-flash / -lite      404   RETIRED for this key
+//
+// The default started as gemini-2.5-flash and that was the first live failure:
+// it still appears in the key's own model listing and answers 404 to
+// generateContent. Listing is not availability.
+//
+// Pinned rather than the `-latest` alias, which was equally correct and just as
+// fast: an alias moves under you, and a search box that silently changes model
+// is a search box whose behaviour nobody can reproduce. GEMINI_MODEL overrides
+// it without a commit when this one retires in turn.
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
 const MAX_OUTPUT_TOKENS = 300;
 
@@ -102,11 +116,13 @@ function geminiClient() {
                 // Deterministic-ish. This is a parsing job, not a writing one,
                 // and the same sentence should give the same filters — which
                 // also makes the cache worth more.
-                temperature: 0,
-                // 2.5 models think before answering by default, which costs
-                // seconds this route does not have. The task is a lookup against
-                // a list, not a reasoning problem.
-                thinkingConfig: { thinkingBudget: 0 }
+                temperature: 0
+                // No thinkingConfig. It was here to stop the 2.5 models
+                // reasoning before answering, and on the model this now uses it
+                // is a 400 INVALID_ARGUMENT — measured, in 305ms, against the
+                // live key. Without it the same request answers in 727ms, which
+                // is well inside the budget, so the field bought nothing and
+                // cost everything.
               }
             })
           }

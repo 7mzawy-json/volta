@@ -302,10 +302,12 @@ What is worth knowing before switching it on:
   waits on a model longer than that.
 - Cost at demo volume is negligible — a few hundred tokens per uncached sentence
   against a small model. The key comes from Google AI Studio; `GEMINI_MODEL`
-  overrides the default (`gemini-2.5-flash`) without a code change.
-- **Thinking is switched off** in the request. The 2.5 models reason before
-  answering by default, which costs seconds this route does not have — and this
-  is a lookup against a list, not a reasoning problem.
+  overrides the default (`gemini-3.5-flash-lite`) without a code change.
+- **A model appearing in the key's own listing does not mean it serves.**
+  `gemini-2.5-flash` was the first default, is still listed, and answers 404 to
+  `generateContent`. If the reader starts returning
+  `{"error":"aiUnavailable","upstream":404}`, the model has retired — set
+  `GEMINI_MODEL` to a current one rather than debugging the key.
 
 ---
 
