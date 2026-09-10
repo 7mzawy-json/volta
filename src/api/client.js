@@ -49,5 +49,8 @@ export const api = {
   get: (path) => request('GET', path),
   post: (path, body) => request('POST', path, body),
   patch: (path, body) => request('PATCH', path, body),
-  del: (path) => request('DELETE', path)
+  // DELETE carries a body here, which is unusual but correct: deleting an
+  // account requires the password, and a password belongs in a body rather than
+  // in a URL where it would be logged by every proxy on the way.
+  del: (path, body) => request('DELETE', path, body)
 };

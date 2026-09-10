@@ -56,7 +56,9 @@ test('the hash never leaves the server', async () => {
   for (const payload of [user, me.body.user]) {
     assert.equal(payload.passwordHash, undefined);
     assert.equal(payload.password, undefined);
-    assert.deepEqual(Object.keys(payload).sort(), ['createdAt', 'email', 'id', 'name']);
+    // The exact key set, so a field added to the user later has to be added
+    // here on purpose rather than appearing in a response unnoticed.
+    assert.deepEqual(Object.keys(payload).sort(), ['address', 'createdAt', 'email', 'id', 'name']);
   }
 });
 

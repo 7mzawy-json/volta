@@ -15,7 +15,9 @@ const languages = {
     street: 'شارع',
     building: 'منزل / مبنى',
     phone: 'رقم الهاتف',
-    placeOrder: 'تأكيد الطلب'
+    placeOrder: 'تأكيد الطلب',
+    profileTitle: 'حسابي',
+    deleteAccount: 'احذف حسابي'
   },
   en: {
     switchLabel: 'English',
@@ -30,7 +32,9 @@ const languages = {
     street: 'Street',
     building: 'House / building',
     phone: 'Phone Number',
-    placeOrder: 'Place Order'
+    placeOrder: 'Place Order',
+    profileTitle: 'My account',
+    deleteAccount: 'Delete my account'
   }
 };
 
@@ -203,6 +207,57 @@ test('mobile comparison offers orientation and a differences filter', async ({ p
     contentType: 'application/json'
   });
 });
+
+// The account page needs a session, and this suite runs Vite alone with no API
+// behind it. So the session is stubbed at the network boundary: /api/me answers
+// with a signed-in shopper who has a saved address, which is enough for the page
+// to render every one of its four cards.
+//
+// The assertion on the heading is not decoration. /profile redirects to /login
+// without a session, so a scan that forgot the stub would measure the login page
+// and pass — the same "green for the wrong reason" failure this file already
+// carries two guards against.
+const STUB_USER = {
+  id: 'stub-user',
+  email: 'noura@volta.test',
+  name: 'Noura Al-Sabah',
+  createdAt: '2026-01-15T09:00:00.000Z',
+  address: {
+    fullName: 'Noura Al-Sabah',
+    governorate: 'capital',
+    city: 'Salmiya',
+    block: '3',
+    street: '40',
+    building: '12A',
+    details: 'Floor 2',
+    phone: '55551234'
+  }
+};
+
+for (const [language, labels] of Object.entries(languages)) {
+  test(`${language} account page is accessible and fits a phone`, async ({ page }, testInfo) => {
+    await page.route('**/api/me', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ user: STUB_USER })
+    }));
+    await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
+
+    await page.goto('/profile');
+    await expect(page.getByRole('heading', { level: 1, name: labels.profileTitle })).toBeVisible();
+    // All four cards, so the scan is of the whole page and not a half-rendered one.
+    await expect(page.getByRole('heading', { level: 2 })).toHaveCount(4);
+    await expect(page.getByRole('button', { name: labels.deleteAccount })).toBeVisible();
+
+    await scan(page, testInfo, 'profile', language);
+
+    const measured = await page.evaluate(() => ({
+      doc: document.documentElement.scrollWidth,
+      view: document.documentElement.clientWidth
+    }));
+    expect(measured.doc, 'account page wider than the viewport').toBeLessThanOrEqual(measured.view);
+  });
+}
 
 // No route may scroll sideways on a phone.
 //

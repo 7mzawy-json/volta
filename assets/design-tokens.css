@@ -167,11 +167,21 @@
   --color-ring: #39FF14;
   --color-success: #39FF14;
   --color-warning: #EAB308;
-  --color-warning-light: #FEF9C3;
   --color-error: #EF4444;
-  --color-error-light: #FEE2E2;
   --color-info: #3B82F6;
-  --color-info-light: #DBEAFE;
+
+  /* The status SURFACES are dark-mode values, unlike the three above. They were
+     the light theme's pale tints, carried over unchanged, and that is measurably
+     broken on a dark page:
+       - #FFFFFF on #FEF9C3 is 1.07:1 — the "waiting for payment" banner on the
+         order page was effectively invisible.
+       - #EF4444 on #FEE2E2 is 3.08:1, below the 4.5:1 AA asks of body text, and
+         that pairing is every form error in the app.
+     Tinted dark instead: white reads at 15.46:1 on the amber and 17.29:1 on the
+     red, error text at 4.60:1, warning text at 8.06:1. */
+  --color-warning-light: #2A2410;
+  --color-error-light: #2B1416;
+  --color-info-light: #10203A;
 
   --glow-strong: rgba(57, 255, 20, 0.16);
   --glow-soft: rgba(57, 255, 20, 0.10);

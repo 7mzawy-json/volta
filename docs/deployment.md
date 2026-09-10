@@ -245,6 +245,14 @@ Other things worth trying, since they are the parts the coursework asks about:
 
 - Sign out, and confirm the review form disappears while everyone's reviews stay readable.
 - Sign in as a second person and confirm you can edit and delete only your own review.
+- Open **My account** in the header and save a delivery address. Go back to checkout: the
+  address is filled in for you. Change a field there and place the order — the saved address
+  is left as it was, because a one-off delivery is not a change of address.
+- On the same page, try to change your password with the wrong current one (refused), then
+  with the right one (and confirm the old password no longer logs you in).
+- Delete a throwaway account at the bottom of that page. It asks for the password, then
+  removes the account, its reviews and its orders — the review you wrote disappears from the
+  product page, and everyone else's stay.
 - With that second account, open the browser console on a product page and try to change the
   other person's review directly. It should answer `403`:
 

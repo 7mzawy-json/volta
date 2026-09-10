@@ -1,0 +1,222 @@
+.page {
+  padding-block: 32px 72px;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* One column, capped. A settings page of full-width rows on a wide monitor
+     puts the label and its input a screen apart. */
+  max-width: 44rem;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-size: var(--display-md);
+  letter-spacing: var(--display-tracking);
+}
+
+.lead,
+.since,
+.muted,
+.cardLead {
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  line-height: 1.6;
+}
+
+.since {
+  font-size: var(--primitive-fontSize-xs);
+}
+
+/* --- cards ------------------------------------------------------------------ */
+
+.card {
+  background: var(--box-bg);
+  border: 1px solid var(--box-border);
+  border-radius: var(--box-radius);
+  box-shadow: var(--card-shadow);
+  padding: clamp(18px, 4vw, 26px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cardTitle {
+  font-size: var(--primitive-fontSize-lg);
+}
+
+/* --- forms ------------------------------------------------------------------ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  /* Without this a flex item refuses to shrink below its content, so the three
+     short address fields overflow their row instead of narrowing. */
+  min-width: 7rem;
+}
+
+.fieldRow {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+}
+
+.input {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--color-foreground);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius, 0.875rem);
+  padding: var(--input-padding-y, 0.5rem) var(--input-padding-x, 0.75rem);
+  /* 16px minimum and a 44px target, or iOS Safari zooms the page on focus. */
+  min-height: 44px;
+  width: 100%;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 1px;
+}
+
+.inputInvalid {
+  border-color: var(--color-error);
+}
+
+.inputInvalid:focus-visible {
+  outline-color: var(--color-error);
+}
+
+.hint {
+  font-size: var(--primitive-fontSize-xs);
+  color: var(--color-muted-foreground);
+}
+
+.fieldError {
+  font-size: var(--primitive-fontSize-xs);
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+/* --- messages --------------------------------------------------------------- */
+
+/* Both messages sit on the card itself, marked by a coloured rule rather than
+   filled. There is a tint token for errors but none for success, and a filled
+   red panel beside an unfilled green one reads as two different kinds of thing.
+   Unfilled, --color-error on the card is 4.76:1 dark and 5.52:1 light. */
+.ok,
+.error {
+  font-size: var(--primitive-fontSize-sm);
+  padding: 2px 0 2px 0;
+  padding-inline-start: 12px;
+  line-height: 1.5;
+}
+
+.ok {
+  color: var(--color-foreground);
+  border-inline-start: 3px solid var(--color-primary);
+}
+
+.error {
+  color: var(--color-error);
+  border-inline-start: 3px solid var(--color-error);
+}
+
+/* --- buttons ---------------------------------------------------------------- */
+
+.quietBtn {
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  font: inherit;
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.quietBtn:hover {
+  color: var(--color-foreground);
+}
+
+.quietBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Deletion is styled as its own thing rather than as the primary action: on a
+   page of save buttons, the one that destroys the account should not look like
+   the rest of them. */
+.danger {
+  border-color: var(--color-error);
+}
+
+.dangerBtn {
+  font: inherit;
+  font-weight: 700;
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-error);
+  background: none;
+  /* A 1px boundary at the error colour, not a tint: WCAG 1.4.11 wants 3:1
+     against the surface for a control's boundary, and a filled red block would
+     put white text on it at a ratio this palette does not reach. */
+  border: 1px solid currentColor;
+  border-radius: var(--input-radius, 0.875rem);
+  padding: 11px 18px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+/* Hover thickens the boundary rather than filling it: --color-error on
+   --box-bg-hover is 4.33:1 in dark mode, and a hover state is not a reason to
+   drop below AA. Padding compensates so nothing moves. */
+.dangerBtn:hover {
+  border-width: 2px;
+  padding: 10px 17px;
+}
+
+.dangerBtn:focus-visible {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+.dangerBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (min-width: 720px) {
+  .actions {
+    margin-top: 8px;
+  }
+}

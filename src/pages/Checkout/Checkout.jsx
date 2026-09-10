@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -12,6 +12,20 @@ import { governorates } from '../../data/kuwait.js';
 import Button from '../../components/Button/Button.jsx';
 import styles from './Checkout.module.css';
 import { validateCheckout } from './checkoutValidation.js';
+
+const emptyForm = {
+  fullName: '',
+  governorate: '',
+  city: '',
+  block: '',
+  street: '',
+  building: '',
+  details: '',
+  phone: '',
+  cardNumber: '',
+  expiry: '',
+  cvc: ''
+};
 
 const paymentMethods = [
   // First and default: the only one that actually takes money. The others are
@@ -28,21 +42,29 @@ export default function Checkout() {
   const { lineItems, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    fullName: '',
-    governorate: '',
-    city: '',
-    block: '',
-    street: '',
-    building: '',
-    details: '',
-    phone: '',
-    cardNumber: '',
-    expiry: '',
-    cvc: ''
-  });
-  const [payment, setPayment] = useState('stripe');
   const { user, isReady } = useAuth();
+
+  const [form, setForm] = useState(emptyForm);
+  const [payment, setPayment] = useState('stripe');
+
+  // Fill the address in from the account once the session check comes back.
+  //
+  // Only the address, and only into an untouched form: this is a convenience,
+  // not a binding. Whatever is typed here is used for THIS order and the saved
+  // address is left alone — a gift delivered elsewhere must not silently
+  // rewrite where the shopper lives.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || !user?.address) return;
+    prefilled.current = true;
+    setForm((f) => {
+      // The session check is asynchronous, so a fast typist can be mid-address
+      // when it lands. Anything already typed wins over the saved copy.
+      const touched = Object.keys(user.address).some((k) => f[k]?.trim());
+      return touched ? f : { ...f, ...user.address };
+    });
+  }, [user]);
+
   const [payError, setPayError] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
   const attemptKey = useRef(null);

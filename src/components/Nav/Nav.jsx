@@ -111,10 +111,10 @@ export default function Nav() {
               flash before the session check comes back. */}
           {isReady && (
             <NavLink
-              to={user ? '/orders' : '/login'}
+              to={user ? '/profile' : '/login'}
               className={`${styles.langBtn} ${styles.desktopAction}`}
             >
-              {user ? t.account.myOrders : t.account.signIn}
+              {user ? t.account.myProfile : t.account.signIn}
             </NavLink>
           )}
 
@@ -183,6 +183,9 @@ export default function Nav() {
                   <span className={styles.drawerGreeting}>
                     {t.account.greeting.replace('{name}', user.name)}
                   </span>
+                  <NavLink to="/profile" className={styles.drawerAccountLink} onClick={closeMenu}>
+                    {t.account.myProfile}
+                  </NavLink>
                   <NavLink to="/orders" className={styles.drawerAccountLink} onClick={closeMenu}>
                     {t.account.myOrders}
                   </NavLink>

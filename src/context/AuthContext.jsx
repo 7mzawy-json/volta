@@ -52,9 +52,43 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Editing goes through here rather than through the page, so every screen
+  // showing the shopper's name updates from one response — the nav greeting and
+  // the checkout prefill included.
+  const updateProfile = useCallback(async (patch) => {
+    const { user: saved } = await api.patch('/me', patch);
+    setUser(saved);
+    return saved;
+  }, []);
+
+  // Deliberately does NOT change `user`: the password is not part of what the
+  // app knows about the shopper, and the session survives the change.
+  const changePassword = useCallback(
+    ({ currentPassword, newPassword }) => api.post('/me/password', { currentPassword, newPassword }),
+    []
+  );
+
+  const deleteAccount = useCallback(async (password) => {
+    const result = await api.del('/me', { password });
+    // Only after the server confirms. Clearing first would sign someone out of
+    // an account that still exists if the password was wrong.
+    setUser(null);
+    return result;
+  }, []);
+
   const value = useMemo(
-    () => ({ user, status, isReady: status === 'ready', signUp, logIn, logOut }),
-    [user, status, signUp, logIn, logOut]
+    () => ({
+      user,
+      status,
+      isReady: status === 'ready',
+      signUp,
+      logIn,
+      logOut,
+      updateProfile,
+      changePassword,
+      deleteAccount
+    }),
+    [user, status, signUp, logIn, logOut, updateProfile, changePassword, deleteAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

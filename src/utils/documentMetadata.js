@@ -32,7 +32,8 @@ function pageText(pathname, t) {
     '/compare': { title: `${t.compare.title} | ${t.brand}`, description: t.meta.compare },
     '/login': { title: `${t.account.signIn} | ${t.brand}`, description: t.meta.login },
     '/signup': { title: `${t.account.signUp} | ${t.brand}`, description: t.meta.signup },
-    '/orders': { title: `${t.orders.title} | ${t.brand}`, description: t.meta.orders }
+    '/orders': { title: `${t.orders.title} | ${t.brand}`, description: t.meta.orders },
+    '/profile': { title: `${t.profile.title} | ${t.brand}`, description: t.meta.profile }
   };
 
   return pages[pathname] || {

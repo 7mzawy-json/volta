@@ -6,6 +6,28 @@ import bcrypt from 'bcryptjs';
 // a sign-in still feels instant.
 const BCRYPT_ROUNDS = 12;
 
+// A single nested SUB-SCHEMA rather than bare nested paths. The difference is
+// not cosmetic: a real subdocument can be set to null in one assignment to clear
+// a saved address. Bare nested paths cannot, so "remove my saved address" would
+// silently leave the old one behind.
+//
+// `_id: false` because this is one address on one user, not a collection.
+const addressSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, trim: true },
+    governorate: { type: String, trim: true },
+    city: { type: String, trim: true },
+    block: { type: String, trim: true },
+    street: { type: String, trim: true },
+    building: { type: String, trim: true },
+    // Optional and unvalidated, exactly as on the checkout form: a floor or flat
+    // number has no national format worth enforcing.
+    details: { type: String, trim: true },
+    phone: { type: String, trim: true }
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema(
   {
     email: {
@@ -25,6 +47,15 @@ const userSchema = new mongoose.Schema(
       minlength: 2,
       maxlength: 80
     },
+    // The shopper's saved delivery address. Optional — an account is useful
+    // without one, and demanding it at signup would put a seven-field form in
+    // front of someone who only wants to leave a review.
+    //
+    // Shaped exactly like the checkout form so prefilling is a copy rather than
+    // a translation, and validated by the SAME function the checkout uses
+    // (see routes/profile.js) so Kuwaiti address rules live in one place.
+    address: { type: addressSchema, default: null },
+
     // The HASH, never the password. `select: false` keeps it out of every query
     // result unless something asks for it by name, so it cannot be leaked by a
     // route that forgets to pick fields.
@@ -53,7 +84,28 @@ userSchema.methods.verifyPassword = function verifyPassword(plain) {
 // What the client is allowed to see about a user. Nothing derived from the hash
 // appears here, not even its length.
 userSchema.methods.toPublic = function toPublic() {
-  return { id: this._id.toString(), email: this.email, name: this.name, createdAt: this.createdAt };
+  // Listed field by field rather than dumped, so a field added to the address
+  // later has to be chosen for the client rather than arriving there by default.
+  const a = this.address;
+  const address = a?.governorate
+    ? {
+        fullName: a.fullName,
+        governorate: a.governorate,
+        city: a.city,
+        block: a.block,
+        street: a.street,
+        building: a.building,
+        details: a.details || '',
+        phone: a.phone
+      }
+    : null;
+  return {
+    id: this._id.toString(),
+    email: this.email,
+    name: this.name,
+    address,
+    createdAt: this.createdAt
+  };
 };
 
 export const User = mongoose.model('User', userSchema);
