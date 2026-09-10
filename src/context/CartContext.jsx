@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useCallback, useMemo, useState } from 'react';
 import { findVariant } from '../data/products.js';
 import { useToast } from './ToastContext.jsx';
 import { useLanguage } from './LanguageContext.jsx';
@@ -52,6 +52,16 @@ export function CartProvider({ children }) {
 
   const clearCart = () => setItems([]);
 
+  // Remove specific lines rather than the whole basket.
+  //
+  // useCallback because OrderDetail lists this in an effect's dependencies: a
+  // new function identity on every render would restart its payment poll every
+  // render, resetting the two-minute clock each time.
+  const removeItems = useCallback((variantIds) => {
+    const removing = new Set(variantIds);
+    setItems((prev) => prev.filter((i) => !removing.has(i.variantId)));
+  }, []);
+
   const updateQty = (variantId, qty) => {
     if (qty <= 0) return removeItem(variantId);
     const found = findVariant(variantId);
@@ -86,6 +96,7 @@ export function CartProvider({ children }) {
         removeItem,
         updateQty,
         clearCart,
+        removeItems,
         isDrawerOpen,
         openDrawer: () => setDrawerOpen(true),
         closeDrawer: () => setDrawerOpen(false)

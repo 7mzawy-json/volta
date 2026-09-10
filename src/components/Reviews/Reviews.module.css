@@ -54,16 +54,24 @@
 }
 
 .starOff {
-  color: var(--color-border);
+  /* Not --color-border. That is a decorative token; these stars are how you
+     pick a rating, so they answer to WCAG 1.4.11 rather than to taste. */
+  color: var(--rating-empty);
 }
 
+/* The comment here used to claim a 44px target; it measured 24×36. Padding on
+   an inline element with line-height 1 does not make a box that size, so the
+   box is now stated outright. Five of them is 220px, which fits a 320px phone. */
 .starLabel {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
   font-size: 1.5rem;
   line-height: 1;
-  /* 44px hit target even though the glyph is smaller. */
-  padding: 6px 2px;
 }
 
 .starInput {

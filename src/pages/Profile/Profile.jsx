@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -42,11 +42,17 @@ export default function Profile() {
   const [busy, setBusy] = useState(null); // 'details' | 'address' | 'password' | 'delete'
   const [notes, setNotes] = useState({});
 
-  // Seeded from the session once it arrives, and re-seeded if the account is
-  // edited elsewhere. Not a `value={user.name}` binding: this form is a draft
-  // until it is saved, and a draft that snaps back mid-edit is unusable.
+  // Seeded ONCE per account, not on every change to `user`.
+  //
+  // Re-seeding on every change looked harmless and was not: saving any section
+  // replaces `user` with the API's response, which re-ran this and overwrote
+  // the other section's unsaved draft. An audit typed a new city, saved the
+  // name, and watched the city revert with no warning. Each save now updates
+  // only the section that was saved.
+  const seededFor = useRef(null);
   useEffect(() => {
-    if (!user) return;
+    if (!user || seededFor.current === user.id) return;
+    seededFor.current = user.id;
     setDetails({ name: user.name, email: user.email });
     setAddress(user.address ? { ...EMPTY_ADDRESS, ...user.address } : EMPTY_ADDRESS);
   }, [user]);
@@ -54,21 +60,20 @@ export default function Profile() {
   if (!isReady) return <main className={`container ${styles.page}`} aria-busy="true" />;
   if (!user) return <Navigate to="/login" replace state={{ next: '/profile' }} />;
 
-  const note = (section, message, tone = 'ok') =>
-    setNotes((n) => ({ ...n, [section]: { message, tone } }));
-
-  // Every submit here is the same shape: mark the section busy, run it, and turn
-  // whatever the server said into a message in the reader's language.
-  async function run(section, action, okMessage) {
+  // Every submit here is the same shape: mark the section busy, run it, and
+  // record what happened as a KEY. Not a sentence: a stored sentence is frozen
+  // in the language that was on screen when it was written, and this page has a
+  // language toggle three inches above it.
+  async function run(section, action, okKey) {
     setBusy(section);
     setNotes((n) => ({ ...n, [section]: null }));
     try {
       await action();
-      if (okMessage) note(section, okMessage);
+      if (okKey) setNotes((n) => ({ ...n, [section]: { tone: 'ok', key: okKey } }));
       return true;
     } catch (err) {
       const code = err instanceof ApiError ? err.code : 'serverError';
-      note(section, t.apiErrors[code] || t.apiErrors.serverError, 'error');
+      setNotes((n) => ({ ...n, [section]: { tone: 'error', key: code } }));
       return false;
     } finally {
       setBusy(null);
@@ -77,7 +82,7 @@ export default function Profile() {
 
   const saveDetails = (e) => {
     e.preventDefault();
-    run('details', () => updateProfile({ name: details.name.trim(), email: details.email.trim() }), t.profile.saved);
+    run('details', () => updateProfile({ name: details.name.trim(), email: details.email.trim() }), 'saved');
   };
 
   const saveAddress = (e) => {
@@ -91,18 +96,18 @@ export default function Profile() {
       document.getElementById(`profile-${first}`)?.focus();
       return;
     }
-    run('address', () => updateProfile({ address }), t.profile.saved);
+    run('address', () => updateProfile({ address }), 'saved');
   };
 
   const removeAddress = async () => {
     setAddressErrors({});
-    const done = await run('address', () => updateProfile({ address: null }), t.profile.addressRemoved);
+    const done = await run('address', () => updateProfile({ address: null }), 'addressRemoved');
     if (done) setAddress(EMPTY_ADDRESS);
   };
 
   const savePassword = async (e) => {
     e.preventDefault();
-    const done = await run('password', () => changePassword(passwords), t.profile.passwordChanged);
+    const done = await run('password', () => changePassword(passwords), 'passwordChanged');
     // Cleared on success only. Keeping them after a failure lets someone fix a
     // typo instead of retyping both.
     if (done) setPasswords({ currentPassword: '', newPassword: '' });
@@ -131,12 +136,18 @@ export default function Profile() {
   const noteFor = (section) => {
     const entry = notes[section];
     if (!entry) return null;
+    // Translated here, at render, so switching language switches the message
+    // too. Errors carry a server code; successes carry a key from this page.
+    const message =
+      entry.tone === 'error'
+        ? t.apiErrors[entry.key] || t.apiErrors.serverError
+        : t.profile[entry.key];
     return (
       <p
         className={entry.tone === 'error' ? styles.error : styles.ok}
         role={entry.tone === 'error' ? 'alert' : 'status'}
       >
-        {entry.message}
+        {message}
       </p>
     );
   };

@@ -118,7 +118,11 @@
   --color-accent: #0E7A2E;
   --color-ring: #0E7A2E;
   --color-success: #0E7A2E;
-  --color-warning: #A66A00;
+  /* Was #A66A00, which measured 4.18:1 on the ivory page and 4.40:1 on a card —
+     under the 4.5:1 body text needs, and "Awaiting payment" on the order page is
+     12px, which is not large text by any definition. #8A5800 measures 5.63:1 and
+     5.93:1. The dark theme's #EAB308 was already fine at 9.35:1. */
+  --color-warning: #8A5800;
   --color-warning-light: #FEF9C3;
   --color-error: #C62828;
   --color-error-light: #FEE2E2;
@@ -250,6 +254,12 @@
 
   --scrim: rgba(40, 36, 24, 0.42);
 
+  /* The unselected half of the rating picker. It used --color-border, which is
+     a DECORATIVE token tuned to sit quietly behind content — 1.86:1 here. These
+     stars are the control: after choosing one star, the other four are still
+     the way you choose two. 4.44:1 against the form. */
+  --rating-empty: #7E7660;
+
   /* Glass. A translucent fill over whatever is behind, a hairline edge, a top
      highlight where the light catches, and a soft lift.
      The edge is NOT decorative: WCAG 1.4.11 asks 3:1 for the boundary of a
@@ -270,6 +280,9 @@
   --button-secondary-border: #FFFFFF;
   --button-secondary-fg: #FFFFFF;
   --button-secondary-hover-border: #39FF14;
+
+  /* 4.65:1 against the card. Same reasoning as the light value. */
+  --rating-empty: #7C8290;
 
   --glass-fill: rgba(255, 255, 255, 0.07);
   --glass-edge: rgba(255, 255, 255, 0.42);

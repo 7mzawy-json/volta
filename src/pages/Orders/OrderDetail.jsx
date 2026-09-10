@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useMoney } from '../../context/CurrencyContext.jsx';
@@ -30,7 +30,15 @@ export default function OrderDetail() {
   const { lang, t } = useLanguage();
   const { user, isReady } = useAuth();
   const money = useMoney();
-  const { clear } = useCart();
+  // `clear` — which this used to destructure — does not exist on the cart
+  // context. Calling it threw inside the poll's try/catch every time an order
+  // came back paid, so the basket was never emptied and the failed attempt
+  // silently cost an extra poll. An audit found it; nothing failed loudly.
+  const { removeItems } = useCart();
+  const [searchParams] = useSearchParams();
+  // Only a return from Stripe empties anything. Opening an old paid order with
+  // a new basket must leave that basket alone.
+  const cameFromCheckout = searchParams.get('checkout') === 'success';
 
   const [order, setOrder] = useState(null);
   const [missing, setMissing] = useState(false);
@@ -59,9 +67,13 @@ export default function OrderDetail() {
 
         // The basket empties only once payment is confirmed. Clearing it when
         // the session was created would punish anyone who backed out of Stripe.
-        if (fresh.status === 'paid' && !cartCleared.current) {
+        //
+        // And only the lines that were actually bought, on the visit that
+        // bought them: this page is also how someone reads an order from last
+        // month, and that must not empty today's shopping.
+        if (fresh.status === 'paid' && !cartCleared.current && cameFromCheckout) {
           cartCleared.current = true;
-          clear();
+          removeItems(fresh.lines.map((l) => l.variantId));
         }
 
         if (fresh.status !== 'pending') return; // settled: stop polling
@@ -84,7 +96,7 @@ export default function OrderDetail() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [id, user, clear]);
+  }, [id, user, removeItems, cameFromCheckout]);
 
   if (!isReady) return <main className={`container ${styles.page}`} aria-busy="true" />;
   if (!user) return <Navigate to="/login" replace state={{ next: `/orders/${id}` }} />;

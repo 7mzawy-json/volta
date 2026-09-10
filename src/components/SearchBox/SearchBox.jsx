@@ -135,9 +135,11 @@ export default function SearchBox({ className = '', onNavigate }) {
                       aria-selected={i === active}
                       className={`${styles.item} ${i === active ? styles.itemActive : ''}`}
                       onMouseEnter={() => setActive(i)}
-                      // onMouseDown, not onClick: the outside-click handler runs on
-                      // mousedown and would close the panel before a click landed.
-                      onMouseDown={(e) => { e.preventDefault(); goToProduct(p); }}
+                      // preventDefault on mousedown keeps focus in the input, so
+                      // the panel is still open when the click arrives; the
+                      // click itself is what navigates.
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => goToProduct(p)}
                     >
                       <span className={styles.thumb}>
                         <ProductVisual product={p} size={isPhone ? 20 : 26} />
@@ -150,7 +152,17 @@ export default function SearchBox({ className = '', onNavigate }) {
                   );
                 })}
               </ul>
-              <button type="button" className={styles.seeAll} onMouseDown={(e) => { e.preventDefault(); goToResults(); }}>
+              {/* onClick, not onMouseDown. It navigated on mousedown only, so a
+                  keyboard user could tab to this button and press Enter or Space
+                  and nothing at all happened — both dispatch a click, and there
+                  was no click handler. preventDefault on mousedown is kept for
+                  the reason above: it holds focus, it does not navigate. */}
+              <button
+                type="button"
+                className={styles.seeAll}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={goToResults}
+              >
                 {t.nav.seeAllResults}
               </button>
             </>

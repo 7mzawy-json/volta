@@ -50,13 +50,38 @@ function scoreFor(product, term) {
   return index.get(product.id).includes(term) ? 1 : 0;
 }
 
-export function searchProducts(query, limit = 6) {
-  const term = query.trim().toLowerCase();
-  if (term.length < 2) return [];
+// Every whitespace-separated term must match somewhere, so "samsung 512" narrows
+// rather than widening the way an OR would.
+function termsOf(query) {
+  return query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+}
 
-  // Every whitespace-separated term must match somewhere, so "samsung 512" narrows
-  // rather than widening the way an OR would.
-  const terms = term.split(/\s+/);
+// Does this product match at all? The predicate on its own, so the listing page
+// and the suggestion dropdown can share one definition of "matches".
+//
+// They did not share one, and that was a real defect: suggestions searched the
+// full haystack while the results page searched names and brands only. Typing
+// "256GB" offered six phones and then, on submitting the same query, said "0
+// results". The listing is the page that has to agree with what it just
+// suggested.
+export function matchesQuery(product, query) {
+  const terms = termsOf(query);
+  if (!terms.length) return true;
+  return terms.every((term) => scoreFor(product, term) > 0);
+}
+
+// Ranked and capped, for the dropdown.
+export function searchProducts(query, limit = 6) {
+  const terms = termsOf(query);
+  // A single letter would offer most of the catalogue, so suggestions wait for
+  // two. The listing has no such rule — see rankProducts.
+  if (!terms.length || terms.join('').length < 2) return [];
+  return rankProducts(query).slice(0, limit);
+}
+
+// Ranked, uncapped: the same order as the dropdown, for the whole result set.
+export function rankProducts(query) {
+  const terms = termsOf(query);
 
   return products
     .map((product) => {
@@ -66,6 +91,5 @@ export function searchProducts(query, limit = 6) {
     })
     .filter(Boolean)
     .sort((a, b) => b.score - a.score || getPriceRange(a.product).min - getPriceRange(b.product).min)
-    .slice(0, limit)
     .map((r) => r.product);
 }

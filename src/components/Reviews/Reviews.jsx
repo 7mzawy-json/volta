@@ -57,7 +57,8 @@ export default function Reviews({ productId }) {
   const location = useLocation();
 
   const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  // A code, translated at render — see Account.jsx.
+  const [errorCode, setErrorCode] = useState(null);
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState({ rating: 5, body: '' });
   const [editingId, setEditingId] = useState(null);
@@ -80,13 +81,13 @@ export default function Reviews({ productId }) {
 
   function fail(err) {
     const code = err instanceof ApiError ? err.code : 'serverError';
-    setError(t.apiErrors[code] || t.apiErrors.serverError);
+    setErrorCode(code);
   }
 
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
+    setErrorCode(null);
     try {
       if (editingId) {
         await api.patch(`/reviews/${editingId}`, draft);
@@ -108,7 +109,7 @@ export default function Reviews({ productId }) {
     // still a delete — ask first.
     if (!window.confirm(t.reviews.confirmDelete)) return;
     setBusy(true);
-    setError(null);
+    setErrorCode(null);
     try {
       await api.del(`/reviews/${id}`);
       if (editingId === id) setEditingId(null);
@@ -123,7 +124,7 @@ export default function Reviews({ productId }) {
   function startEdit(review) {
     setEditingId(review.id);
     setDraft({ rating: review.rating, body: review.body });
-    setError(null);
+    setErrorCode(null);
   }
 
   return (
@@ -225,9 +226,9 @@ export default function Reviews({ productId }) {
             />
           </label>
 
-          {error && (
+          {errorCode && (
             <p className={styles.error} role="alert">
-              {error}
+              {t.apiErrors[errorCode] || t.apiErrors.serverError}
             </p>
           )}
 

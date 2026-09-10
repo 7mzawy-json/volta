@@ -65,7 +65,8 @@ export default function Checkout() {
     });
   }, [user]);
 
-  const [payError, setPayError] = useState(null);
+  // A code, translated at render — see Account.jsx.
+  const [payErrorCode, setPayErrorCode] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
   const attemptKey = useRef(null);
   const { code: currencyCode } = useCurrency();
@@ -93,7 +94,7 @@ export default function Checkout() {
   // Stripe path: hand the cart to the API, which prices it from the catalogue
   // and returns a hosted Checkout URL. The browser never sees or sends a price.
   async function payWithStripe() {
-    setPayError(null);
+    setPayErrorCode(null);
     setRedirecting(true);
     try {
       // One key per attempt, minted here and reused if this runs again. Without
@@ -127,8 +128,7 @@ export default function Checkout() {
       // A full navigation, not a router push: Stripe's page is not ours.
       window.location.assign(url);
     } catch (err) {
-      const code = err instanceof ApiError ? err.code : 'serverError';
-      setPayError(t.apiErrors[code] || t.apiErrors.serverError);
+      setPayErrorCode(err instanceof ApiError ? err.code : 'serverError');
       setRedirecting(false);
     }
   }
@@ -329,9 +329,9 @@ export default function Checkout() {
             <span>{t.cart.total}</span>
             <span>{money(subtotal)}</span>
           </div>
-          {payment === 'stripe' && payError && (
+          {payment === 'stripe' && payErrorCode && (
             <p className={styles.payError} role="alert">
-              {payError}
+              {t.apiErrors[payErrorCode] || t.apiErrors.serverError}
             </p>
           )}
 

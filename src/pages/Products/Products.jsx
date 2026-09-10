@@ -13,6 +13,7 @@ import {
   getPriceBounds
 } from '../../data/products.js';
 import { getColor } from '../../data/colors.js';
+import { matchesQuery } from '../../data/search.js';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
 import PriceRange from '../../components/PriceRange/PriceRange.jsx';
 import { plural } from '../../utils/plural.js';
@@ -84,18 +85,17 @@ export default function Products() {
   };
 
   // Everything matching category and search, before any facet applies.
-  const beforeFacets = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return products.filter((p) => {
-      const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
-      const matchesQuery = q
-        ? p.name.ar.includes(query) ||
-          p.name.en.toLowerCase().includes(q) ||
-          (p.brand && p.brand.toLowerCase().includes(q))
-        : true;
-      return matchesCategory && matchesQuery;
-    });
-  }, [query, activeCategory]);
+  //
+  // The search predicate is the SAME one the dropdown uses. It used to be a
+  // second, narrower copy — names and brands only — so a query the dropdown
+  // answered with six phones ("256GB") produced an empty listing when submitted.
+  const beforeFacets = useMemo(
+    () =>
+      products.filter(
+        (p) => (activeCategory === 'all' || p.category === activeCategory) && matchesQuery(p, query)
+      ),
+    [query, activeCategory]
+  );
 
   const bounds = useMemo(() => getPriceBounds(beforeFacets), [beforeFacets]);
 
@@ -214,9 +214,17 @@ export default function Products() {
               />
             )}
 
+            {/* One element, two things. From 768px up it is the page's filter
+                sidebar — a complementary landmark. On a phone it is a modal
+                drawer: it locks scrolling, traps focus and restores it on close,
+                so it has to SAY it is a dialog. It did not, and assistive
+                technology was handed an aside whose focus had silently moved
+                into it. filtersOpen is only ever true in the drawer state. */}
             <aside
               ref={filtersRef}
               className={`${styles.filters} ${filtersOpen ? styles.filtersOpen : ''}`}
+              role={filtersOpen ? 'dialog' : undefined}
+              aria-modal={filtersOpen ? 'true' : undefined}
               aria-label={t.facets.title}
               tabIndex={-1}
             >

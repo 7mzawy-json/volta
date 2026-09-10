@@ -16,7 +16,11 @@ export default function Account({ mode = 'login' }) {
   const location = useLocation();
 
   const [form, setForm] = useState({ email: '', name: '', password: '' });
-  const [error, setError] = useState(null);
+  // The CODE, not the sentence. Storing the translated text froze the message in
+  // whichever language was on screen when it happened: an audit triggered a
+  // login error, switched to Arabic, and watched an English sentence sit under
+  // an Arabic form.
+  const [errorCode, setErrorCode] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const isSignUp = mode === 'signup';
@@ -30,16 +34,16 @@ export default function Account({ mode = 'login' }) {
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
+    setErrorCode(null);
     try {
       if (isSignUp) await signUp(form);
       else await logIn({ email: form.email, password: form.password });
       navigate(next, { replace: true });
     } catch (err) {
       // The server sends a stable code, never display text — it does not know
-      // which language this reader chose.
-      const code = err instanceof ApiError ? err.code : 'serverError';
-      setError(t.apiErrors[code] || t.apiErrors.serverError);
+      // which language this reader chose. Kept as a code and translated below,
+      // for the same reason.
+      setErrorCode(err instanceof ApiError ? err.code : 'serverError');
     } finally {
       setBusy(false);
     }
@@ -100,9 +104,9 @@ export default function Account({ mode = 'login' }) {
           {/* role=alert so the message is announced when it appears, not only
               seen — a form error that only exists visually is invisible to a
               screen reader that has already moved past it. */}
-          {error && (
+          {errorCode && (
             <p className={styles.error} role="alert">
-              {error}
+              {t.apiErrors[errorCode] || t.apiErrors.serverError}
             </p>
           )}
 
