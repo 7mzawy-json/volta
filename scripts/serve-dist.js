@@ -1,15 +1,15 @@
-// A local stand-in for how Netlify serves this site, used to check the build
+// A local stand-in for how a static host serves this site, used to check the build
 // before uploading it.
 //
 // `vite preview` is not good enough for that job: it answers EVERY path with the
 // root index.html, so the per-route heads written by prerender-meta are never
-// seen and a broken deploy would look fine. Netlify resolves a static file first
+// seen and a broken deploy would look fine. A real host resolves a static file first
 // and only falls back to the SPA rewrite when nothing matches, which is the
 // order this reproduces:
 //
 //   1. exact file            /volta-social-preview.png
 //   2. directory index       /products/iphone-17-pro-max -> .../index.html
-//   3. SPA fallback          anything else -> /index.html with 200, per _redirects
+//   3. SPA fallback          anything else -> /index.html with 200, per vercel.json
 //
 // Point a scraper-shaped request at it (plain fetch, no JavaScript) and what
 // comes back is what a link preview will be built from.
@@ -31,7 +31,7 @@ function flag(name, fallback) {
 
 const port = Number(flag('port', process.env.PORT || 4175));
 // Serve under a prefix to reproduce GitHub Pages, which puts a project repo at
-// /<repo>/. Netlify serves from the root, so this defaults to empty.
+// /<repo>/. Vercel serves from the root, so this defaults to empty.
 const base = String(flag('base', process.env.BASE || '')).replace(/\/+$/, '');
 
 const TYPES = {
@@ -71,8 +71,8 @@ async function resolveTarget(pathname) {
   const index = await fileAt(join(candidate, 'index.html'));
   if (index) return { path: index, status: 200 };
 
-  // GitHub Pages answers an unmatched path with 404.html and a 404 status;
-  // Netlify rewrites to index.html with a 200. Mirror whichever host is being
+  // A rewrite-less host answers an unmatched path with 404.html and a 404 status;
+  // Vercel rewrites to index.html with a 200. Mirror whichever host is being
   // imitated, so the difference shows up in testing rather than in production.
   if (base) return { path: join(root, '404.html'), status: 404, fallback: true };
   return { path: join(root, 'index.html'), status: 200, fallback: true };
@@ -94,6 +94,6 @@ createServer(async (req, res) => {
 }).listen(port, () => {
   console.log(
     `  serving dist/ on http://localhost:${port}${base || ''}` +
-      (base ? ' — GitHub Pages resolution (static file, then 404.html)' : ' — Netlify resolution (static file, then SPA rewrite)')
+      (base ? ' — subpath resolution (static file, then 404.html)' : ' — Vercel resolution (static file, then SPA rewrite)')
   );
 });

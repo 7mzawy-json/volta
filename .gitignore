@@ -12,7 +12,6 @@ playwright-report/
 test-results/
 
 # Deploy bundle: a rebuildable artefact of dist/, which is itself ignored.
-volta-netlify.zip
 
 # Agent working files — kept locally, deliberately not published.
 # HANDOFF.md is the shared change log the agents read and sign; CLAUDE.md,

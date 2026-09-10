@@ -266,23 +266,21 @@ Other things worth trying, since they are the parts the coursework asks about:
 
 ---
 
-## The other two deployments
+## Why there is only one deployment
 
-This repository still deploys to **Netlify** (by hand, from a zip) and to **GitHub Pages**
-(automatically, via [`.github/workflows/deploy-pages.yml`](../.github/workflows/deploy-pages.yml)).
+This repository used to deploy three times over: Vercel, **Netlify** (by hand, from a zip)
+and **GitHub Pages** (automatically, from a workflow). Neither of the other two can host an
+API — Pages serves static files only, and the Netlify site had no functions — so on both of
+them the storefront, catalogue, comparison, cart and currency switcher worked while
+**sign-in, reviews, the account page and payment did not**. `/api` resolved to nothing.
 
-Neither has an API. The storefront, catalogue, comparison, cart and currency switcher all
-work there; **sign-in, reviews and payment do not**, because `/api` resolves to nothing.
+Three URLs for one project, two of them quietly broken, is worse than one. Both were retired:
+the Pages workflow and Netlify's `public/_redirects` are deleted, and `VITE_SITE_ORIGIN`
+points at Vercel everywhere.
 
-Pick one of three:
-
-- **Make Vercel canonical** and stop the others — delete the workflow file, and delete the
-  Netlify site. Simplest, and stops three URLs drifting apart.
-- **Keep Pages as a static shop window** and accept that accounts do not work there. If you
-  do, say so on the page rather than leaving people at a broken login.
-- **Point Pages at the same API** by adding a `/api` proxy — GitHub Pages cannot do this. It
-  serves static files only. It would need Cloudflare in front, which is more moving parts
-  than this is worth.
+The only trace left is `VITE_BASE` and React Router's `basename`, which existed because Pages
+served the repo from `/volta/`. They default to `/`, cost nothing, and are covered by tests,
+so they stay — see the README.
 
 ---
 

@@ -70,7 +70,7 @@ test('social preview is a real 1200 by 630 PNG', async () => {
   assert.equal(png.readUInt32BE(20), 630);
 });
 
-// GitHub Pages serves a project repo from /<repo>/, Netlify from the root. The
+// A subpath host serves a project from /<repo>/, Vercel from the root. The
 // same build code has to produce correct absolute URLs on both, so the base is
 // a parameter rather than an assumption.
 

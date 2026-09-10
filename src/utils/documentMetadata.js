@@ -8,7 +8,7 @@ const LOCALES = {
 };
 
 // Join the site's base path onto a route before resolving it against the
-// origin. Under Netlify base is '/' and this is a no-op; under GitHub Pages it
+// origin. Under Vercel base is '/' and this is a no-op; under a subpath deploy it
 // is '/volta/', and without it every canonical and og:url would advertise a URL
 // that 404s.
 function siteUrl(path, origin, base) {

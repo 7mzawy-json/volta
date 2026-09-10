@@ -1,7 +1,7 @@
 // Post-build step: write one static HTML file per route, each with its own
 // title, description, canonical URL and Open Graph tags.
 //
-// Netlify serves a matching static file before it consults _redirects, so
+// Vercel checks the filesystem before applying the rewrites in vercel.json, so
 // /products/iphone-17-pro-max/index.html is what a scraper gets for that link,
 // while anything unmatched still falls through the SPA rewrite to the root
 // index.html. Every file loads the identical bundle — only the head differs.
@@ -38,7 +38,7 @@ if (!origin) {
   console.warn(
     '\n  prerender-meta: VITE_SITE_ORIGIN is not set, so link previews will show a\n' +
       '  relative "/" instead of the real URL. Set it and build again:\n\n' +
-      '    VITE_SITE_ORIGIN=https://your-site.netlify.app npm run build\n'
+      '    VITE_SITE_ORIGIN=https://your-project.vercel.app npm run build\n'
   );
   process.exit(0);
 }
@@ -53,7 +53,7 @@ if (!/^\/([A-Za-z0-9._~-]+\/)*$/.test(base)) {
 if (!/^https?:\/\/[^/]+$/.test(origin)) {
   console.error(
     `\n  prerender-meta: VITE_SITE_ORIGIN must be a bare origin like\n` +
-      `  https://volta.netlify.app — got "${origin}".\n`
+      `  https://volta-kw.vercel.app — got "${origin}".\n`
   );
   process.exit(1);
 }
@@ -83,11 +83,14 @@ for (const route of routes) {
   written += 1;
 }
 
-// GitHub Pages has no rewrite rules — it serves 404.html for anything it cannot
-// match to a file. Making that a copy of the site's own entry page turns Pages'
-// 404 into the SPA fallback that public/_redirects provides on Netlify, so a
-// deep link that is not one of the prerendered routes still boots the app and
-// lets React Router render the storefront's own 404.
+// A host with no rewrite rules serves 404.html for anything it cannot match to a
+// file. Making that a copy of the site's own entry page turns its 404 into the
+// SPA fallback that vercel.json provides here, so a deep link that is not one of
+// the prerendered routes still boots the app and lets React Router render the
+// storefront's own 404 page.
+//
+// Vercel does not need it — this is what made the retired GitHub Pages deploy
+// work, and it is two lines to keep a build that is portable to a dumb host.
 const fallback = renderHead(
   template,
   resolveDocumentMetadata({ pathname: '/', lang: 'ar', origin, base })

@@ -3,15 +3,16 @@
 **Live: <https://volta-kw.vercel.app>**
 
 Front end on Vercel, API on Render, data in MongoDB Atlas, payments through Stripe
-(test mode). Also deployed — without an API, so accounts and payment do not work
-there — to [Netlify](https://volta-demo-v1.netlify.app) and
-[GitHub Pages](https://7mzawy-json.github.io/volta/).
+(test mode). One deployment, deliberately: earlier builds also went to Netlify and
+GitHub Pages, and neither could host an API, so sign-in, reviews and payment were
+broken on both. Both have been retired.
 
 An Arabic-first electronics storefront for the Kuwaiti market — smartphones and accessories,
 built as a working front end rather than a set of screens.
 
-Everything is fictional: the brand, the shop, the stock levels and the orders. Checkout
-takes an address and a payment method and then stops, by design. There is no server.
+Everything is fictional: the brand, the shop and the stock levels. The payments are
+real code against a real provider in test mode — Stripe never touches money, and the
+card number in the guide is Stripe's own test card.
 
 ## Run it
 
@@ -65,74 +66,56 @@ src/
   utils/        # currency, pluralisation, document metadata
 assets/         # design tokens (the source of both themes), brand mark
 docs/           # brand guidelines, user flow, ad script and its production guide
-scripts/        # build and deploy tooling: per-route head prerender, Netlify-like server
+scripts/        # build tooling: per-route head prerender, a static-host stand-in
+server/         # the API — Express, Mongoose, Stripe; its own package.json and tests
 tests/          # accessibility and layout checks that need a real browser
 ```
 
 ## Deploying
 
-The site is static. Build it, then upload the **contents** of `dist/` — Netlify's
-drag-and-drop wants `index.html` at the root of the archive, not nested inside a folder.
+Deployment is documented properly in [`docs/deployment.md`](docs/deployment.md) — four
+services, and two circular dependencies between them that are worth reading before you
+start. What follows is only the part of the build that is easy to get wrong.
 
 ```bash
-VITE_SITE_ORIGIN=https://your-site.netlify.app npm run build
+VITE_SITE_ORIGIN=https://your-project.vercel.app npm run build
 ```
 
-Set the origin, or copy `.env.example` to `.env` and set it once. It matters more than it
-looks: **link previews are built by scrapers that do not run JavaScript.** WhatsApp,
-Facebook, Slack, iMessage and LinkedIn read the HTML exactly as served, and Open Graph
-requires an absolute URL, so the address has to be baked in at build time rather than
-discovered from `window.location` the way the browser does it.
+Set the origin, or copy `.env.example` to `.env` and set it once; on Vercel it is an
+environment variable in the project settings. It matters more than it looks: **link previews
+are built by scrapers that do not run JavaScript.** WhatsApp, Facebook, Slack, iMessage and
+LinkedIn read the HTML exactly as served, and Open Graph requires an absolute URL, so the
+address has to be baked in at build time rather than discovered from `window.location` the
+way the browser does it.
 
 With the origin set, the build writes one small HTML file per route — 46 of them — each
 carrying its own title, description, canonical URL, Open Graph tags and (on product pages)
-JSON-LD. They all load the same bundle; only the head differs. Netlify serves a matching
-file before it consults `public/_redirects`, so a shared product link previews as that
-product, while any unmatched path still falls through the SPA rewrite to `index.html`.
+JSON-LD. They all load the same bundle; only the head differs. Vercel checks the filesystem
+*before* applying the rewrites in `vercel.json`, so a shared product link previews as that
+product, while any unmatched path still falls through to `index.html` and lets React Router
+render it.
 
 Without the origin the build still succeeds and prints a warning, and the tags stay
 relative — the previous behaviour, rather than a wrong absolute URL pointing at someone
 else's site.
 
-To check a build the way Netlify will serve it:
+To check a build the way a static host will serve it:
 
 ```bash
 npm run serve:dist
 ```
 
-`vite preview` is not a substitute here — it answers every path with the root
-`index.html`, so the per-route heads never appear and a broken deploy looks fine. The
-script above resolves static files first, exactly as Netlify does, and reports which of the
-two happened in an `x-volta-served` header.
+`vite preview` is not a substitute here — it answers every path with the root `index.html`,
+so the per-route heads never appear and a broken deploy looks fine. The script above
+resolves static files first, the way a real host does, and reports which of the two happened
+in an `x-volta-served` header.
 
-### GitHub Pages
+### One thing kept from the GitHub Pages deploy
 
-Also deployed to <https://7mzawy-json.github.io/volta/>, automatically, by
-[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) on every push to
-`main`. Nothing to run by hand.
-
-Pages serves a project repo from a **subpath**, which is the whole difficulty: with Vite's
-default `base` of `/`, every asset URL points at the domain root and the page renders blank.
-So the base is an environment variable rather than a constant —
-
-```bash
-VITE_BASE=/volta/ VITE_SITE_ORIGIN=https://7mzawy-json.github.io npm run build
-```
-
-— and it defaults to `/`, so the Netlify build needs no change. Three things follow from it,
-all handled: React Router gets a `basename` (or every route 404s), `resolveDocumentMetadata`
-prefixes the base onto canonical, `og:` and JSON-LD URLs (or they advertise addresses the
-host does not serve), and the build writes a `404.html` — Pages has no rewrite rules and
-serves that file for anything it cannot match, which is how the SPA fallback works there.
-
-To check a build the way *Pages* will serve it:
-
-```bash
-npm run serve:pages
-```
-
-That mounts `dist/` under `/volta/` and imitates Pages' resolution — static file first, then
-`404.html` with a real 404 status, rather than Netlify's 200 rewrite.
+`VITE_BASE` and React Router's `basename` exist because Pages served this repo from
+`/volta/` rather than from the root. Pages is retired, but the machinery stays: it defaults
+to `/`, it costs nothing there, it is covered by tests, and it is the only reason a subpath
+deploy would work at all if one is ever wanted again.
 
 ## Documentation
 
