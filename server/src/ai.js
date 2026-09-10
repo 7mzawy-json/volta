@@ -45,7 +45,15 @@ const MAX_OUTPUT_TOKENS = 300;
 
 // Hard ceiling on how long a shopper waits before the ordinary keyword search
 // takes over. Search must never feel broken because a model was slow.
-const TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 2500);
+//
+// Raised from 2500 after measuring real sentences against the live key rather
+// than the one short test phrase: 1176ms, 1281ms, 1374ms, 1571ms, 2133ms,
+// 2194ms, 2276ms. A 2.5s ceiling would have silently dropped the slowest of
+// those into the keyword fallback, which is a worse outcome than a beat of
+// waiting — the shopper pressed a button that says 'Reading your question…',
+// so a pause is expected and a wrong answer is not. A repeat costs nothing at
+// all: the cache answers in ~550ms, which is the round trip to Render.
+const TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 4000);
 
 // The vocabulary is BUILT FROM THE CATALOGUE, not typed out here.
 //

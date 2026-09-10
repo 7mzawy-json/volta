@@ -298,7 +298,7 @@ What is worth knowing before switching it on:
   sentence and the language. The second person to ask the same question costs
   nothing, and cached questions keep working when the model does not.
 - **It is rate limited** per address (`AI_RATE_LIMIT`, 30 per ten minutes by
-  default) and hard-timed-out (`AI_TIMEOUT_MS`, 2.5 seconds). A shopper never
+  default) and hard-timed-out (`AI_TIMEOUT_MS`, 4 seconds). A shopper never
   waits on a model longer than that.
 - Cost at demo volume is negligible — a few hundred tokens per uncached sentence
   against a small model. The key comes from Google AI Studio; `GEMINI_MODEL`
