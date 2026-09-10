@@ -60,9 +60,16 @@ export default function ScrollShowcase({ product }) {
     const read = () => {
       frame = 0;
       const rect = section.getBoundingClientRect();
-      // The travel is everything past the first screenful: while the section is
-      // taller than the viewport, that difference is how far the pin can hold.
-      const travel = rect.height - window.innerHeight;
+      // The travel is everything past the pinned child: while the section is
+      // taller than the thing stuck to the top of it, that difference is how far
+      // the pin can hold.
+      //
+      // Measured from the sticky element, NOT from window.innerHeight. On a
+      // phone browser those two disagree — the CSS height is svh, the viewport
+      // with the chrome shown, while innerHeight tracks the chrome as it
+      // collapses — and the progress would drift by however tall the URL bar is.
+      const pinned = section.firstElementChild?.getBoundingClientRect().height ?? window.innerHeight;
+      const travel = rect.height - pinned;
       if (travel <= 0) {
         setProgress(0);
         return;

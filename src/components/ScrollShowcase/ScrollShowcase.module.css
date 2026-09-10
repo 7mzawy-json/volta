@@ -8,6 +8,10 @@
      for however much of this is left. 260vh gives each of the three specs a
      comfortable beat without the section outstaying its welcome. */
   height: 260vh;
+  /* See the note in Nav.module.css: svh is the viewport with the phone's
+     browser chrome shown, which is the one the reader actually has. vh stays as
+     the fallback for browsers without the newer units. */
+  height: 260svh;
   position: relative;
 }
 
@@ -15,6 +19,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100svh;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -168,6 +173,84 @@
   font-size: var(--primitive-fontSize-sm);
   font-weight: 500;
   color: var(--color-muted-foreground);
+}
+
+/* --- short screens --------------------------------------------------------- */
+
+/* A pinned section cannot scroll — that is what pinning means — so on a screen
+   this short everything in it has to get smaller. Measured, not guessed: at
+   375x640 the sequence was 785px tall in a 640px box and lost its button off
+   the bottom edge.
+
+   Two conditions, one rule. Height alone was not enough: at 375x761 — a phone
+   just above the height cutoff — it still overflowed by 24px, because the
+   narrower the screen the more the title and the specs wrap, and a phone-width
+   layout is ~360px taller than the same content on a desktop. So phone widths
+   always get the compact sizing, and any short screen gets it at any width. */
+@media (max-width: 767px), (max-height: 760px) {
+  .inner {
+    gap: 14px;
+  }
+
+  .stage {
+    min-height: 150px;
+  }
+
+  .glow {
+    width: 240px;
+    height: 240px;
+  }
+
+  /* DeviceRender takes a pixel size as a prop; this overrides it for the one
+     place where the room is not there. Constrained by HEIGHT, not width: a
+     phone drawing is taller than it is wide, so capping the width still left it
+     258px tall in a box that had 150. */
+  .device svg {
+    height: 200px;
+    width: auto;
+  }
+
+  .copy {
+    gap: 8px;
+  }
+
+  .beats {
+    margin: 0;
+  }
+
+  .beat {
+    padding: 2px 0;
+  }
+
+  .beatValue {
+    font-size: clamp(1.4rem, 4.4vw, 1.9rem);
+  }
+}
+
+/* A landscape phone, or a very small window. One more step down rather than one
+   aggressive breakpoint, so a 700px-tall screen is not punished for a 500px
+   one. */
+@media (max-height: 620px) {
+  .inner {
+    gap: 10px;
+  }
+
+  .stage {
+    min-height: 120px;
+  }
+
+  .glow {
+    width: 190px;
+    height: 190px;
+  }
+
+  .device svg {
+    height: 140px;
+  }
+
+  .beatValue {
+    font-size: 1.35rem;
+  }
 }
 
 /* --- reduced motion / no pinning ------------------------------------------ */

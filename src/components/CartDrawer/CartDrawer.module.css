@@ -10,7 +10,9 @@
   position: fixed;
   top: 0;
   inset-inline-end: 0;
+  /* Same reason as the nav drawer — see the note there. */
   height: 100vh;
+  height: 100dvh;
   width: 90vw;
   max-width: 380px;
   background: var(--drawer-bg);
@@ -20,6 +22,7 @@
   transition: transform var(--motion-page) var(--motion-ease-standard);
   z-index: 300;
   padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
 }

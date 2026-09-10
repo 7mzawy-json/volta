@@ -249,6 +249,17 @@
   --drawer-shadow: 0 10px 30px -5px rgba(90, 84, 60, 0.25);
 
   --scrim: rgba(40, 36, 24, 0.42);
+
+  /* Glass. A translucent fill over whatever is behind, a hairline edge, a top
+     highlight where the light catches, and a soft lift.
+     The edge is NOT decorative: WCAG 1.4.11 asks 3:1 for the boundary of a
+     control, and a glass edge is easy to make too faint to qualify. These
+     alphas were chosen by compositing them over the surfaces they actually sit
+     on and measuring the result — see the note in SearchBox.module.css. */
+  --glass-fill: rgba(255, 255, 255, 0.55);
+  --glass-edge: rgba(90, 84, 60, 0.7);
+  --glass-highlight: rgba(255, 255, 255, 0.85);
+  --glass-shadow: 0 1px 2px rgba(90, 84, 60, 0.10), 0 10px 26px -14px rgba(90, 84, 60, 0.45);
 }
 
 /* --- DARK --- */
@@ -259,6 +270,11 @@
   --button-secondary-border: #FFFFFF;
   --button-secondary-fg: #FFFFFF;
   --button-secondary-hover-border: #39FF14;
+
+  --glass-fill: rgba(255, 255, 255, 0.07);
+  --glass-edge: rgba(255, 255, 255, 0.42);
+  --glass-highlight: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 10px 26px -14px rgba(0, 0, 0, 0.9);
 
   --box-bg: #16171A;
   --box-bg-hover: #1F2023;

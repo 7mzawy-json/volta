@@ -4,20 +4,53 @@
   max-width: 420px;
 }
 
+/* The field, as glass.
+   It used to be an opaque pill, and the nav then wrapped it in a SECOND
+   bordered box of its own — two rounded outlines around one input, which is
+   what looked wrong on a phone. The nav's box is gone; this is the only one.
+
+   Four layers make it read as glass rather than as a grey box: a translucent
+   fill, a hairline edge, a one-pixel highlight along the top inside where light
+   would catch, and a soft shadow so it sits ABOVE the page instead of in it.
+   backdrop-filter blurs whatever passes behind — nothing does today, since the
+   header is opaque, and it costs nothing to be right the day something does.
+
+   On the edge alpha: WCAG 1.4.11 asks for 3:1 between a control's boundary and
+   what is next to it, and a glass edge is the easiest thing in the world to
+   make too faint to qualify. Measured on the rendered page, compositing the
+   edge over the header behind it:
+
+     dark   4.06:1 against the page, 3.53:1 against the fill inside
+     light  3.45:1 against the page, 3.58:1 against the fill inside
+
+   The light edge started at 0.55 alpha and measured 2.53:1 — it looked right
+   and was not. Do not thin these for prettiness without measuring what you
+   replace them with. */
 .field {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 14px;
+  gap: 10px;
+  padding: 10px 16px;
   border-radius: 999px;
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
   color: var(--color-muted-foreground);
-  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  transition:
+    border-color var(--motion-hover) var(--motion-ease-standard),
+    box-shadow var(--motion-hover) var(--motion-ease-standard),
+    color var(--motion-hover) var(--motion-ease-standard);
 }
 
+/* Focus brightens the edge and lights the magnifier, which inherits this
+   colour. No outline on the input itself — the pill is the focus indicator, and
+   two rings around one control is how this looked wrong to begin with. */
 .field:focus-within {
   border-color: var(--color-primary);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight), 0 0 0 3px var(--focus-halo);
+  color: var(--color-primary);
 }
 
 .input {

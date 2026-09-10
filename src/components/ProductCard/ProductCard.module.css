@@ -108,6 +108,10 @@
   color: var(--color-foreground);
 }
 
+.amount {
+  white-space: nowrap;
+}
+
 .quickAdd {
   width: 34px;
   height: 34px;

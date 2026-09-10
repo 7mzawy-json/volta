@@ -78,42 +78,18 @@
   border-color: var(--color-primary);
 }
 
+/* Layout only. This class lands on SearchBox's own root, and SearchBox draws
+   the field — so anything decorative here is a second box around the first. It
+   used to carry a background, a border, a radius and padding of its own, which
+   is exactly the doubled outline the phone screenshots showed. */
 .searchWrap {
   display: none;
-  align-items: center;
-  gap: 8px;
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: var(--input-radius);
-  padding: 8px 14px;
-  color: var(--color-muted-foreground);
-  transition: border-color var(--motion-hover) var(--motion-ease-standard),
-    box-shadow var(--motion-hover) var(--motion-ease-standard);
-}
-
-.searchWrap:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: var(--primitive-shadow-glow);
-  color: var(--color-primary);
 }
 
 .searchWrap.searchOpen {
-  display: flex;
+  display: block;
   flex-basis: 100%;
   order: 5;
-}
-
-.searchInput {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--color-foreground);
-  width: 100%;
-  font-size: var(--primitive-fontSize-sm);
-}
-
-.searchInput::placeholder {
-  color: var(--color-muted-foreground);
 }
 
 .actions {
@@ -210,15 +186,27 @@
   position: fixed;
   top: 0;
   inset-inline-start: 0;
+  /* 100vh is the viewport WITHOUT the phone browser's chrome, so on iOS the
+     bottom of this box sits behind the URL bar and the last control in it —
+     the theme toggle — is sliced in half. dvh is the height actually on
+     screen. vh stays first as the fallback. */
   height: 100vh;
+  height: 100dvh;
   width: 78vw;
   max-width: 300px;
   background: var(--color-background);
   border-inline-end: 1px solid var(--color-border);
   z-index: 200;
   padding: 24px;
+  /* Clear of the home indicator on a phone with no bezel button. */
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+  /* A signed-in visitor gets two more links than a signed-out one, and a short
+     phone can run out of room. Scroll rather than hide. `contain` stops the
+     page behind scrolling once this reaches its end. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .drawer:not(.drawerOpen) {
@@ -340,7 +328,7 @@
 
 @media (min-width: 768px) {
   .searchWrap {
-    display: flex;
+    display: block;
     flex: 1;
     max-width: 420px;
   }

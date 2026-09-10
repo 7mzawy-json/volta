@@ -147,7 +147,7 @@ export const copy = {
       cvc: 'CVC',
       placeOrder: 'تأكيد الطلب',
       orderSummary: 'ملخص الطلب',
-      demoNotice: 'هذا نموذج تجريبي — ما راح يتم أي عملية دفع حقيقية.'
+      demoNotice: 'الدفع يمر فعلاً عبر Stripe في الوضع التجريبي — عملية حقيقية بدون أي مبلغ حقيقي.'
     },
     confirmation: {
       title: 'تم الطلب بنجاح!',
@@ -355,7 +355,7 @@ export const copy = {
     },
     footer: {
       rights: 'جميع الحقوق محفوظة',
-      demo: 'مشروع تجريبي بواجهة React — بدون خادم أو معالجة دفع حقيقية.'
+      demo: 'مشروع جامعي — بواجهة وخادم وقاعدة بيانات حقيقية، والدفع عبر Stripe في الوضع التجريبي. ما يتم سحب أي مبلغ حقيقي.'
     }
   },
   en: {
@@ -494,7 +494,7 @@ export const copy = {
       cvc: 'CVC',
       placeOrder: 'Place Order',
       orderSummary: 'Order Summary',
-      demoNotice: 'This is a demo form — no real payment will be processed.'
+      demoNotice: 'Payment really does go through Stripe, in test mode — a real checkout with no real money.'
     },
     confirmation: {
       title: 'Order Confirmed!',
@@ -693,7 +693,7 @@ export const copy = {
     },
     footer: {
       rights: 'All rights reserved',
-      demo: 'A React front-end demo — no server or real payment processing.'
+      demo: 'A university project — a real front end, API and database, with payment through Stripe in test mode. No real money is taken.'
     }
   }
 };

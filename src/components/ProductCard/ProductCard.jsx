@@ -100,7 +100,11 @@ export default function ProductCard({ product }) {
         <div className={styles.bottomRow}>
           <span className={styles.price}>
             {showFrom && <span className={styles.fromLabel}>{t.product.from} </span>}
-            {money(min)}
+            {/* The amount and its currency are one thing. On a two-up phone grid
+                the line has to wrap somewhere, and without this it broke between
+                them — "389.900" on one line and "KD" alone on the next. Now the
+                break falls after "From", which is where it reads. */}
+            <span className={styles.amount}>{money(min)}</span>
           </span>
           {inStock && (
             <button
