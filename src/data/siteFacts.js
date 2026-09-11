@@ -20,7 +20,18 @@ export const LISTINGS = products.length;
 // sizes it sells in. This is the number of things you can actually buy.
 export const VARIANTS = products.reduce((n, product) => n + product.variants.length, 0);
 
-export const CURRENCIES = Object.keys(currencies).length;
+export const CURRENCIES = currencies.length;
+
+// How many of them subdivide into 1000 rather than 100 — the dinar family, which
+// is the whole reason this storefront carries money as integer fils.
+//
+// Counted, and counted because of a mistake: this line first read "the dinar at
+// three decimals, the yen at none", and there is no yen here. An invented example
+// in the one section whose rule is that nothing is invented. A number the table
+// produces cannot be wrong the way a remembered example can.
+export const THREE_DECIMAL_CURRENCIES = currencies.filter(
+  (currency) => currency.decimals === 3
+).length;
 
 // Routes given their own <head> at build time, so a link shared into WhatsApp or
 // read by a crawler that never runs JavaScript still has a title, a description
@@ -47,9 +58,9 @@ export const PRERENDERED_ROUTES = [
 //
 // Re-measure with, from the repository root:
 //   npm test && (cd server && npm test) && npx playwright test --list
-// and add the three totals. Last measured 2026-09-11: 150 front end + 79 server
+// and add the three totals. Last measured 2026-09-11: 151 front end + 79 server
 // + 14 accessibility.
-export const TESTS = 243;
+export const TESTS = 244;
 
 // --- the sentence reader's demo ------------------------------------------------
 

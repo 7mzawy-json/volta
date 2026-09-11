@@ -6,6 +6,7 @@ import { matchesSearchParams } from './search.js';
 import { isUsefulIntent, validateIntent } from './searchIntent.js';
 import {
   CURRENCIES,
+  THREE_DECIMAL_CURRENCIES,
   DEMO_COUNT,
   DEMO_HREF,
   DEMO_INTENT,
@@ -37,7 +38,27 @@ test('the listing and variant counts come from the catalogue', () => {
 });
 
 test('the currency count comes from the currency table', () => {
-  assert.equal(CURRENCIES, Object.keys(currencies).length);
+  assert.equal(CURRENCIES, currencies.length);
+});
+
+test('the dinar-family count is counted, not remembered', () => {
+  // This note used to name the yen, which this shop has never offered. The
+  // number is now taken from the table, and these assertions are what keeps the
+  // sentence it sits in — "N of them subdivide into 1000, not 100" — true.
+  assert.equal(
+    THREE_DECIMAL_CURRENCIES,
+    currencies.filter((currency) => currency.decimals === 3).length
+  );
+  assert.ok(THREE_DECIMAL_CURRENCIES > 0);
+  assert.ok(THREE_DECIMAL_CURRENCIES < CURRENCIES, 'the note claims a subset, not all of them');
+  // And the other side of "not 100" — every remaining currency has to be the
+  // two-decimal kind for the contrast to hold.
+  for (const currency of currencies) {
+    assert.ok(
+      currency.decimals === 2 || currency.decimals === 3,
+      `${currency.code} has ${currency.decimals} decimals, which the note does not cover`
+    );
+  }
 });
 
 test('the tests figure is a plausible hand-recorded number', () => {

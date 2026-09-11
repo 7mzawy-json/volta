@@ -12,6 +12,7 @@ import {
   LISTINGS,
   PRERENDERED_ROUTES,
   TESTS,
+  THREE_DECIMAL_CURRENCIES,
   VARIANTS
 } from '../../data/siteFacts.js';
 import styles from './BuildSheet.module.css';
@@ -152,7 +153,11 @@ export default function BuildSheet() {
   const stats = [
     { id: 'variants', value: VARIANTS, note: copy.stats.variants.note.replace('{n}', LISTINGS) },
     { id: 'routes', value: PRERENDERED_ROUTES.length, note: copy.stats.routes.note },
-    { id: 'currencies', value: CURRENCIES, note: copy.stats.currencies.note }
+    {
+      id: 'currencies',
+      value: CURRENCIES,
+      note: copy.stats.currencies.note.replace('{n}', THREE_DECIMAL_CURRENCIES)
+    }
   ];
   // Claimed only once it has actually been measured.
   if (bytes) {

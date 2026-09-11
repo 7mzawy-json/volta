@@ -50,7 +50,7 @@ export const copy = {
       stats: {
         variants: { label: 'نسخة للشراء', note: 'من {n} هاتف وجهاز — نسخة وحدة بصفحة وحدة' },
         routes: { label: 'صفحة لها معاينة', note: 'مكتوبة وقت البناء، عشان الروابط والزواحف' },
-        currencies: { label: 'عملة', note: 'الدينار بثلاث خانات، والين بلا خانات' },
+        currencies: { label: 'عملة', note: '{n} منها تتقسم على ألف، مو على مية' },
         weight: { unit: 'كيلوبايت', label: 'وزن هذي الصفحة', note: 'مقاس من متصفحك الحين' }
       },
       stack: {
@@ -105,14 +105,6 @@ export const copy = {
     featured: {
       title: 'منتجات مختارة',
       viewAll: 'عرض الكل'
-    },
-    trust: {
-      title: 'ليش فولتا؟',
-      items: [
-        { title: 'اختيار مدروس', body: 'كل قطعة تدخل الموقع تنفحص قبل لا توصلك.' },
-        { title: 'ضمان حقيقي', body: 'ضمان سنة كامل على كل منتج، بدون شروط معقدة.' },
-        { title: 'شحن سريع', body: 'يوصلك طلبك خلال يومين داخل المدينة.' }
-      ]
     },
     product: {
       addToCart: 'أضف إلى السلة',
@@ -410,7 +402,7 @@ export const copy = {
       stats: {
         variants: { label: 'things to buy', note: 'across {n} listings — one phone, one page' },
         routes: { label: 'pages with a preview', note: 'written at build time, for links and crawlers' },
-        currencies: { label: 'currencies', note: 'the dinar at three decimals, the yen at none' },
+        currencies: { label: 'currencies', note: '{n} of them subdivide into 1000, not 100' },
         weight: { unit: 'KB', label: 'this page, in code', note: 'measured in your browser, just now' }
       },
       stack: {
@@ -454,14 +446,6 @@ export const copy = {
     featured: {
       title: 'Featured Products',
       viewAll: 'View All'
-    },
-    trust: {
-      title: 'Why VOLTA?',
-      items: [
-        { title: 'Curated, not crammed', body: 'Every piece is vetted before it ever reaches the site.' },
-        { title: 'Real warranty', body: 'A full year on every product, no fine print.' },
-        { title: 'Fast shipping', body: 'In-city delivery within two days.' }
-      ]
     },
     product: {
       addToCart: 'Add to Cart',
