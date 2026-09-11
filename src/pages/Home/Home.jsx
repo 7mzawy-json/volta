@@ -10,6 +10,7 @@ import Button from '../../components/Button/Button.jsx';
 import BoltMark from '../../components/BoltMark/BoltMark.jsx';
 import Reveal from '../../components/Reveal/Reveal.jsx';
 import ScrollShowcase from '../../components/ScrollShowcase/ScrollShowcase.jsx';
+import BuildSheet from '../../components/BuildSheet/BuildSheet.jsx';
 import { getColor } from '../../data/colors.js';
 import styles from './Home.module.css';
 
@@ -118,30 +119,12 @@ export default function Home() {
         <Spotlight key={product?.id || i} product={product} flipped />
       ))}
 
-      {/* Bento — four claims, the largest tile carrying the strongest one. */}
-      <section className={`container ${styles.section}`}>
-        <Reveal>
-          <h2 className={styles.sectionTitle}>{t.bento.title}</h2>
-        </Reveal>
-        <div className={styles.bento}>
-          <Reveal className={`${styles.tile} ${styles.tileWide}`}>
-            <h3 className={styles.tileTitle}>{t.bento.speed.title}</h3>
-            <p className={styles.tileBody}>{t.bento.speed.body}</p>
-          </Reveal>
-          <Reveal className={styles.tile} delay={80}>
-            <h3 className={styles.tileTitle}>{t.bento.arabic.title}</h3>
-            <p className={styles.tileBody}>{t.bento.arabic.body}</p>
-          </Reveal>
-          <Reveal className={styles.tile} delay={120}>
-            <h3 className={styles.tileTitle}>{t.bento.colors.title}</h3>
-            <p className={styles.tileBody}>{t.bento.colors.body}</p>
-          </Reveal>
-          <Reveal className={`${styles.tile} ${styles.tileWide}`} delay={160}>
-            <h3 className={styles.tileTitle}>{t.bento.warranty.title}</h3>
-            <p className={styles.tileBody}>{t.bento.warranty.body}</p>
-          </Reveal>
-        </div>
-      </section>
+      {/* Where the bento of sales claims used to be. One of those four claims
+          was a year of warranty on every device, which this shop cannot offer
+          because it does not exist; the rest were true but unprovable to a
+          reader. This says how the site is built instead, and every number in it
+          is counted at runtime. */}
+      <BuildSheet />
 
       <section className={`container ${styles.section}`}>
         <Reveal>

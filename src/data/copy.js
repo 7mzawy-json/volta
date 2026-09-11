@@ -28,23 +28,34 @@ export const copy = {
       label: 'الأبرز',
       cta: 'اعرف أكثر'
     },
-    bento: {
-      title: 'ليش تشتري من فولتا؟',
-      speed: {
-        title: 'يفتح فورًا',
-        body: 'الموقع كامل أخف من صورة وحدة. بدون انتظار، بدون شاشة بيضاء.'
+    build: {
+      title: 'كيف انبنى هذا الموقع',
+      lede: 'كل رقم بهالقسم محسوب من الموقع نفسه، مو مكتوب باليد.',
+      demo: {
+        label: 'في شريط البحث',
+        sentence: 'أبغى جوال بشاشة كبيرة بأقل من {n} دينار، والأرخص أول',
+        caption: 'هذا مثال جاهز. اكتب جملتك أنت في شريط البحث فوق، ويحوّلها نموذج لغوي لنفس هالفلاتر.',
+        under: 'أقل من {price}',
+        cheapest: 'الأرخص أول',
+        results: {
+          zero: 'ما في نتائج',
+          one: 'نتيجة وحدة',
+          two: 'نتيجتان',
+          few: '{n} نتائج',
+          many: '{n} نتيجة',
+          other: '{n} نتيجة'
+        },
+        cta: 'شوف النتائج'
       },
-      arabic: {
-        title: 'عربي من الأساس',
-        body: 'مو ترجمة متأخرة — التصميم كله مبني من اليمين لليسار، والإنجليزي خيار.'
+      stats: {
+        variants: { label: 'نسخة للشراء', note: 'من {n} هاتف وجهاز — نسخة وحدة بصفحة وحدة' },
+        routes: { label: 'صفحة لها معاينة', note: 'مكتوبة وقت البناء، عشان الروابط والزواحف' },
+        currencies: { label: 'عملة', note: 'الدينار بثلاث خانات، والين بلا خانات' },
+        weight: { unit: 'كيلوبايت', label: 'وزن هذي الصفحة', note: 'مقاس من متصفحك الحين' }
       },
-      colors: {
-        title: 'كل لون بصفحة وحدة',
-        body: 'الهاتف يظهر مرة وحدة، وتختار لونه وسعته منه — بدون ما تدور بين نسخ مكررة.'
-      },
-      warranty: {
-        title: 'ضمان سنة كاملة',
-        body: 'على كل جهاز، بدون شروط معقدة وبدون أسئلة.'
+      stack: {
+        label: 'المبني عليه',
+        tests: '{n} اختبار آلي'
       }
     },
     closing: {
@@ -384,23 +395,27 @@ export const copy = {
       label: 'Spotlight',
       cta: 'Learn more'
     },
-    bento: {
-      title: 'Why buy from VOLTA?',
-      speed: {
-        title: 'Opens instantly',
-        body: 'The entire site weighs less than a single photograph. No waiting, no white screen.'
+    build: {
+      title: 'How this is built',
+      lede: 'Every number here is counted by the site itself, not typed in.',
+      demo: {
+        label: 'In the search bar',
+        sentence: 'a big-screen phone under {n} dinars, cheapest first',
+        caption: 'A worked example. Type a sentence of your own in the search bar above and a language model turns it into filters like these.',
+        under: 'Under {price}',
+        cheapest: 'Cheapest first',
+        results: { one: '{n} result', other: '{n} results' },
+        cta: 'See the results'
       },
-      arabic: {
-        title: 'Arabic by default',
-        body: 'Not a bolted-on translation — the layout is built right-to-left first, and English is the option.'
+      stats: {
+        variants: { label: 'things to buy', note: 'across {n} listings — one phone, one page' },
+        routes: { label: 'pages with a preview', note: 'written at build time, for links and crawlers' },
+        currencies: { label: 'currencies', note: 'the dinar at three decimals, the yen at none' },
+        weight: { unit: 'KB', label: 'this page, in code', note: 'measured in your browser, just now' }
       },
-      colors: {
-        title: 'One phone, one page',
-        body: 'Pick the colour and the size on the product itself, instead of hunting through duplicate listings.'
-      },
-      warranty: {
-        title: 'A full year of warranty',
-        body: 'On every device. No complicated conditions, no questions.'
+      stack: {
+        label: 'Built with',
+        tests: '{n} automated tests'
       }
     },
     closing: {

@@ -1,4 +1,11 @@
-import { products, brandLabels, getPriceRange } from './products.js';
+import {
+  products,
+  brandLabels,
+  getPriceRange,
+  getFacets,
+  productMatchesFacet,
+  productMatchesPrice
+} from './products.js';
 import { getColor } from './colors.js';
 
 // Search.
@@ -92,4 +99,32 @@ export function rankProducts(query) {
     .filter(Boolean)
     .sort((a, b) => b.score - a.score || getPriceRange(a.product).min - getPriceRange(b.product).min)
     .map((r) => r.product);
+}
+
+// Does this product match a whole set of URL parameters — category, query,
+// facets and price, exactly as the listing page reads them?
+//
+// The listing page filters in two steps because it needs the intermediate
+// result (the price slider's bounds and the empty state's "without this filter"
+// counts are both taken before the facets apply). Anything that only wants the
+// final answer — the homepage's build sheet counts its demo link this way —
+// should use this instead of writing a third copy of the rules.
+export function matchesSearchParams(product, params) {
+  const category = params.get('category') || 'all';
+  if (category !== 'all' && product.category !== category) return false;
+  if (!matchesQuery(product, params.get('q') || '')) return false;
+
+  const [lo, hi] = (params.get('price') || '').split('-').map(Number);
+  const range = Number.isFinite(lo) && Number.isFinite(hi) ? [lo, hi] : null;
+  if (!productMatchesPrice(product, range)) return false;
+
+  return getFacets(category)
+    .filter((facet) => facet.type !== 'range')
+    .every((facet) =>
+      productMatchesFacet(
+        product,
+        facet,
+        (params.get(facet.id) || '').split(',').filter(Boolean)
+      )
+    );
 }

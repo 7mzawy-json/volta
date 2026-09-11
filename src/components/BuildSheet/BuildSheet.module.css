@@ -1,0 +1,288 @@
+/* The same rhythm and rule as every other band on the homepage — this section
+   is a peer of the ones around it, not a special case. */
+.section {
+  padding-block: var(--section-gap);
+  border-top: 1px solid var(--box-border);
+}
+
+.title {
+  font-size: var(--display-md);
+  line-height: 1.15;
+  letter-spacing: var(--display-tracking);
+  margin-bottom: 8px;
+}
+
+.lede {
+  color: var(--color-muted-foreground);
+  max-width: 46ch;
+  margin-bottom: clamp(24px, 4vw, 38px);
+}
+
+/* --- the demo panel -------------------------------------------------------- */
+
+/* Glass, on purpose, and the same four layers as the search field itself
+   (see SearchBox.module.css for the measured edge alphas). This panel is a
+   picture of that control, so it is built out of the same material — the visual
+   rhyme is the argument. Radius is the box radius rather than the field's pill:
+   it is a panel quoting a control, not a second control. */
+.panel {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 3.4vw, 34px);
+  border-radius: var(--box-radius, 14px);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* A single soft light behind the glass, so the panel has something to refract
+   instead of sitting on a flat page. Decorative and inert. */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -12%;
+  top: -60%;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 68%);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.demoLabel {
+  position: relative;
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: 10px;
+}
+
+.sentence {
+  position: relative;
+  font-size: clamp(1.1rem, 0.95rem + 1.1vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* See the note at the markup: the untyped remainder holds the box open. */
+.tail {
+  visibility: hidden;
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  vertical-align: -0.12em;
+  margin-inline-start: 2px;
+  background: var(--color-primary);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 18px;
+  list-style: none;
+}
+
+/* Each chip is in the DOM from the first render and arrives on a stagger once
+   the sentence has finished typing — the same approach as ScrollShowcase's
+   specs: the state is an emphasis, never a reveal that withholds content from a
+   screen reader. */
+.chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  color: var(--color-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--motion-hover) var(--motion-ease-standard),
+    transform var(--motion-hover) var(--motion-ease-standard);
+}
+
+.outcome {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 14px;
+  opacity: 0;
+  transition: opacity var(--motion-hover) var(--motion-ease-standard);
+}
+
+.panelDone .chip,
+.panelDone .outcome {
+  opacity: 1;
+  transform: none;
+}
+
+.count {
+  font-size: var(--primitive-fontSize-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cta {
+  color: var(--color-foreground);
+  font-weight: 600;
+  font-size: var(--primitive-fontSize-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  /* 44px of thumb, without the link looking like a button. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.cta:hover {
+  color: var(--color-primary);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--input-focus-ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.caption {
+  position: relative;
+  color: var(--color-muted-foreground);
+  font-size: var(--primitive-fontSize-sm);
+  line-height: 1.6;
+  max-width: 56ch;
+}
+
+/* --- the numbers ----------------------------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 0;
+  margin: clamp(20px, 3vw, 30px) 0 0;
+  list-style: none;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 18px;
+  border-radius: var(--box-radius, 14px);
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+  transition: border-color var(--motion-hover) var(--motion-ease-standard);
+}
+
+.stat:hover {
+  border-color: var(--color-primary);
+}
+
+/* The same beat as the product spec sequence: a large tabular number, a small
+   unit riding on it, a quiet label. The site describing itself in the typography
+   it sells phones with. */
+.statValue {
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.statUnit {
+  font-size: 0.42em;
+  font-weight: 600;
+  margin-inline-start: 3px;
+  color: var(--color-muted-foreground);
+}
+
+.statLabel {
+  font-size: var(--primitive-fontSize-sm);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.statNote {
+  font-size: var(--primitive-fontSize-sm);
+  color: var(--color-muted-foreground);
+  line-height: 1.5;
+}
+
+/* --- what it is made of ----------------------------------------------------- */
+
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: clamp(18px, 2.6vw, 26px);
+  font-size: var(--primitive-fontSize-sm);
+}
+
+.stackLabel {
+  color: var(--color-muted-foreground);
+  font-weight: 600;
+}
+
+.stackItem {
+  color: var(--color-foreground);
+}
+
+/* A separator that is drawn rather than typed, so a screen reader reads a list
+   of names instead of a line of bullet characters. */
+.stackItem + .stackItem::before,
+.stackLabel + .stackItem::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  vertical-align: 0.22em;
+  margin-inline-end: 10px;
+  background: var(--color-muted-foreground);
+}
+
+@media (min-width: 768px) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Nothing here animates for anyone who asked their system for less motion: the
+   component already renders the finished state on its first render, and this
+   stops the caret blinking and the chips transitioning if one ever slips
+   through. */
+@media (prefers-reduced-motion: reduce) {
+  .chip,
+  .outcome {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .caret {
+    animation: none;
+  }
+}

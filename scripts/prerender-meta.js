@@ -13,7 +13,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { products } from '../src/data/products.js';
+import { PRERENDERED_ROUTES } from '../src/data/siteFacts.js';
 import { resolveDocumentMetadata } from '../src/utils/documentMetadata.js';
 import { loadEnv } from 'vite';
 import { assertAbsolute, renderHead } from './socialHead.js';
@@ -58,21 +58,15 @@ if (!/^https?:\/\/[^/]+$/.test(origin)) {
   process.exit(1);
 }
 
-// Routes worth their own preview. Cart and checkout are excluded
-// deliberately: they describe one person's session, they are not shareable, and
-// giving them polished previews would only invite sharing them.
-const routes = [
-  '/',
-  '/products',
-  '/wishlist',
-  '/compare',
-  ...products.map((product) => `/products/${product.id}`)
-];
+// Routes worth their own preview, and why cart and checkout are not among them,
+// are recorded next to the list itself in src/data/siteFacts.js. The homepage
+// states how many routes get a head of their own, so the list has to be one
+// thing that both the build and the page read.
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
 
 let written = 0;
-for (const route of routes) {
+for (const route of PRERENDERED_ROUTES) {
   const metadata = resolveDocumentMetadata({ pathname: route, lang: 'ar', origin, base });
   const html = renderHead(template, metadata);
   assertAbsolute(html, route);
