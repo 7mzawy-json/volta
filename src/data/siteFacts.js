@@ -25,10 +25,10 @@ export const CURRENCIES = currencies.length;
 // How many of them subdivide into 1000 rather than 100 — the dinar family, which
 // is the whole reason this storefront carries money as integer fils.
 //
-// Counted, and counted because of a mistake: this line first read "the dinar at
-// three decimals, the yen at none", and there is no yen here. An invented example
-// in the one section whose rule is that nothing is invented. A number the table
-// produces cannot be wrong the way a remembered example can.
+// Counted, and counted because of a mistake: this line first named a currency
+// this shop has never offered — an example written from memory in the one section
+// whose rule is that nothing is invented. A number the table produces cannot be
+// wrong the way a remembered example can.
 export const THREE_DECIMAL_CURRENCIES = currencies.filter(
   (currency) => currency.decimals === 3
 ).length;

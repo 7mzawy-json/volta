@@ -42,9 +42,9 @@ test('the currency count comes from the currency table', () => {
 });
 
 test('the dinar-family count is counted, not remembered', () => {
-  // This note used to name the yen, which this shop has never offered. The
-  // number is now taken from the table, and these assertions are what keeps the
-  // sentence it sits in — "N of them subdivide into 1000, not 100" — true.
+  // This note used to name a currency the shop has never offered. The number is
+  // now taken from the table, and these assertions are what keeps the sentence it
+  // sits in — "N of them subdivide into 1000, not 100" — true.
   assert.equal(
     THREE_DECIMAL_CURRENCIES,
     currencies.filter((currency) => currency.decimals === 3).length
