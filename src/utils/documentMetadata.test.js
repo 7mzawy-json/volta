@@ -11,12 +11,12 @@ test('home metadata is bilingual and localized for Kuwait', () => {
   const ar = resolveDocumentMetadata({ pathname: '/', lang: 'ar', origin: ORIGIN });
   const en = resolveDocumentMetadata({ pathname: '/', lang: 'en', origin: ORIGIN });
 
-  assert.equal(ar.title, 'فولتا — اشحن طاقتك');
+  assert.equal(ar.title, 'فولتا | اشحن طاقتك');
   assert.equal(ar.locale, 'ar_KW');
   assert.equal(ar.alternateLocale, 'en_KW');
   assert.match(ar.description, /هواتف/);
 
-  assert.equal(en.title, 'VOLTA — Power Up');
+  assert.equal(en.title, 'VOLTA | Power Up');
   assert.equal(en.locale, 'en_KW');
   assert.equal(en.alternateLocale, 'ar_KW');
   assert.match(en.description, /phones/i);

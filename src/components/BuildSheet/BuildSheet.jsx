@@ -224,7 +224,7 @@ export default function BuildSheet() {
           style={still ? undefined : { transitionDelay: `${chips.length * CHIP_MS + 120}ms` }}
         >
           <span className={styles.count}>
-            {plural(copy.demo.results, DEMO_COUNT, lang).replace('{n}', DEMO_COUNT)}
+            {plural(t.facets.results, DEMO_COUNT, lang).replace('{n}', DEMO_COUNT)}
           </span>
           <Link to={DEMO_HREF} className={styles.cta}>
             {copy.demo.cta}

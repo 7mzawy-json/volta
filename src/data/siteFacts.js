@@ -58,9 +58,9 @@ export const PRERENDERED_ROUTES = [
 //
 // Re-measure with, from the repository root:
 //   npm test && (cd server && npm test) && npx playwright test --list
-// and add the three totals. Last measured 2026-09-11: 151 front end + 79 server
+// and add the three totals. Last measured 2026-09-24: 152 front end + 79 server
 // + 14 accessibility.
-export const TESTS = 244;
+export const TESTS = 245;
 
 // --- the sentence reader's demo ------------------------------------------------
 

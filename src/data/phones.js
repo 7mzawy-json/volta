@@ -77,7 +77,7 @@ export const phones = [
     brand: 'apple',
     name: { ar: 'iPhone 15', en: 'iPhone 15' },
     description: {
-      ar: 'الطريق الأرخص لنظام iOS، بكاميرا ما زالت ممتازة.',
+      ar: 'أرخص طريقة تدخل فيها عالم iOS، وكاميرته للحين ممتازة.',
       en: 'The cheapest way into iOS, with a camera that still holds up.'
     },
     attributes: { screen: 6.1, camera: 48, battery: 3349, refreshRate: 60, os: 'ios' },
@@ -137,7 +137,7 @@ export const phones = [
     brand: 'samsung',
     name: { ar: 'Galaxy S25 FE', en: 'Galaxy S25 FE' },
     description: {
-      ar: 'مواصفات قريبة من الرائد بسعر أهدأ بكثير.',
+      ar: 'مواصفات قريبة من الرائد، بسعر أرحم بواجد.',
       en: 'Near-flagship specs at a much calmer price.'
     },
     attributes: { screen: 6.7, camera: 50, battery: 4900, refreshRate: 120, os: 'android' },
@@ -210,7 +210,7 @@ export const phones = [
     badge: { ar: 'قيمة ممتازة', en: 'Great Value' },
     name: { ar: 'Honor X9D', en: 'Honor X9D' },
     description: {
-      ar: 'شاشة مقاومة للكسر وبطارية ضخمة، لمن يوقع هاتفه كثيرًا.',
+      ar: 'شاشة مقاومة للكسر وبطارية ضخمة، لكل واحد يطيّح هاتفه واجد.',
       en: 'A drop-resistant screen and a huge battery, for people who drop their phone.'
     },
     attributes: { screen: 6.79, camera: 108, battery: 8300, refreshRate: 120, os: 'android' },
@@ -333,7 +333,7 @@ export const phones = [
     brand: 'tecno',
     name: { ar: 'Tecno Spark 50', en: 'Tecno Spark 50' },
     description: {
-      ar: 'أرخص هاتف ٥G في المتجر، ببطارية ٦٥٠٠ وشحن سريع.',
+      ar: 'أرخص هاتف 5G في المتجر، ببطارية ٦٥٠٠ مللي أمبير وشحن سريع.',
       en: 'The cheapest 5G phone we stock, with a 6500mAh battery and fast charging.'
     },
     attributes: { screen: 6.78, camera: 50, battery: 6500, refreshRate: 120, os: 'android' },

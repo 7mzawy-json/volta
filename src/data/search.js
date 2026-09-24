@@ -40,6 +40,7 @@ function haystackFor(product) {
   if (product.category === 'phones') parts.push('5g');
 
   parts.push(product.category);
+  if (product.aliases) parts.push(...product.aliases);
   return parts.filter(Boolean).join(' ').toLowerCase();
 }
 

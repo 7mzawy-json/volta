@@ -23,7 +23,7 @@ function normalizePath(pathname) {
 
 function pageText(pathname, t) {
   const pages = {
-    '/': { title: `${t.brand} — ${t.tagline}`, description: t.hero.subtitle },
+    '/': { title: `${t.brand} | ${t.tagline}`, description: t.hero.subtitle },
     '/products': { title: `${t.nav.products} | ${t.brand}`, description: t.meta.products },
     '/cart': { title: `${t.cart.title} | ${t.brand}`, description: t.meta.cart },
     '/checkout': { title: `${t.checkout.title} | ${t.brand}`, description: t.meta.checkout },

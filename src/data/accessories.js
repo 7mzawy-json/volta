@@ -64,7 +64,7 @@ export const accessories = [
     },
     attributes: { anc: true, batteryHours: 45, connection: 'wireless' },
     specs: {
-      ar: ['عزل ضوضاء نشط', 'بطارية تدوم 45 ساعة', 'وسائد بروتين ناعمة'],
+      ar: ['عزل ضوضاء نشط', 'بطارية تدوم 45 ساعة', 'وسائد من الجلد البروتيني الناعم'],
       en: ['Active noise cancellation', '45-hour battery', 'Soft protein-leather pads']
     },
     price: 44.9,
@@ -75,7 +75,8 @@ export const accessories = [
     icon: 'speaker',
     category: 'audio',
     brand: 'volta',
-    name: { ar: 'سماعة Arc', en: 'Arc Speaker' },
+    name: { ar: 'سبيكر Arc', en: 'Arc Speaker' },
+    aliases: ['سماعة', 'مكبر صوت'],
     description: {
       ar: 'سماعة بلوتوث مقاومة للماء بصوت قوي يناسب أي مكان.',
       en: 'A water-resistant Bluetooth speaker with powerful sound for anywhere.'
@@ -152,7 +153,7 @@ export const accessories = [
     brand: 'volta',
     name: { ar: 'بطارية Core 20K', en: 'Core Bank 20K' },
     description: {
-      ar: 'ضعف السعة وشحن أسرع — لرحلة طويلة أو يوم كامل بدون كهرباء.',
+      ar: 'ضعف السعة وشحن أسرع، لرحلة طويلة أو يوم كامل بدون كهرباء.',
       en: 'Double the capacity and faster output — for a long trip or a day off-grid.'
     },
     attributes: { capacity: 20000, wattage: 45, ports: 3, connection: 'wired' },
@@ -246,9 +247,10 @@ export const accessories = [
     icon: 'case',
     category: 'accessories',
     brand: 'volta',
-    name: { ar: 'جراب Shell', en: 'Shell Case' },
+    name: { ar: 'كفر Shell', en: 'Shell Case' },
+    aliases: ['جراب'],
     description: {
-      ar: 'جراب رفيع يحمي من السقوط بدون ما يزيد حجم الهاتف.',
+      ar: 'كفر نحيف يحمي من الطيحات بدون ما يكبّر حجم الهاتف.',
       en: 'A slim case that survives drops without bulking the phone out.'
     },
     attributes: { material: 'polycarbonate', magnetic: true },
@@ -339,9 +341,10 @@ export const accessories = [
     icon: 'hub',
     category: 'smart',
     brand: 'volta',
-    name: { ar: 'محور Beam', en: 'Beam Hub' },
+    name: { ar: 'مركز تحكم Beam', en: 'Beam Hub' },
+    aliases: ['محور', 'هب'],
     description: {
-      ar: 'محور منزل ذكي يربط أجهزتك كلها بتطبيق واحد.',
+      ar: 'مركز تحكم للبيت الذكي يربط كل أجهزتك بتطبيق واحد.',
       en: 'A smart home hub that connects all your devices in one app.'
     },
     attributes: { protocols: 'wifi-bluetooth', connection: 'wireless' },
@@ -375,14 +378,15 @@ export const accessories = [
     icon: 'plug',
     category: 'smart',
     brand: 'volta',
-    name: { ar: 'قابس Flux الذكي', en: 'Flux Smart Plug' },
+    name: { ar: 'بلك Flux الذكي', en: 'Flux Smart Plug' },
+    aliases: ['قابس', 'فيش'],
     description: {
       ar: 'يحوّل أي جهاز عادي لجهاز تتحكم فيه من هاتفك.',
       en: 'Turns any ordinary appliance into one you control from your phone.'
     },
     attributes: { protocols: 'wifi', connection: 'wireless' },
     specs: {
-      ar: ['جدولة تشغيل وإطفاء', 'قياس استهلاك الكهرباء', 'يشتغل بدون محور'],
+      ar: ['جدولة تشغيل وإطفاء', 'قياس استهلاك الكهرباء', 'يشتغل بدون مركز تحكم'],
       en: ['Schedule on and off', 'Tracks power usage', 'Works without a hub']
     },
     price: 5.5,
