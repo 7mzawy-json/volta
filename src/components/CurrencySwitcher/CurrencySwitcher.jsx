@@ -51,7 +51,7 @@ export default function CurrencySwitcher({ compact = false }) {
                 them out should. */}
             {compact
               ? (lang === 'en' ? c.code : c.symbol.ar)
-              : `${c.code} — ${c.name[lang]}`}
+              : `${c.name[lang]} (${c.code})`}
           </option>
         ))}
       </select>

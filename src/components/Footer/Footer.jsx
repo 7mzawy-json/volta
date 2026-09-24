@@ -25,7 +25,7 @@ export default function Footer() {
         </nav>
 
         <p className={styles.meta}>
-          © {year} {t.brand} — {t.footer.rights}
+          © {year} {t.brand}. {t.footer.rights}
           <br />
           {t.footer.demo}
         </p>

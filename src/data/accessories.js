@@ -154,12 +154,12 @@ export const accessories = [
     name: { ar: 'بطارية Core 20K', en: 'Core Bank 20K' },
     description: {
       ar: 'ضعف السعة وشحن أسرع، لرحلة طويلة أو يوم كامل بدون كهرباء.',
-      en: 'Double the capacity and faster output — for a long trip or a day off-grid.'
+      en: 'Double the capacity and faster output, for a long trip or a day off-grid.'
     },
     attributes: { capacity: 20000, wattage: 45, ports: 3, connection: 'wired' },
     specs: {
       ar: ['سعة 20000mAh', 'شحن 45 واط يكفي لابتوب صغير', 'ثلاثة منافذ'],
-      en: ['20,000mAh capacity', '45W — enough for a small laptop', 'Three ports']
+      en: ['20,000mAh capacity', '45W, enough for a small laptop', 'Three ports']
     },
     price: 17.9,
     colors: ['black', 'silver']
@@ -232,7 +232,7 @@ export const accessories = [
     name: { ar: 'حامل Grip', en: 'Grip Stand' },
     description: {
       ar: 'حامل قابل للطي للهاتف واللابتوب، خفيف ويناسب السفر.',
-      en: 'A foldable stand for phone and laptop — light enough to travel with.'
+      en: 'A foldable stand for phone and laptop, light enough to travel with.'
     },
     attributes: { foldable: true, material: 'aluminum' },
     specs: {

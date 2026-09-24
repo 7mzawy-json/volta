@@ -246,7 +246,7 @@ export default function Compare() {
         className={styles.scroller}
         tabIndex={0}
         role="group"
-        aria-label={`${t.compare.title} — ${position}`}
+        aria-label={`${t.compare.title}: ${position}`}
       >
         <table className={styles.table}>
           <caption className="visually-hidden">{t.compare.title}</caption>
@@ -312,7 +312,7 @@ export default function Compare() {
                       cell.text
                     )}
                     {comparable && cell.raw === best && (
-                      <span className="visually-hidden"> — {t.compare.best}</span>
+                      <span className="visually-hidden"> ({t.compare.best})</span>
                     )}
                   </td>
                 ))}

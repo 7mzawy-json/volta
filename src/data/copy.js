@@ -15,7 +15,7 @@ export const copy = {
     },
     hero: {
       eyebrow: 'اشحن طاقتك',
-      title: 'تقنية شكلها حلو، وشغلها أحلى.',
+      title: 'تقنية تلمع بقدر ما تشتغل.',
       subtitle: 'هواتف مختارة بعناية، بكل الألوان والسعات، وأسعارها واضحة من أول نظرة.',
       cta: 'تسوق الهواتف',
       secondaryCta: 'استكشف كل المنتجات'
@@ -371,7 +371,7 @@ export const copy = {
     hero: {
       eyebrow: 'Power Up',
       title: 'Tech that glows as hard as it works.',
-      subtitle: 'Carefully chosen phones — every colour, every size, every price in plain sight.',
+      subtitle: 'Carefully chosen phones in every colour and every size, with every price in plain sight.',
       cta: 'Shop Phones',
       secondaryCta: 'Explore Everything'
     },
@@ -391,7 +391,7 @@ export const copy = {
         cta: 'See the results'
       },
       stats: {
-        variants: { label: 'things to buy', note: 'across {n} listings — one phone, one page' },
+        variants: { label: 'things to buy', note: 'across {n} listings: one phone, one page' },
         routes: { label: 'pages with a preview', note: 'written at build time, for links and crawlers' },
         currencies: { label: 'currencies', note: '{n} of them subdivide into 1000, not 100' },
         weight: { unit: 'KB', label: 'this page, in code', note: 'measured in your browser, just now' }
@@ -429,7 +429,7 @@ export const copy = {
       without: 'Without {filter}',
       screens: {
         compact: 'Under 6.4 inch',
-        standard: '6.4 – 6.8 inch',
+        standard: '6.4 to 6.8 inch',
         large: 'Over 6.8 inch'
       },
       values: {}
@@ -467,7 +467,7 @@ export const copy = {
     },
     cart: {
       title: 'Your Cart',
-      empty: "Your cart's empty — let's fix that.",
+      empty: "Your cart's empty. Let's fix that.",
       browse: 'Browse Products',
       subtotal: 'Subtotal',
       shipping: 'Shipping',
@@ -490,15 +490,15 @@ export const copy = {
       details: 'Floor or apartment (optional)',
       phone: 'Phone Number',
       orderSummary: 'Order Summary',
-      demoNotice: 'Payment really does go through Stripe, in test mode — a real checkout with no real money.'
+      demoNotice: 'Payment really does go through Stripe, in test mode: a real checkout with no real money.'
     },
     wishlist: {
-      empty: "Your wishlist's empty — let's fix that."
+      empty: "Your wishlist's empty. Let's fix that."
     },
     misc: {
       addedToast: 'Added to cart ⚡',
       favoritedToast: 'Added to wishlist',
-      noResults: "No results — try a different search.",
+      noResults: "No results. Try a different search.",
       close: 'Close',
       priceMin: 'Minimum price',
       priceMax: 'Maximum price',
@@ -528,7 +528,7 @@ export const copy = {
     },
     profile: {
       title: 'My account',
-      lead: 'Your details, your delivery address and your password — all here.',
+      lead: 'Your details, your delivery address and your password, all in one place.',
       detailsTitle: 'Your details',
       addressTitle: 'Delivery address',
       addressLead: 'We use it to fill in the checkout for you. You can still change it there.',
@@ -553,7 +553,7 @@ export const copy = {
     },
     reviews: {
       title: 'Reviews',
-      empty: 'No reviews yet — be the first.',
+      empty: 'No reviews yet. Be the first.',
       write: 'Write a review',
       yours: 'Your review',
       edit: 'Edit',
@@ -584,7 +584,7 @@ export const copy = {
       view: 'Details',
       back: 'Back to my orders',
       waiting: 'Waiting for payment confirmation…',
-      waitingNote: 'This page updates on its own — no need to refresh.',
+      waitingNote: "This page updates on its own, so there's no need to refresh.",
       justPaid: 'Payment received. Thank you!',
       orderNumber: 'Order',
       notFound: 'We could not find that order.'
@@ -592,9 +592,9 @@ export const copy = {
     pay: {
       cta: 'Pay with Stripe',
       testMode: 'Test mode: use card 4242 4242 4242 4242, any future date and any CVC.',
-      chargedIn: 'Your card is charged in {currency} — our payment provider cannot settle Kuwaiti dinar.',
+      chargedIn: 'Your card is charged in {currency}, because our payment provider cannot settle Kuwaiti dinar.',
       redirecting: 'Taking you to payment…',
-      signInFirst: 'Log in to complete your payment — your address is kept and you come straight back.',
+      signInFirst: "Log in to complete your payment. Your address is kept and you'll come straight back.",
       signInAndPay: 'Log in and pay'
     },
     apiErrors: {
@@ -604,8 +604,8 @@ export const copy = {
       passwordTooLong: 'That password is too long.',
       missingFields: 'Please fill in every field.',
       tooManyAttempts: 'Too many attempts. Try again shortly.',
-      aiUnavailable: 'We could not read your question just now — we searched the words instead.',
-      aiNotConfigured: 'Reading questions is switched off — we searched the words instead.',
+      aiUnavailable: 'We could not read your question just now, so we searched the words instead.',
+      aiNotConfigured: 'Reading questions is switched off, so we searched the words instead.',
       notAuthenticated: 'Please log in first.',
       notYours: 'That is not yours to change.',
       currentPasswordWrong: 'That password is not right.',
@@ -618,12 +618,12 @@ export const copy = {
       emptyCart: 'Your basket is empty.',
       insufficientStock: 'That quantity is not available.',
       paymentsNotConfigured: 'Payments are not switched on right now.',
-      networkUnreachable: 'We could not reach the server. If this is the first visit in a while it may be waking up — try again in a minute.',
+      networkUnreachable: 'We could not reach the server. If this is the first visit in a while, it may be waking up. Try again in a minute.',
       serverError: 'Something went wrong on our side. Please try again.'
     },
     currency: {
       title: 'Currency',
-      note: 'Indicative conversion only — your order is recorded in Kuwaiti dinar, and the card is charged in a currency the payment provider accepts.',
+      note: 'Indicative conversion only. Your order is recorded in Kuwaiti dinar, and the card is charged in a currency the payment provider accepts.',
       asOf: 'Rates as of {date}'
     },
     compare: {
@@ -638,7 +638,7 @@ export const copy = {
       best: 'best in this row',
       legend: 'Dimmed rows are identical across every phone. Highlighted figures lead their row.',
       legendDiff: 'Showing only the rows where these phones differ. Highlighted figures lead their row.',
-      region: 'Comparison table — scrolls sideways',
+      region: 'Comparison table, scrolls sideways',
       prev: 'Previous phone',
       next: 'Next phone',
       positionOf: 'Phone {n} of {total}',
@@ -670,7 +670,7 @@ export const copy = {
     meta: {
       products: 'Shop phones and accessories selected for Kuwait, with clear prices and every colour and storage option on one page.',
       cart: 'Review the devices, accessories and quantities you selected before continuing to VOLTA’s demo checkout.',
-      checkout: 'Enter a Kuwaiti delivery address and choose a payment method to complete the VOLTA demo without a real charge.',
+      checkout: 'Enter a delivery address in Kuwait and pay through Stripe in test mode, with no real money taken.',
       wishlist: 'Save the phones and accessories you like, then return to them quickly when you are ready to choose.',
       compare: 'Compare phone prices, screens, cameras and batteries side by side to find the device that fits you best.',
       login: 'Log in to VOLTA to follow your orders and write reviews.',
@@ -682,7 +682,7 @@ export const copy = {
     },
     footer: {
       rights: 'All rights reserved',
-      demo: 'A university project — a real front end, API and database, with payment through Stripe in test mode. No real money is taken.'
+      demo: 'A university project with a real front end, API and database, and payment through Stripe in test mode. No real money is taken.'
     }
   }
 };
