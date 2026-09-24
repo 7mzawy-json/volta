@@ -370,7 +370,7 @@ export const copy = {
     },
     hero: {
       eyebrow: 'Power Up',
-      title: 'Looks that turn heads, performance that delivers.',
+      title: 'Looks that attract, performance that delivers.',
       subtitle: 'Carefully chosen phones in every colour and every size, with every price in plain sight.',
       cta: 'Shop Phones',
       secondaryCta: 'Explore Everything'
