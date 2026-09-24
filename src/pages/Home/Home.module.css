@@ -64,6 +64,79 @@
   margin-bottom: 22px;
 }
 
+/* The headline's charge: a band of the brand green passes through the line
+   every few seconds, in the direction it is read.
+
+   It moves the whole line as one painted surface, never letter by letter.
+   Splitting Arabic into letters breaks the joins between them, which is why
+   the React Bits version of this effect could not be used as it was; this is
+   the same look in CSS, without the motion library it imported.
+
+   The resting frame parks the band off the edge, so between sweeps, and for
+   anyone who asked for reduced motion, the headline is plain foreground text.
+   The band is --color-primary, which already clears 4.5:1 as text in both
+   themes, so no moment of the sweep is less legible than the rest. */
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .heroTitle {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-foreground) 42%,
+      var(--color-primary) 50%,
+      var(--color-foreground) 58%
+    );
+    background-size: 300% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: charge 6s var(--motion-ease-standard) 1.2s infinite;
+  }
+
+  /* Its own keyframes rather than animation-direction: reverse, which would
+     also reverse the pause and put Arabic on a different schedule. */
+  [dir='rtl'] .heroTitle {
+    animation-name: charge-rtl;
+  }
+}
+
+@keyframes charge {
+  0% {
+    background-position: 100% 0;
+  }
+  35%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes charge-rtl {
+  0% {
+    background-position: 0% 0;
+  }
+  35%,
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* Both selectors: the RTL rule above is more specific than .heroTitle alone
+   and would otherwise win the animation name back. */
+@media (prefers-reduced-motion: reduce) {
+  .heroTitle,
+  [dir='rtl'] .heroTitle {
+    animation: none;
+  }
+}
+
+/* High-contrast mode repaints text in system colours; make sure transparent
+   text over a gradient cannot survive into it. */
+@media (forced-colors: active) {
+  .heroTitle {
+    background: none;
+    color: CanvasText;
+  }
+}
+
 .heroSubtitle {
   font-size: clamp(1rem, 0.9rem + 0.5vw, 1.375rem);
   line-height: 1.55;
@@ -79,9 +152,28 @@
 }
 
 .heroVisual {
+  position: relative;
   display: flex;
   justify-content: center;
+}
+
+/* The shadow belongs to the phone alone. On the whole column it also shadowed
+   the lightning, and a glow casting a dark shadow looks like a smudge. */
+.heroDevice {
+  position: relative;
   filter: drop-shadow(0 24px 44px var(--shadow-ambient));
+}
+
+/* Taller than the phone, so the bolt visibly enters above it and leaves below
+   it rather than hiding behind the screen the whole time. */
+.heroBolt {
+  position: absolute;
+  inset: -14% 0;
+  pointer-events: none;
+  /* Faded out towards its edges, so the bolt dissolves rather than being cut
+     off by the canvas rectangle. */
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent);
+  mask-image: radial-gradient(closest-side, #000 62%, transparent);
 }
 
 /* The render carries an intrinsic width attribute; overriding it here lets the

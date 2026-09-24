@@ -11,6 +11,7 @@ import BoltMark from '../../components/BoltMark/BoltMark.jsx';
 import Reveal from '../../components/Reveal/Reveal.jsx';
 import ScrollShowcase from '../../components/ScrollShowcase/ScrollShowcase.jsx';
 import BuildSheet from '../../components/BuildSheet/BuildSheet.jsx';
+import Lightning from '../../components/Lightning/Lightning.jsx';
 import { getColor } from '../../data/colors.js';
 import styles from './Home.module.css';
 
@@ -97,12 +98,17 @@ export default function Home() {
           </Reveal>
 
           <Reveal className={styles.heroVisual} delay={140}>
+            <div className={styles.heroBolt}>
+              <Lightning />
+            </div>
             {heroPhone && (
-              <DeviceRender
-                color={getProductColors(heroPhone)[0]}
-                brand={heroPhone.brand}
-                size={260}
-              />
+              <div className={styles.heroDevice}>
+                <DeviceRender
+                  color={getProductColors(heroPhone)[0]}
+                  brand={heroPhone.brand}
+                  size={260}
+                />
+              </div>
             )}
           </Reveal>
         </div>

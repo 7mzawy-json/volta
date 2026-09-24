@@ -344,3 +344,42 @@ for (const language of Object.keys(languages)) {
     expect(overflowing, 'routes wider than the viewport').toEqual([]);
   });
 }
+
+// The hero headline is painted with background-clip: text over a gradient, so
+// its own colour is transparent and axe skips it entirely: no pass, no
+// violation, nothing to review. This measures what axe cannot. Every colour in
+// the gradient (the resting foreground and the green band that sweeps through)
+// is checked against the page, so no frame of the sweep can be less legible
+// than 4.5:1, even though display-size text would only need 3:1.
+function luminance([r, g, b]) {
+  const channel = (v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+}
+
+for (const language of Object.keys(languages)) {
+  test(`${language} hero headline is legible at every frame of its sweep`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'one width is enough for colour');
+
+    await seedBrowsingState(page, languages[language].theme);
+    await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
+    await page.goto('/');
+    const { gradient, page: ground } = await page.evaluate(() => ({
+      gradient: getComputedStyle(document.querySelector('h1')).backgroundImage,
+      page: getComputedStyle(document.body).backgroundColor
+    }));
+
+    const rgb = (text) => [...text.matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)/g)].map((m) => m.slice(1, 4).map(Number));
+    const stops = rgb(gradient);
+    expect(stops.length, 'the headline should be painted by a gradient').toBeGreaterThanOrEqual(2);
+
+    const bg = luminance(rgb(ground)[0]);
+    for (const stop of stops) {
+      const fg = luminance(stop);
+      const ratio = (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+      expect(ratio, `rgb(${stop}) on ${ground}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+}
