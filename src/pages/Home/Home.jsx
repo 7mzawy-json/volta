@@ -11,7 +11,7 @@ import BoltMark from '../../components/BoltMark/BoltMark.jsx';
 import Reveal from '../../components/Reveal/Reveal.jsx';
 import ScrollShowcase from '../../components/ScrollShowcase/ScrollShowcase.jsx';
 import BuildSheet from '../../components/BuildSheet/BuildSheet.jsx';
-import Lightning from '../../components/Lightning/Lightning.jsx';
+import Aurora from '../../components/Aurora/Aurora.jsx';
 import { getColor } from '../../data/colors.js';
 import styles from './Home.module.css';
 
@@ -79,7 +79,6 @@ export default function Home() {
     <main className={styles.page}>
       {/* Hero — centred, one product, nothing competing with it. */}
       <section className={styles.hero}>
-        <div className={styles.heroGlow} />
         <div className={`container ${styles.heroInner}`}>
           <Reveal>
             <p className={styles.eyebrow}>
@@ -98,8 +97,8 @@ export default function Home() {
           </Reveal>
 
           <Reveal className={styles.heroVisual} delay={140}>
-            <div className={styles.heroBolt}>
-              <Lightning />
+            <div className={styles.heroAurora}>
+              <Aurora />
             </div>
             {heroPhone && (
               <div className={styles.heroDevice}>

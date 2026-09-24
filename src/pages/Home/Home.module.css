@@ -22,20 +22,6 @@
   isolation: isolate;
 }
 
-/* A single soft bloom behind the device. Sized in vw so it scales with the
-   headline rather than sitting as a fixed blob on wide screens. */
-.heroGlow {
-  position: absolute;
-  z-index: -1;
-  top: 12%;
-  inset-inline-end: 8%;
-  width: min(46vw, 560px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--glow-strong) 0%, transparent 68%);
-  filter: blur(18px);
-  pointer-events: none;
-}
 
 .heroInner {
   display: grid;
@@ -164,16 +150,28 @@
   filter: drop-shadow(0 24px 44px var(--shadow-ambient));
 }
 
-/* Taller than the phone, so the bolt visibly enters above it and leaves below
-   it rather than hiding behind the screen the whole time. */
-.heroBolt {
+/* The phone's backlight: a slow aurora, where a flat radial bloom used to sit.
+
+   It lives in the phone's column, not across the hero. Spread over the whole
+   section it ran behind the headline, and at the sweep's worst moment the
+   green-on-green measured 2.76:1 on a light-theme phone. Here it is below the
+   text when the layout stacks and beside it when it does not, and the mask
+   fades it to nothing before its box ends, so no edge of the canvas shows.
+
+   Quieter on the ivory theme, where green light shows far more than on black. */
+.heroAurora {
   position: absolute;
-  inset: -14% 0;
+  /* Only 8% wider than the column on each side: at 20% its faded edge still
+     reached the end of the long English headline, 4.37:1 on ivory. */
+  inset: -30% -8%;
   pointer-events: none;
-  /* Faded out towards its edges, so the bolt dissolves rather than being cut
-     off by the canvas rectangle. */
-  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent);
-  mask-image: radial-gradient(closest-side, #000 62%, transparent);
+  opacity: 0.45;
+  -webkit-mask-image: radial-gradient(closest-side, #000 35%, transparent);
+  mask-image: radial-gradient(closest-side, #000 35%, transparent);
+}
+
+[data-theme='dark'] .heroAurora {
+  opacity: 0.85;
 }
 
 /* The render carries an intrinsic width attribute; overriding it here lets the

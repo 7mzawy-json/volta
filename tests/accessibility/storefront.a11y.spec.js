@@ -383,3 +383,25 @@ for (const language of Object.keys(languages)) {
     }
   });
 }
+
+// The aurora behind the hero phone must never reach the headline. Spread across
+// the whole hero it ran behind the text, and the green sweep over green light
+// measured 2.76:1 on a light-theme phone. Its mask fades it to nothing inside
+// its own box, so keeping the boxes apart keeps the headline on the plain page,
+// which is what the contrast test above measures against.
+for (const language of Object.keys(languages)) {
+  test(`${language} hero aurora stays clear of the headline`, async ({ page }) => {
+    await seedBrowsingState(page, languages[language].theme);
+    await page.addInitScript((l) => localStorage.setItem('volta-lang', l), language);
+    await page.goto('/');
+    await page.locator('main canvas').waitFor({ state: 'attached' });
+    const overlap = await page.evaluate(() => {
+      const a = document.querySelector('main canvas').parentElement.getBoundingClientRect();
+      const h = document.querySelector('h1').getBoundingClientRect();
+      const x = Math.max(0, Math.min(a.right, h.right) - Math.max(a.left, h.left));
+      const y = Math.max(0, Math.min(a.bottom, h.bottom) - Math.max(a.top, h.top));
+      return Math.round(x * y);
+    });
+    expect(overlap, 'square pixels of aurora behind the headline').toBe(0);
+  });
+}
