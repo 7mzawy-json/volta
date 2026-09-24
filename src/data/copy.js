@@ -15,7 +15,7 @@ export const copy = {
     },
     hero: {
       eyebrow: 'اشحن طاقتك',
-      title: 'تقنية تلمع بقدر ما تشتغل.',
+      title: 'شكل يلفت، وأداء يثبت.',
       subtitle: 'هواتف مختارة بعناية، بكل الألوان والسعات، وأسعارها واضحة من أول نظرة.',
       cta: 'تسوق الهواتف',
       secondaryCta: 'استكشف كل المنتجات'
@@ -370,7 +370,7 @@ export const copy = {
     },
     hero: {
       eyebrow: 'Power Up',
-      title: 'Tech that glows as hard as it works.',
+      title: 'Looks that turn heads, performance that delivers.',
       subtitle: 'Carefully chosen phones in every colour and every size, with every price in plain sight.',
       cta: 'Shop Phones',
       secondaryCta: 'Explore Everything'
